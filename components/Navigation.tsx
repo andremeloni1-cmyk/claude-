@@ -1,11 +1,12 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, BriefcaseBusiness, TrendingUp } from "lucide-react";
+import { LayoutDashboard, BriefcaseBusiness, TrendingUp, CalendarDays } from "lucide-react";
 
 const links = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/jobs", label: "Jobs", icon: BriefcaseBusiness },
+  { href: "/calendar", label: "Calendar", icon: CalendarDays },
   { href: "/finances", label: "Finances", icon: TrendingUp },
 ];
 
