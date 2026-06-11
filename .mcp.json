@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "unframer": {
+      "type": "http",
+      "url": "${UNFRAMER_MCP_URL}"
+    }
+  }
+}
