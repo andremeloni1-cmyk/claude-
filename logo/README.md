@@ -15,6 +15,10 @@ render identically everywhere with no font installed.
 | `svg/am-monogram.svg` | Ligature mark only — social avatars, favicons, stamps |
 | `svg/am-monogram-dark.svg` | Mark only, reversed on ink |
 | `svg/am-watermark-white.svg` | White mark + name at 85% opacity — overlay on photos |
+| `svg/am-logo-stacked.svg` | Stacked capital A/M lockup, light backgrounds |
+| `svg/am-logo-stacked-dark.svg` | Stacked lockup reversed on ink |
+| `svg/am-monogram-stacked.svg` | Stacked A/M mark only — the letters frame a diamond of negative space |
+| `svg/am-monogram-stacked-dark.svg` | Stacked mark reversed on ink |
 | `png/…` | High-resolution PNG renders of each |
 
 SVGs are the masters — they scale to any size with no quality loss
