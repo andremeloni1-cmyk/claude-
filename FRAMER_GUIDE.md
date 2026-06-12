@@ -187,10 +187,11 @@ site-wide:
    "Lifestyle" (`FOh0syoWy`)** — both `draft: true` and not referenced by any
    Portfolio item (only "Wedding" and "Engagement" are active/used). Delete
    if unused, or keep if planned for future portfolio categories.
-10. **Contact form recipient email (Storyflow)** — set the notification
-    recipient email for the embedded Storyflow contact form
-    (`app.storyflow.com.au/contactform/1766106383436x987076636821318100`) in
-    the Storyflow dashboard, not Framer.
+10. ~~**Contact form recipient email (Storyflow)**~~ — **no action needed.**
+    Storyflow is the user's own CRM for managing bookings, already set up on
+    their end. The embedded form
+    (`app.storyflow.com.au/contactform/1766106383436x987076636821318100`)
+    feeds into it as intended.
 11. **`llms.txt`** — add via Framer Site Settings custom code / DNS-hosting
     layer once a custom domain is live; not possible via MCP.
 
