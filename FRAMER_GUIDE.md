@@ -39,7 +39,7 @@ while editing, so future sessions don't have to rediscover them.
 ### Pages
 | Path | nodeId | Status |
 |---|---|---|
-| `/` | `augiA20Il` | existing, audited for Header/Footer issues only |
+| `/` | `augiA20Il` | **audited this session** — full content audit done, see "Homepage audit" section; fixed missing `/portfolio` link on Services button (`oHD5ALNvN`) |
 | `/blog` | `JB9ZuENHj` | existing; orphan empty Desktop frame `ubwWauV3w` deleted |
 | `/blog/:slug` | `QciPY2G4i` | **rebuilt** from genuinely-empty state with full real content (Greyleigh Kiama Wedding — Sarah & Archie, CMS item `dqkpr8bH1`) |
 | `/404` | `AHZqS6vxL` | **rebuilt** from genuinely-empty state, verified clean |
@@ -171,6 +171,9 @@ site-wide:
      `alana-and-jacque-wedding-wollongong-botanical-gardens` (currently empty).
    - `FVdsMoRWR` (Matt & Amanda card) → already correct
      (`matt-and-amanda-engagement-kiama-lookout`).
+   - `RXLZdo9RJ` (homepage "Work" section, same `Th722ys5j` component, "Sarah
+     & Bidia — Kangaroo Valley" card) → has no `bqLiF7w9f` prop at all; should
+     get `sarah-and-bidia-wedding-kangaroo-valley` too.
 2. **`/about` Approach section photo** (`idkzjQrFK`) — ✅ now has a real
    `backgroundImage` set (no longer the gray placeholder). Appears resolved —
    just verify it looks right.
@@ -312,6 +315,49 @@ and "add real content" checklist items:
   deleting.**
 - No Lorem-Ipsum/placeholder text found anywhere in CMS content — all
   content is real and site-specific already.
+
+## Homepage audit (this session)
+
+Full content audit of `/` (`augiA20Il`, sections: Hero `k1S08HaJn` → About/Quote
+`ulhrObnCY` → Services/Pricing `InzVMtm8G` → BentoGrid "Why choose me"
+`Zlx55HzMm` → Portfolio/Work `KjuOwUylg` → Testimonials `t5DeQxEO8` → CTA
+`TUYmmN6if` → FAQ `NmjNQEojK` → Blog "Photographer's diary" `YDNfZssw6` →
+Footer `N26740qpc`). No Lorem Ipsum found.
+
+1. ✅ **Fixed**: Button `oHD5ALNvN` ("Check out my work" in Services section)
+   was missing its `/portfolio` link (sibling button `wn9FGN5ev` has it) —
+   fixed via `updateXmlForNode` adding `rYvSKCvJf="/portfolio"`.
+2. **Open — pricing package names** (Services/Pricing section,
+   `ServicesServiceCard` instances, componentId `W7CP7a50Y`/variant
+   `mQ2jDrq9p`; name field `xxAd0yEd_`, price `jZTRluxS7`, description
+   `L0pNOMicZ`): generic template defaults still in place —
+   - "Package One" (`gRzc6j1Up`) — $4,500 — "10 hours coverage, USB, custom
+     prints, fine art album & an engagement shoot."
+   - "Package Two — Most Popular" (`jCT7Dqra4`) — $3,200 — "8 hours coverage,
+     online gallery & slideshow, plus an engagement shoot."
+   - "Package Three" (`Apy6XEVZI`) — $2,800 — "6 hours coverage with a
+     high-resolution online gallery & slideshow."
+   Candidates for renaming to branded package names — **needs user input**.
+3. **Open — pricing visibility contradiction**: exact prices above are shown
+   publicly on the homepage, but the FAQ ("How much does it cost?",
+   `qjzLotycz`) and Contact CTAs say pricing is sent privately on enquiry
+   ("I'll send you my pricing guide"). **Needs user decision** on whether both
+   should coexist or the messaging should be reconciled.
+4. **Open — "Southern Highlands" missing from homepage copy**: the user's
+   stated service area (Sydney, Southern Highlands, South Coast) doesn't
+   appear anywhere on `/`. Instead copy mentions "Illawarra, Kiama Lookout,
+   Kangaroo Valley, Wollongong Botanical Gardens" (`cQb8tCnzx`) and "South
+   Coast, Sydney and the Hunter Valley" (`ShYQW9dQ7`, `oqIsf6BzE`, FAQ
+   `qjzLotycz`/`KB5EFItzV`). **Needs user decision** on whether to add
+   "Southern Highlands" to these mentions.
+5. **Open — PortfolioCard `RXLZdo9RJ` link** — see outstanding item 1 above
+   (now includes this card; same site-wide portfolio-card-slug limitation).
+6. Cosmetic only, no action needed: leftover Framer layer/tag names from the
+   template's original demo persona ("SamuelSpenser",
+   "SarahJohnNewlyguys", "WorkingWithSamuelWas...") on nodes `DRrqO8IIq`,
+   `euMlnMNDv`, `vqcvkfGOo`, `ROzc2hzzQ`, `D6F8ScUdY` — the actual displayed
+   text is already correct ("Andre Meloni", "Kelsey + Dean, Newlyweds"), only
+   internal layer names are stale.
 
 ## Remaining site-wide audit
 
