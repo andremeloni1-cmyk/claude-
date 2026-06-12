@@ -179,14 +179,17 @@ site-wide:
    email in Framer's right panel" guidance doesn't apply. It's
    delivered/managed entirely in the Storyflow dashboard (external account,
    not MCP-doable).
-8. **Decide on "Portfolio 2" CMS collection** (`bE1ItQMQR`) — duplicates the
-   "Portfolio" collection (`r4GnmA_r2`) with the same 3 real items
-   (Matt & Amanda, Sarah & Bidia, Alana & Jacque). Check in Framer UI whether
-   anything actually uses "Portfolio 2"; if not, delete it.
-9. **Decide on draft Category items "Studio Photography" (`x0gcrjku6`) and
-   "Lifestyle" (`FOh0syoWy`)** — both `draft: true` and not referenced by any
-   Portfolio item (only "Wedding" and "Engagement" are active/used). Delete
-   if unused, or keep if planned for future portfolio categories.
+8. **Delete "Portfolio 2" CMS collection** (`bE1ItQMQR`) — user confirmed
+   delete (it duplicates "Portfolio" `r4GnmA_r2`). **Must be done in Framer
+   UI** — the MCP has no `deleteCMSCollection` tool, only `deleteCMSItem`
+   (which would just empty it and leaves an orphan collection shell). In
+   Framer: CMS panel → right-click "Portfolio 2" → Delete collection (Framer
+   warns if anything is bound to it). Its 3 item IDs, if ever needed:
+   `rPnUez8DH`, `B4XjamlkV`, `wTdBE3z7O`.
+9. ✅ **Draft Category items deleted** — "Studio Photography" (`x0gcrjku6`)
+   and "Lifestyle" (`FOh0syoWy`) deleted via `deleteCMSItem` (user
+   confirmed). Category collection `qP9bHc6_m` now holds only "Wedding"
+   (`BUVDI0Xo2`) and "Engagement" (`NvDIxFgYB`).
 10. ~~**Contact form recipient email (Storyflow)**~~ — **no action needed.**
     Storyflow is the user's own CRM for managing bookings, already set up on
     their end. The embedded form
