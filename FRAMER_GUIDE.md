@@ -37,16 +37,16 @@ while editing, so future sessions don't have to rediscover them.
 ## Project structure reference
 
 ### Pages
-| Path | nodeId |
-|---|---|
-| `/` | `augiA20Il` |
-| `/blog` | `JB9ZuENHj` |
-| `/blog/:slug` | `QciPY2G4i` |
-| `/404` | `AHZqS6vxL` |
-| `/contact` | `JhEGlRZQU` |
-| `/about` | `nbiWtvW87` |
-| `/portfolio` | `Ge70M7Flj` |
-| `/portfolio/:slug` | `ZXqVV5X0H` (created manually — verify it's set as the CMS collection page for Portfolio in Pages panel) |
+| Path | nodeId | Status |
+|---|---|---|
+| `/` | `augiA20Il` | existing, audited for Header/Footer issues only |
+| `/blog` | `JB9ZuENHj` | existing; orphan empty Desktop frame `ubwWauV3w` deleted |
+| `/blog/:slug` | `QciPY2G4i` | **rebuilt** from genuinely-empty state with full real content (Greyleigh Kiama Wedding — Sarah & Archie, CMS item `dqkpr8bH1`) |
+| `/404` | `AHZqS6vxL` | **rebuilt** from genuinely-empty state, verified clean |
+| `/contact` | `JhEGlRZQU` | existing, not yet re-audited this session |
+| `/about` | `nbiWtvW87` | existing, not yet re-audited this session |
+| `/portfolio` | `Ge70M7Flj` | existing, not yet re-audited this session |
+| `/portfolio/:slug` | `af3IrmIbP` | **created** (page was missing entirely) and built with Matt & Amanda content (CMS item `iiCxeDt0L`); orphan empty Desktop frame `uzvKyA9qq` deleted |
 
 ### Design pages
 | Name | nodeId |
@@ -65,36 +65,84 @@ while editing, so future sessions don't have to rediscover them.
 | Go back button | `RiTFBoiLP` |
 
 ### CMS collections
-- Portfolio: `r4GnmA_r2`
+- Portfolio: `r4GnmA_r2` (Title `TWzcXE82P`, Category `eu9GOakWf` → Category collection `qP9bHc6_m`, Date `e_oqHADQd`, Preview `l7MvKqPuQ`, Gallery col 1 `xegTeIKOI`, Gallery col 2 `LM74JNIh4`)
+- Portfolio 2: `bE1ItQMQR` (same field shape as Portfolio — purpose/usage not investigated)
 - Category: `qP9bHc6_m`
-- Blog: `EEv3Nygkn`
+- Blog: `EEv3Nygkn` (Title `ua9FnvLmw`, Date `Fi53MNOAk`, Preview `o4RZewo_g`, Intro 1 `ivhGqPB2R`, Intro 2 `wIjEVkATu`, Image 1 `rcnbZcT2W`, Content `Jf1NQ7bt1`)
 
 ## MCP tool quirks & limitations (confirmed)
 
+- **`getNodeXml` only returns full content for the currently-focused
+  page/component in the Framer app.** Any other page or component returns
+  empty XML (`Node xml:` with nothing after it), or in the case of a
+  component, just its bare root tag with no children (e.g.
+  `<Header nodeId="tLSFnp8fu" />`). This was the real cause of earlier
+  "empty"/"not found" results for `/404` and `/blog` that were initially
+  mistaken for data loss — the page/component simply wasn't open/focused in
+  Framer at the time. **To inspect or edit a different page/component, the
+  user needs to open/select it in the Framer app first**, then `getProjectXml`
+  will report it as the "currently focused" node and `getNodeXml` will return
+  its full tree.
+- **New-node "misplacement" in creation diffs is cosmetic, not real.** When
+  `updateXmlForNode` creates new nodes inside a Stack layout, the returned
+  diff often shows the new nodes with spurious
+  `position="absolute" top="0px" left="-300px"` (or similar) attributes.
+  Re-reading the node immediately after via `getNodeXml` shows **no
+  position/top/left attributes at all** — this is just a diff-display
+  artifact. **No follow-up "fix" call is needed** — just verify with
+  `getNodeXml` that the structure looks correct after creation.
 - **`backgroundImage` cannot be set via `updateXmlForNode`** on a Frame node —
   on create or update, with fresh or known-good URLs, with/without
   `backgroundColor` present. Always either ignored or "No changes were made!".
-  Must be set manually in the Framer UI (drag image in).
+  Must be set manually in the Framer UI (drag image in). Used `/Gray BG`
+  placeholder Frames with `borderRadius` for hero/gallery images on
+  `/blog/:slug` and `/portfolio/:slug`.
 - **Component instance Link props (e.g. `bqLiF7w9f` on Portfolio card) cannot
   be set via `updateXmlForNode`** — returns "No changes were made!" regardless
   of plain-path or JSON `{"type":"webPage","webPageId":"..."}` format. Must be
   set via the component's right-panel "Link" control in Framer UI.
 - **`createPage` only creates a single Desktop frame** (e.g.
-  `width="1200px" height="1080px"`) — no Tablet/Phone breakpoints. New pages
-  built this way need breakpoints added manually in Framer UI.
-- **New-node misplacement**: when `updateXmlForNode` creates multiple new
-  nodes (especially Text) in one call alongside existing-node references, the
-  new nodes often land as siblings of the wrapper root with
-  `position="absolute"` and arbitrary `top`/`left` offsets instead of inside
-  the intended nested parent.
-  - **Fix**: issue a second `updateXmlForNode` targeting the correct immediate
-    parent `nodeId`, listing existing children by `nodeId` plus the misplaced
-    new ones (with corrected `inlineTextStyle`/`width`, no `position`/`top`/
-    `left`) in the desired order. This reparents, reorders, and strips bad
-    positioning in one shot.
+  `width="1200px" height="1080px"`, `/Gray BG`, no children) — no Tablet/Phone
+  breakpoints. This default frame is an orphan once real content is added as a
+  sibling and should be deleted via `deleteNode`. New pages built this way
+  need Tablet/Phone breakpoints added manually in Framer UI.
+- **Text nodes with a `font="Inter-Medium"` / `font="Inter-SemiBold"`
+  attribute can fail** with `"Failed to process node X: Font with selector
+  '...' not found"`. Workaround: omit the `font` attribute entirely (or use
+  `inlineTextStyle` instead) when updating that node — text/link/other
+  attribute changes then go through fine.
 - **Reparenting trick**: referencing an existing node by `nodeId` under a new
   parent wrapper in `updateXmlForNode` moves it there without needing to
   restate all its attributes.
+
+## Site-wide Header/Footer link & professionalism fixes (this session)
+
+These components are shared across every page, so each fix below applies
+site-wide:
+
+1. ✅ Header (`tLSFnp8fu`) `otCxfEPeh` — mailto link fixed:
+   `hello@andremeloniphotography.co` → `andre@andremeloniphotography.co`.
+2. ✅ Footer (`JBX48afsO`) `FyxhKoem2` — grammar: "Lets talk" → "Let's talk".
+3. ✅ Footer `uHCiRAcGo` — copyright fixed: "@ 2026 All rights reserved" →
+   "© 2026 Andre Meloni Photography. All rights reserved."
+4. ✅ Footer `W_LwrZl2D` — phone link fixed: `tel:555-666-7777` →
+   `tel:042198936`.
+5. ✅ Footer `VHVZfcB3l` — Instagram URL fixed: `x.com/bynneh` →
+   `https://www.instagram.com/andremeloniphotography`.
+6. ✅ Footer `VMpZx7Ne_` (active `sOLlak1N3` variant NavLink) — added missing
+   `EqY7rffBl="/portfolio"` (Home/Blog/About/Contact siblings already had
+   their link prop; Portfolio was missing).
+7. ✅ Footer `YrNHPX5kU` (legacy `EsWWwkszM`/Primary variant) — added missing
+   `link="/portfolio"` for the same reason.
+8. ✅ Footer `bMCgnIlqQ` — added missing `mailto:` prefix:
+   `andre@andremeloniphotography.co` → `mailto:andre@andremeloniphotography.co`
+   (required omitting the `font="Inter-Medium"` attribute to avoid the font
+   error above).
+9. ✅ Footer `CAyo63Kqr` — deleted. Leftover template-author "x.com" SocialLink
+   pointing to `x.com/bynneh`.
+10. ✅ Footer `hDs2hhoAI` (legacy `EsWWwkszM`/Primary variant) — email
+    consistency: `hello@andremeloniphotography.co` →
+    `andre@andremeloniphotography.co` (matches fix #1 and #8 elsewhere).
 
 ## Outstanding manual-action items (Framer UI)
 
@@ -110,46 +158,32 @@ while editing, so future sessions don't have to rediscover them.
      `alana-and-jacque-wedding-wollongong-botanical-gardens` (currently empty).
    - `FVdsMoRWR` (Matt & Amanda card) → already correct
      (`matt-and-amanda-engagement-kiama-lookout`).
-   - ✅ `FVdsMoRWR`'s empty title (`hJ5j8DWR6`) was fixed via MCP → now
-     "Matt & Amanda — Kiama Lookout".
 2. **`/about` Approach section photo** (`idkzjQrFK`) — ✅ now has a real
-   `backgroundImage` set (no longer the gray placeholder). Appears resolved
-   (possibly fixed manually since the last check) — just verify it looks right.
+   `backgroundImage` set (no longer the gray placeholder). Appears resolved —
+   just verify it looks right.
 3. **CMS data binding** on `/blog/:slug` and `/portfolio/:slug` — static
-   placeholder layouts built; need per-field "Insert Variable" binding in
-   Framer UI to connect to CMS collections.
-4. **Verify `/portfolio/:slug` CMS collection page setting** in Pages panel.
-5. **Tablet/Phone breakpoints** missing on `/contact`, `/404`, `/blog/:slug`,
-   `/portfolio/:slug` (all built via `createPage`, which only creates Desktop).
-6. **Contact form recipient email** — verify/set the email recipient for the
+   placeholder layouts built with real content for one sample post/gallery
+   each; need per-field "Insert Variable" binding in Framer UI to connect to
+   CMS collections so other posts/galleries render correctly when visited.
+4. **Verify `/portfolio/:slug` (`af3IrmIbP`) CMS collection page setting** in
+   Pages panel — confirm it's bound as the Portfolio collection's item page.
+5. **Tablet/Phone breakpoints** missing on `/404`, `/blog/:slug`,
+   `/portfolio/:slug`, and `/contact` (all built/rebuilt via `createPage`,
+   which only creates a Desktop frame).
+6. **Hero/gallery placeholder images** on `/blog/:slug` (`P4ZdpG142`,
+   `ptWo8aPw0`) and `/portfolio/:slug` (`fyBgNpdks` + 9 gallery frames) are
+   `/Gray BG` placeholders — need real images dropped in manually (MCP can't
+   set `backgroundImage`).
+7. **Contact form recipient email** — verify/set the email recipient for the
    form on `/contact` so submissions are delivered.
 
-## ⚠️ Potential issue found: `/blog` page may have lost its content
+## Remaining site-wide audit
 
-- `getNodeXml("JB9ZuENHj")` (the `/blog` page) now returns **completely
-  empty** XML (no Desktop/Tablet/Phone frames at all).
-- The previously-noted content root `cVTJ9yF1b` (Header + 6 BlogCards +
-  Footer) returns **"Node with ID cVTJ9yF1b not found."**
-- The "Blog card" (`q8sExslWw`) and "Blog card small" (`P5Uk_jJ8N`) components
-  *also* both return empty XML (`<BlogCard nodeId="q8sExslWw" />` with no
-  children) — yet a live `BlogCard` instance on the homepage
-  (`nodeId="xrmHDl5t1"`) references `componentId="q8sExslWw"
-  variant="kYHa_x55W"` with real props (`rvBKN8hHg="/blog:slug"`,
-  `FG8rd1EUA="2026-06-11T00:00:00.000Z"`,
-  `TFO4LYmNP="A Greyleigh Kiama Wedding — Sarah & Archie"`), so the component
-  can't actually be empty.
-- This pattern (multiple Blog-related nodes returning empty XML while still
-  being referenced live) suggests an **MCP tool query issue for these specific
-  nodes**, not necessarily real data loss — but this could not be confirmed
-  (project has no published staging/production URL to check against).
-- **Action needed**: before any rebuild of `/blog`, open the page in the
-  Framer editor and confirm whether it visually still has its content. If it's
-  genuinely empty, it needs to be rebuilt with 6 Blog cards (data for all 6
-  posts is available via `getCMSItems("EEv3Nygkn")`). If it still has content,
-  this is just an MCP read limitation to note and move on from.
-- Also note: the homepage's `rvBKN8hHg="/blog:slug"` looks like an unresolved
-  placeholder link (literally `/blog:slug` instead of a real post path) — same
-  family of issue as the portfolio card slug/link props above.
+Header/Footer (shared across all pages) have been fully audited and fixed
+(see above). Per-page content audit for spelling/links/spacing/professionalism
+is still pending for `/`, `/contact`, `/about`, `/portfolio`, and `/blog` —
+blocked on the focus limitation above. To continue: open each page in the
+Framer app one at a time so `getNodeXml` can read it.
 
 ## Security note
 
