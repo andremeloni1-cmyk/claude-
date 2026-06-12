@@ -101,6 +101,19 @@ while editing, so future sessions don't have to rediscover them.
   be set via `updateXmlForNode`** — returns "No changes were made!" regardless
   of plain-path or JSON `{"type":"webPage","webPageId":"..."}` format. Must be
   set via the component's right-panel "Link" control in Framer UI.
+- **Component instance text-override props are also unsettable** — not just
+  Link props. Confirmed with `xxAd0yEd_` (package name field) on
+  `ServicesServiceCard` instances (`gRzc6j1Up`/`jCT7Dqra4`/`Apy6XEVZI`):
+  "No changes were made!" with both minimal and full-attribute XML, with
+  `zoomIntoView` true and false. Plain `Text` nodes (e.g. the `/about` bio,
+  FAQ answer text via `FaqQuestion`'s `qjzLotycz` attribute) update fine —
+  it's specifically *named* component-instance override props (the
+  short hash-like attribute names like `xxAd0yEd_`, `hJ5j8DWR6`,
+  `bqLiF7w9f`) that are locked. Must be set via the right-panel in Framer UI.
+- **XML tags in `updateXmlForNode` must use literal `<`/`>`, not `&lt;`/`&gt;`
+  entities** — passing escaped entities for the tag delimiters silently
+  results in "No changes were made!" (the string isn't parsed as XML at all).
+  Only escape entities *inside* attribute/text content if needed.
 - **`alt` text on Image nodes cannot be set via `updateXmlForNode`** —
   confirmed with `alt="..."` on `idkzjQrFK`: "No changes were made! Make sure
   you are not using made up attributes". Alt text isn't part of the exposed
@@ -213,6 +226,11 @@ site-wide:
     feeds into it as intended.
 11. **`llms.txt`** — add via Framer Site Settings custom code / DNS-hosting
     layer once a custom domain is live; not possible via MCP.
+12. **Pricing package names** — rename via the right panel on each
+    `ServicesServiceCard` instance (`xxAd0yEd_` field, not MCP-settable):
+    `gRzc6j1Up` "Package One" → "The Heirloom", `jCT7Dqra4` "Package Two —
+    Most Popular" → "The Wedding Story — Most Popular", `Apy6XEVZI`
+    "Package Three" → "The Essentials". See "Homepage audit" item 2.
 
 ## Business info (provided by user, for SEO/checklist items)
 
@@ -327,29 +345,42 @@ Footer `N26740qpc`). No Lorem Ipsum found.
 1. ✅ **Fixed**: Button `oHD5ALNvN` ("Check out my work" in Services section)
    was missing its `/portfolio` link (sibling button `wn9FGN5ev` has it) —
    fixed via `updateXmlForNode` adding `rYvSKCvJf="/portfolio"`.
-2. **Open — pricing package names** (Services/Pricing section,
-   `ServicesServiceCard` instances, componentId `W7CP7a50Y`/variant
-   `mQ2jDrq9p`; name field `xxAd0yEd_`, price `jZTRluxS7`, description
-   `L0pNOMicZ`): generic template defaults still in place —
-   - "Package One" (`gRzc6j1Up`) — $4,500 — "10 hours coverage, USB, custom
-     prints, fine art album & an engagement shoot."
-   - "Package Two — Most Popular" (`jCT7Dqra4`) — $3,200 — "8 hours coverage,
-     online gallery & slideshow, plus an engagement shoot."
-   - "Package Three" (`Apy6XEVZI`) — $2,800 — "6 hours coverage with a
-     high-resolution online gallery & slideshow."
-   Candidates for renaming to branded package names — **needs user input**.
-3. **Open — pricing visibility contradiction**: exact prices above are shown
-   publicly on the homepage, but the FAQ ("How much does it cost?",
-   `qjzLotycz`) and Contact CTAs say pricing is sent privately on enquiry
-   ("I'll send you my pricing guide"). **Needs user decision** on whether both
-   should coexist or the messaging should be reconciled.
-4. **Open — "Southern Highlands" missing from homepage copy**: the user's
-   stated service area (Sydney, Southern Highlands, South Coast) doesn't
-   appear anywhere on `/`. Instead copy mentions "Illawarra, Kiama Lookout,
-   Kangaroo Valley, Wollongong Botanical Gardens" (`cQb8tCnzx`) and "South
-   Coast, Sydney and the Hunter Valley" (`ShYQW9dQ7`, `oqIsf6BzE`, FAQ
-   `qjzLotycz`/`KB5EFItzV`). **Needs user decision** on whether to add
-   "Southern Highlands" to these mentions.
+2. ⏳ **Pricing package names — manual UI action needed**. User approved new
+   names (Heirloom/Story/Essentials direction, ties into the bio's "something
+   that holds" theme), but the `xxAd0yEd_` field on `ServicesServiceCard`
+   instances is a component-instance text-override prop and **cannot be set
+   via MCP** (see quirks section). Set these manually in Framer's right
+   panel:
+   - `gRzc6j1Up` ($4,500, album+prints+engagement shoot) — rename
+     "Package One" → **"The Heirloom"**
+   - `jCT7Dqra4` ($3,200, gallery+slideshow+engagement shoot, Most Popular) —
+     rename "Package Two — Most Popular" → **"The Wedding Story — Most
+     Popular"**
+   - `Apy6XEVZI` ($2,800, gallery+slideshow) — rename "Package Three" →
+     **"The Essentials"**
+3. ✅ **Done**: pricing-wording softened so FAQ/CTAs don't contradict the
+   visible homepage prices —
+   - `KOCmb8vmp` (About section CTA): "...everything you need, including my
+     pricing guide" → "...everything you need to get started"
+   - `D50mEylyv` (FAQ "Didn't find your answer?"): "...everything you need,
+     including my pricing guide." → "...all the details you need."
+   - `noLunhIfS` (FAQ "How much does it cost?"): now says "You can see my
+     packages above, starting from $2,800. Every wedding is a little
+     different though, so feel free to enquire if you'd like something
+     custom — we'll jump on a no obligation call to make sure your vision is
+     fully understood before anything is locked in."
+4. ✅ **Done**: added "Southern Highlands" to service-area copy —
+   - `cQb8tCnzx`: "...across the Illawarra..." → "...across the Southern
+     Highlands and Illawarra..."
+   - `ShYQW9dQ7`: "...across the South Coast, Sydney and the Hunter
+     Valley." → "...across Sydney, the Southern Highlands, the South Coast
+     and the Hunter Valley."
+   - `oqIsf6BzE`: "...from the South Coast, Sydney and the Hunter Valley." →
+     "...from Sydney, the Southern Highlands, the South Coast and the Hunter
+     Valley."
+   - `KB5EFItzV` (FAQ "Where do you shoot?"): "...across the South Coast,
+     Sydney and the Hunter Valley..." → "...across the South Coast, Southern
+     Highlands, Sydney and the Hunter Valley..."
 5. **Open — PortfolioCard `RXLZdo9RJ` link** — see outstanding item 1 above
    (now includes this card; same site-wide portfolio-card-slug limitation).
 6. Cosmetic only, no action needed: leftover Framer layer/tag names from the
