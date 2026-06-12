@@ -1,24 +1,21 @@
-# am — Andre Meloni Wedding Photography Logo
+# AM Photography — Logo
 
-Bold geometric lettermark in the modern-minimalist style: a lowercase
-**"am" ligature** built from pure circles and lines, where the **a** and
-**m** share a single stem. Monoline, monochrome, no ornament. Supporting
-type set in Poppins (geometric sans), converted to outlines so the SVGs
-render identically everywhere with no font installed.
+A fine, high-contrast serif wordmark in the editorial / fashion-house
+tradition: the **A M** initials set in a Didone serif with delicate
+thick-to-thin strokes, over a tracked-out **PHOTOGRAPHY** flanked by
+two hairline rules. Warm-neutral palette, no icon or ornament. Type is
+converted to outlines, so the SVGs render identically everywhere with no
+font installed.
 
 ## Files
 
 | File | Use |
 |------|-----|
 | `svg/am-logo-primary.svg` | Main logo for light backgrounds (transparent) |
-| `svg/am-logo-dark.svg` | Main logo on ink, for dark backgrounds |
-| `svg/am-monogram.svg` | Ligature mark only — social avatars, favicons, stamps |
-| `svg/am-monogram-dark.svg` | Mark only, reversed on ink |
-| `svg/am-watermark-white.svg` | White mark + name at 85% opacity — overlay on photos |
-| `svg/am-logo-stacked.svg` | Stacked capital A/M lockup, light backgrounds |
-| `svg/am-logo-stacked-dark.svg` | Stacked lockup reversed on ink |
-| `svg/am-monogram-stacked.svg` | Stacked A/M mark only — the letters frame a diamond of negative space |
-| `svg/am-monogram-stacked-dark.svg` | Stacked mark reversed on ink |
+| `svg/am-logo-dark.svg` | Main logo reversed on espresso, for dark backgrounds |
+| `svg/am-monogram.svg` | Initials only — social avatars, favicons, wax-seal stamps |
+| `svg/am-monogram-dark.svg` | Initials reversed on espresso |
+| `svg/am-watermark-white.svg` | White mark at 90% opacity — overlay on photos |
 | `png/…` | High-resolution PNG renders of each |
 
 SVGs are the masters — they scale to any size with no quality loss
@@ -28,11 +25,13 @@ SVGs are the masters — they scale to any size with no quality loss
 
 | Color | Hex | Role |
 |-------|-----|------|
-| Ink | `#221F1C` | The mark & text |
-| Warm beige | `#EFEAE1` | Background / reversed mark |
+| Espresso | `#3E362E` | The wordmark & text |
+| Warm sand | `#ECE4D6` | Primary background |
+| Cream | `#F3ECDF` | Reversed text on dark |
+| Taupe | `#9A8E7C` | Hairline rules / quiet accent |
 
 ## Typeface
 
-Supporting text: **Poppins** (free, Google Fonts) — SemiBold for the name,
-Medium with wide tracking for "WEDDING PHOTOGRAPHY". Use Poppins across
-the website and stationery to match.
+**Bodoni Moda** (free, Google Fonts) — a high-contrast Didone serif. Use it
+for headings across the website and stationery to match the logo; pair with
+a simple book-weight serif or a light sans for body text.
