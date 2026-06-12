@@ -140,6 +140,14 @@ while editing, so future sessions don't have to rediscover them.
 - **Reparenting trick**: referencing an existing node by `nodeId` under a new
   parent wrapper in `updateXmlForNode` moves it there without needing to
   restate all its attributes.
+- **A page's root "Desktop"-tagged breakpoint frame can't be fully removed via
+  `deleteNode`** — on `/contact`, deleting `WMg9C9XUT` (a root `Desktop` node)
+  reported "Successfully deleted" and removed its children/Tablet/Phone, but
+  the node itself regenerated as an empty placeholder `Desktop` frame
+  (same nodeId, 1200×1080, `/Gray BG`, no children) on every subsequent
+  `getNodeXml`. Likely every page requires at least one root `Desktop` frame
+  to exist. Other root-level non-`Desktop` nodes (e.g. `Stack` `lt4mXUfW7`)
+  deleted cleanly with no regeneration.
 
 ## Site-wide Header/Footer link & professionalism fixes (this session)
 
@@ -412,18 +420,24 @@ Footer. No Lorem Ipsum, no other issues found.
 `/contact` (`JhEGlRZQU`) contains **three separate full-page layout frames** at
 the page root — only one is live:
 
-1. `lt4mXUfW7` — "Get in touch" + subtitle + `ContactCard` (`G4z9_mb9G`) +
-   `ContactFormEmbed` (`GHtvuY47a`) + Footer (`CjalwR5PP`). Looks like the
-   original Templifica template layout (generic `ContactCard` component).
-   **Not live** — user confirmed the live page doesn't show "Get in touch".
+1. ✅ **Deleted** — `lt4mXUfW7` ("Get in touch" + subtitle + `ContactCard`
+   `G4z9_mb9G` + `ContactFormEmbed` `GHtvuY47a` + Footer `CjalwR5PP`), the
+   original Templifica template layout. User confirmed it wasn't live.
 2. `iYSV88QPd` — **LIVE** ("Let's plan your wedding"). Heading + subtitle +
    email/Instagram/location block + Footer (`KHumteExF`). Has no Tablet/Phone
    breakpoints (see outstanding item 5).
-3. `WMg9C9XUT` (+ Tablet `pt59te2w7` + Phone `Kh1ZD7BYa`) — "Enquire for your
-   date" + photographer bio blurb ("I take on just 30 weddings a year...") +
-   `ContactFormEmbed` (`u5t4m50Va`) + Grid overlay (`Co1FkCyKd`) +
-   SmoothScroll. Already has proper Tablet/Phone breakpoints built, but
-   **not live** per user confirmation — likely an earlier WIP redesign.
+3. ⚠️ **Could not fully delete** — `WMg9C9XUT` (+ Tablet `pt59te2w7` + Phone
+   `Kh1ZD7BYa`), "Enquire for your date" + photographer bio blurb
+   ("I take on just 30 weddings a year...") + `ContactFormEmbed`
+   (`u5t4m50Va`) + Grid overlay (`Co1FkCyKd`) + SmoothScroll, not live per
+   user confirmation. `deleteNode` removed the Tablet/Phone breakpoints and
+   the original content successfully, but `WMg9C9XUT` itself keeps
+   regenerating as an empty 1200×1080 `/Gray BG` "Desktop" frame at the same
+   position (0,0) immediately after each `deleteNode` call (tried 3x, all
+   reported "Successfully deleted" but it reappears empty). See new MCP
+   quirk below. **Needs manual deletion in Framer UI** if you want it gone —
+   may also be harmless/invisible since it has no children and the live
+   frame `iYSV88QPd` renders on top of it.
 
 ✅ **Fixes applied to the live frame (`iYSV88QPd`)**:
 - `e46chNVsr` — email fixed: `hello@andremeloniphotography.co` →
