@@ -45,7 +45,7 @@ while editing, so future sessions don't have to rediscover them.
 | `/404` | `AHZqS6vxL` | **rebuilt** from genuinely-empty state, verified clean |
 | `/contact` | `JhEGlRZQU` | existing, not yet re-audited this session |
 | `/about` | `nbiWtvW87` | **audited this session** — bio rewritten in "The Approach" section (see below), no Lorem Ipsum/placeholder text found elsewhere, links (`/contact` x2) valid |
-| `/portfolio` | `Ge70M7Flj` | existing, not yet re-audited this session |
+| `/portfolio` | `Ge70M7Flj` | **audited this session** — small page (title, subtitle, 3 portfolio cards), no Lorem Ipsum. Subtitle updated for "Southern Highlands" consistency. Card slug issues confirmed, see outstanding item 1 |
 | `/portfolio/:slug` | `af3IrmIbP` | **created** (page was missing entirely) and built with Matt & Amanda content (CMS item `iiCxeDt0L`); orphan empty Desktop frame `uzvKyA9qq` deleted |
 
 ### Design pages
@@ -389,6 +389,21 @@ Footer `N26740qpc`). No Lorem Ipsum found.
    `euMlnMNDv`, `vqcvkfGOo`, `ROzc2hzzQ`, `D6F8ScUdY` — the actual displayed
    text is already correct ("Andre Meloni", "Kelsey + Dean, Newlyweds"), only
    internal layer names are stale.
+
+## Portfolio page audit (this session)
+
+`/portfolio` (`Ge70M7Flj`) is a simple page: Header → title "Portfolio" → subtitle →
+2x1 grid of 3 `PortfolioCard` instances (`FVdsMoRWR`, `XtH21I_uu`, `bEgAhcHPp`) →
+Footer. No Lorem Ipsum, no other issues found.
+
+- ✅ **Done**: subtitle `T6HCkGxvX` updated for "Southern Highlands" consistency
+  with the homepage — "A few favourite days from the South Coast, Sydney and
+  the Hunter Valley." → "A few favourite days from Sydney, the Southern
+  Highlands, the South Coast and the Hunter Valley."
+- Confirmed current state of the 3 portfolio card slugs matches outstanding
+  item 1 exactly: `FVdsMoRWR` correct, `XtH21I_uu` has the wrong
+  (Matt & Amanda) slug copy-pasted, `bEgAhcHPp` has no slug at all. Still
+  needs manual fix in Framer UI.
 
 ## Remaining site-wide audit
 
