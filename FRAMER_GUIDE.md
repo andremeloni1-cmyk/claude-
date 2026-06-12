@@ -195,6 +195,42 @@ site-wide:
 11. **`llms.txt`** — add via Framer Site Settings custom code / DNS-hosting
     layer once a custom domain is live; not possible via MCP.
 
+## Content provided by user, ready to insert
+
+### `/about` — photographer bio/story (provided 2026-06-12)
+
+Needs `/about` (`nbiWtvW87`) focused in Framer so its text nodes can be
+located and updated. Paste/adapt into the bio/story section:
+
+> Photography found me right after high school, and it started with people.
+>
+> I was drawn to portrait work because of what it asked of me to actually
+> understand someone. To find the side of them that only their closest
+> people get to see, and bring that into a frame.
+>
+> What kept me going was a simple thing. Watching someone's face when they
+> saw an image of themselves — really saw it — and were taken straight back
+> to that moment. Not just what it looked like, but what it felt like. That
+> reaction never got old.
+>
+> From there, weddings made complete sense. A wedding day is one of the most
+> human days a person will ever have. Everyone in the room is full of
+> something — nerves, love, relief, joy. My job is to pay attention to all
+> of it.
+>
+> My approach hasn't changed much from those early portrait days. I'm still
+> trying to understand people before I photograph them. Still looking for
+> the honest moments — the ones that live just outside the posed ones. The
+> quiet glance. The laugh that came out of nowhere. The way someone held
+> their person's hand without thinking about it.
+>
+> Great wedding photography isn't really about the day itself. It's about
+> what you feel ten years from now when you open that album. Whether it
+> still carries the weight of the room, the people, the version of yourself
+> you were in that moment.
+>
+> That's what I'm making. Something that holds.
+
 ## Code files
 
 - `ContactFormEmbed.tsx` (codeFileId `G7Fz0w8`) — code component used on
