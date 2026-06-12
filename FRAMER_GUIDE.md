@@ -195,6 +195,25 @@ site-wide:
 11. **`llms.txt`** — add via Framer Site Settings custom code / DNS-hosting
     layer once a custom domain is live; not possible via MCP.
 
+## Business info (provided by user, for SEO/checklist items)
+
+- **Business name**: Andre Meloni Photography
+- **Service area**: Sydney, Southern Highlands, and South Coast (NSW)
+- **Pricing/packages**: already on the homepage (`/`) — no separate
+  pricing page needed.
+- **No business hours / response-time messaging** wanted on `/contact`.
+- **No Privacy Policy page** needed.
+- **SEO keywords** — suggested starting set (based on business name,
+  service area, and the wedding/portrait/candid-style bio below). Use these
+  for page titles/meta descriptions once SEO settings are accessible:
+  - "Sydney wedding photographer"
+  - "Southern Highlands wedding photographer"
+  - "South Coast NSW wedding photographer"
+  - "Engagement photographer Sydney / Southern Highlands"
+  - "Candid wedding photography Sydney"
+  - "Portrait photographer Southern Highlands"
+  - "Andre Meloni Photography"
+
 ## Content provided by user, ready to insert
 
 ### `/about` — photographer bio/story (provided 2026-06-12)
