@@ -20,6 +20,21 @@ font installed.
 | `svg/am-watermark-white.svg` | White mark + name at 92% opacity — overlay on photos |
 | `png/…` | High-resolution PNG renders of each |
 
+### Transparent PNGs for website use
+
+These have a fully transparent background **and** a transparent notch between
+the A and M, so they sit cleanly on any page color or photo:
+
+| File | Use |
+|------|-----|
+| `png/am-logo-web-black.png` | Black lockup, transparent — light website backgrounds |
+| `png/am-logo-web-white.png` | White lockup, transparent — dark backgrounds / over photos |
+| `png/am-monogram-web-black.png` | Black AM mark only, transparent |
+| `png/am-monogram-web-white.png` | White AM mark only, transparent |
+
+The SVGs are also fully transparent and are the best choice for the web —
+they stay razor-sharp at any size and on any background.
+
 SVGs are the masters — they scale to any size with no quality loss
 (business cards, website, album embossing, signage).
 
