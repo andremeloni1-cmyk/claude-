@@ -43,7 +43,7 @@ while editing, so future sessions don't have to rediscover them.
 | `/blog` | `JB9ZuENHj` | existing; orphan empty Desktop frame `ubwWauV3w` deleted |
 | `/blog/:slug` | `QciPY2G4i` | **rebuilt** from genuinely-empty state with full real content (Greyleigh Kiama Wedding — Sarah & Archie, CMS item `dqkpr8bH1`) |
 | `/404` | `AHZqS6vxL` | **rebuilt** from genuinely-empty state, verified clean |
-| `/contact` | `JhEGlRZQU` | existing, not yet re-audited this session |
+| `/contact` | `JhEGlRZQU` | **audited this session** — see "/contact audit" section; live frame is "Let's plan your wedding" (`iYSV88QPd`), 3 fixes applied; 2 orphan draft frames found, flagged for cleanup decision |
 | `/about` | `nbiWtvW87` | **audited this session** — bio rewritten in "The Approach" section (see below), no Lorem Ipsum/placeholder text found elsewhere, links (`/contact` x2) valid |
 | `/portfolio` | `Ge70M7Flj` | **audited this session** — small page (title, subtitle, 3 portfolio cards), no Lorem Ipsum. Subtitle updated for "Southern Highlands" consistency. Card slug issues confirmed, see outstanding item 1 |
 | `/portfolio/:slug` | `af3IrmIbP` | **created** (page was missing entirely) and built with Matt & Amanda content (CMS item `iiCxeDt0L`); orphan empty Desktop frame `uzvKyA9qq` deleted |
@@ -198,7 +198,9 @@ site-wide:
    Pages panel — confirm it's bound as the Portfolio collection's item page.
 5. **Tablet/Phone breakpoints** missing on `/404`, `/blog/:slug`,
    `/portfolio/:slug`, and `/contact` (all built/rebuilt via `createPage`,
-   which only creates a Desktop frame).
+   which only creates a Desktop frame). For `/contact`, the live frame is
+   `iYSV88QPd` ("Let's plan your wedding") — see "/contact audit" section for
+   details on the two unused orphan frames also present on this page.
 6. **Hero/gallery placeholder images** on `/blog/:slug` (`P4ZdpG142`,
    `ptWo8aPw0`) and `/portfolio/:slug` (`fyBgNpdks` + 9 gallery frames) are
    `/Gray BG` placeholders — need real images dropped in manually (MCP can't
@@ -404,6 +406,41 @@ Footer. No Lorem Ipsum, no other issues found.
   item 1 exactly: `FVdsMoRWR` correct, `XtH21I_uu` has the wrong
   (Matt & Amanda) slug copy-pasted, `bEgAhcHPp` has no slug at all. Still
   needs manual fix in Framer UI.
+
+## /contact audit (this session)
+
+`/contact` (`JhEGlRZQU`) contains **three separate full-page layout frames** at
+the page root — only one is live:
+
+1. `lt4mXUfW7` — "Get in touch" + subtitle + `ContactCard` (`G4z9_mb9G`) +
+   `ContactFormEmbed` (`GHtvuY47a`) + Footer (`CjalwR5PP`). Looks like the
+   original Templifica template layout (generic `ContactCard` component).
+   **Not live** — user confirmed the live page doesn't show "Get in touch".
+2. `iYSV88QPd` — **LIVE** ("Let's plan your wedding"). Heading + subtitle +
+   email/Instagram/location block + Footer (`KHumteExF`). Has no Tablet/Phone
+   breakpoints (see outstanding item 5).
+3. `WMg9C9XUT` (+ Tablet `pt59te2w7` + Phone `Kh1ZD7BYa`) — "Enquire for your
+   date" + photographer bio blurb ("I take on just 30 weddings a year...") +
+   `ContactFormEmbed` (`u5t4m50Va`) + Grid overlay (`Co1FkCyKd`) +
+   SmoothScroll. Already has proper Tablet/Phone breakpoints built, but
+   **not live** per user confirmation — likely an earlier WIP redesign.
+
+✅ **Fixes applied to the live frame (`iYSV88QPd`)**:
+- `e46chNVsr` — email fixed: `hello@andremeloniphotography.co` →
+  `andre@andremeloniphotography.co` (both `mailto:` link and display text),
+  matching the site-wide email consistency fixes.
+- `CB4CbhF0b` — removed "within 24 hours...and pricing" (user said no
+  business-hours/response-time messaging wanted) → "Tell me your date and
+  venue and I'll get back to you with availability for your day."
+- `i7Rgg4dYp` — added "Southern Highlands" for consistency with other pages
+  → "Based on the South Coast, available for weddings across Sydney, the
+  Southern Highlands, the South Coast and the Hunter Valley."
+
+⏳ **Needs user decision**: delete the two orphan frames (`lt4mXUfW7` and
+`WMg9C9XUT` + its Tablet/Phone)? They're unused but take up canvas space.
+Note `WMg9C9XUT`'s Tablet/Phone breakpoints could potentially be
+repurposed for the live frame before deleting, if its content were rebuilt
+to match `iYSV88QPd` — bigger task, not done yet.
 
 ## Remaining site-wide audit
 
