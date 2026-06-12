@@ -98,13 +98,23 @@ while editing, so future sessions don't have to rediscover them.
 
 ## Outstanding manual-action items (Framer UI)
 
-1. **Portfolio card links** on `/portfolio` (`FVdsMoRWR`, `XtH21I_uu`,
-   `bEgAhcHPp`) — set Link to the matching `/portfolio/:slug` CMS items
-   (Matt & Amanda / Sarah & Bidia / Alana & Jacque) via right-panel Link
-   control.
-2. **`/about` Approach section photo** (`idkzjQrFK`) — currently a gray
-   placeholder (`backgroundColor="/Gray BG"`); drag the intended portrait
-   photo back in.
+1. **Portfolio card slugs** (`bqLiF7w9f` prop) on `/portfolio` — this is a
+   plain slug **string** field (not a Link control), confirmed by
+   `bqLiF7w9f="matt-and-amanda-engagement-kiama-lookout"` on `FVdsMoRWR`. Still
+   cannot be set via MCP `updateXmlForNode` (no error, but value doesn't
+   change) even as a plain string. Set these manually in the right panel:
+   - `XtH21I_uu` (Sarah & Bidia card) → `bqLiF7w9f` should be
+     `sarah-and-bidia-wedding-kangaroo-valley` (currently wrongly has the Matt
+     & Amanda slug, copy-paste bug).
+   - `bEgAhcHPp` (Alana & Jacque card) → `bqLiF7w9f` should be
+     `alana-and-jacque-wedding-wollongong-botanical-gardens` (currently empty).
+   - `FVdsMoRWR` (Matt & Amanda card) → already correct
+     (`matt-and-amanda-engagement-kiama-lookout`).
+   - ✅ `FVdsMoRWR`'s empty title (`hJ5j8DWR6`) was fixed via MCP → now
+     "Matt & Amanda — Kiama Lookout".
+2. **`/about` Approach section photo** (`idkzjQrFK`) — ✅ now has a real
+   `backgroundImage` set (no longer the gray placeholder). Appears resolved
+   (possibly fixed manually since the last check) — just verify it looks right.
 3. **CMS data binding** on `/blog/:slug` and `/portfolio/:slug` — static
    placeholder layouts built; need per-field "Insert Variable" binding in
    Framer UI to connect to CMS collections.
@@ -113,6 +123,33 @@ while editing, so future sessions don't have to rediscover them.
    `/portfolio/:slug` (all built via `createPage`, which only creates Desktop).
 6. **Contact form recipient email** — verify/set the email recipient for the
    form on `/contact` so submissions are delivered.
+
+## ⚠️ Potential issue found: `/blog` page may have lost its content
+
+- `getNodeXml("JB9ZuENHj")` (the `/blog` page) now returns **completely
+  empty** XML (no Desktop/Tablet/Phone frames at all).
+- The previously-noted content root `cVTJ9yF1b` (Header + 6 BlogCards +
+  Footer) returns **"Node with ID cVTJ9yF1b not found."**
+- The "Blog card" (`q8sExslWw`) and "Blog card small" (`P5Uk_jJ8N`) components
+  *also* both return empty XML (`<BlogCard nodeId="q8sExslWw" />` with no
+  children) — yet a live `BlogCard` instance on the homepage
+  (`nodeId="xrmHDl5t1"`) references `componentId="q8sExslWw"
+  variant="kYHa_x55W"` with real props (`rvBKN8hHg="/blog:slug"`,
+  `FG8rd1EUA="2026-06-11T00:00:00.000Z"`,
+  `TFO4LYmNP="A Greyleigh Kiama Wedding — Sarah & Archie"`), so the component
+  can't actually be empty.
+- This pattern (multiple Blog-related nodes returning empty XML while still
+  being referenced live) suggests an **MCP tool query issue for these specific
+  nodes**, not necessarily real data loss — but this could not be confirmed
+  (project has no published staging/production URL to check against).
+- **Action needed**: before any rebuild of `/blog`, open the page in the
+  Framer editor and confirm whether it visually still has its content. If it's
+  genuinely empty, it needs to be rebuilt with 6 Blog cards (data for all 6
+  posts is available via `getCMSItems("EEv3Nygkn")`). If it still has content,
+  this is just an MCP read limitation to note and move on from.
+- Also note: the homepage's `rvBKN8hHg="/blog:slug"` looks like an unresolved
+  placeholder link (literally `/blog:slug` instead of a real post path) — same
+  family of issue as the portfolio card slug/link props above.
 
 ## Security note
 
