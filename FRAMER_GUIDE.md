@@ -179,6 +179,20 @@ site-wide:
    email in Framer's right panel" guidance doesn't apply. It's
    delivered/managed entirely in the Storyflow dashboard (external account,
    not MCP-doable).
+8. **Decide on "Portfolio 2" CMS collection** (`bE1ItQMQR`) — duplicates the
+   "Portfolio" collection (`r4GnmA_r2`) with the same 3 real items
+   (Matt & Amanda, Sarah & Bidia, Alana & Jacque). Check in Framer UI whether
+   anything actually uses "Portfolio 2"; if not, delete it.
+9. **Decide on draft Category items "Studio Photography" (`x0gcrjku6`) and
+   "Lifestyle" (`FOh0syoWy`)** — both `draft: true` and not referenced by any
+   Portfolio item (only "Wedding" and "Engagement" are active/used). Delete
+   if unused, or keep if planned for future portfolio categories.
+10. **Contact form recipient email (Storyflow)** — set the notification
+    recipient email for the embedded Storyflow contact form
+    (`app.storyflow.com.au/contactform/1766106383436x987076636821318100`) in
+    the Storyflow dashboard, not Framer.
+11. **`llms.txt`** — add via Framer Site Settings custom code / DNS-hosting
+    layer once a custom domain is live; not possible via MCP.
 
 ## Code files
 
