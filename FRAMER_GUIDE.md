@@ -174,8 +174,52 @@ site-wide:
    `ptWo8aPw0`) and `/portfolio/:slug` (`fyBgNpdks` + 9 gallery frames) are
    `/Gray BG` placeholders — need real images dropped in manually (MCP can't
    set `backgroundImage`).
-7. **Contact form recipient email** — verify/set the email recipient for the
-   form on `/contact` so submissions are delivered.
+7. ~~**Contact form recipient email**~~ — **superseded, see finding below.**
+   The `/contact` form is NOT a native Framer form, so the "add recipient
+   email in Framer's right panel" guidance doesn't apply. It's
+   delivered/managed entirely in the Storyflow dashboard (external account,
+   not MCP-doable).
+
+## Code files
+
+- `ContactFormEmbed.tsx` (codeFileId `G7Fz0w8`) — code component used on
+  `/contact`. It's an `<iframe>` embedding a **Storyflow** contact form:
+  `https://app.storyflow.com.au/contactform/1766106383436x987076636821318100`.
+  It forwards `fbclid` query params for ad-tracking and uses
+  `iframe-resizer` for auto-height. **The "link your email to all forms"
+  checklist item for `/contact` must be done in the Storyflow dashboard**,
+  not Framer — Framer has no recipient-email setting for this form since
+  it's just an iframe wrapper.
+- **`llms.txt`**: not feasible via the Framer MCP. Framer code files
+  (`createCodeFile`) only support React/TS components or overrides, not
+  static text files served at a domain root path. Framer's native
+  "Custom Code" / site-settings injection (if any) isn't exposed via MCP.
+  This needs to be done in the Framer UI (Site Settings → General → Custom
+  Code, if Framer supports a redirect/page rule) or via the hosting
+  layer/DNS once a custom domain is set up — flagged as a manual/post-launch
+  item, not currently actionable.
+
+## CMS audit (this session)
+
+Audited all 4 CMS collections for the "remove Lorem Ipsum / demo content"
+and "add real content" checklist items:
+
+- **Portfolio** (`r4GnmA_r2`, 3 items) and **Portfolio 2** (`bE1ItQMQR`,
+  3 items) — near-identical duplicates, same real content (Matt & Amanda,
+  Sarah & Bidia, Alana & Jacque). No Lorem Ipsum. Purpose of the duplicate
+  "Portfolio 2" collection is still unclear — **needs user input**: is it
+  used anywhere, or can it be deleted?
+- **Blog** (`EEv3Nygkn`, 6 items) — all real, well-written posts,
+  `draft: false`. No issues found.
+- **Category** (`qP9bHc6_m`, 4 items) — "Wedding" (`BUVDI0Xo2`) and
+  "Engagement" (`NvDIxFgYB`) are active and referenced by Portfolio items.
+  "Studio Photography" (`x0gcrjku6`) and "Lifestyle" (`FOh0syoWy`) are
+  **`draft: true` and not referenced by any Portfolio item** — candidates
+  for deletion per "delete demo CMS items you don't need", but could be
+  intentional future categories. **Needs user confirmation before
+  deleting.**
+- No Lorem-Ipsum/placeholder text found anywhere in CMS content — all
+  content is real and site-specific already.
 
 ## Remaining site-wide audit
 
