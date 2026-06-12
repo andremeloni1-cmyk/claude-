@@ -1,4 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
-  <polyline points="91.2,273.0 145.6,128.0 200.0,273.0 254.4,128.0 308.8,273.0" fill="none" stroke="#2B2725" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-  <line x1="110.3" y1="222.2" x2="181.0" y2="222.2" stroke="#B0905A" stroke-width="7" stroke-linecap="round"/>
+  <g fill="none" stroke="#221F1C" stroke-width="30" stroke-linecap="round">
+    <circle cx="130" cy="200" r="68"/>
+    <line x1="198" y1="132" x2="198" y2="268"/>
+    <path d="M198,166 A34,34 0 0 1 266,166 L266,268"/>
+    <path d="M266,166 A34,34 0 0 1 334,166 L334,268"/>
+  </g>
 </svg>
