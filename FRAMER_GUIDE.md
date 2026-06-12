@@ -44,7 +44,7 @@ while editing, so future sessions don't have to rediscover them.
 | `/blog/:slug` | `QciPY2G4i` | **rebuilt** from genuinely-empty state with full real content (Greyleigh Kiama Wedding — Sarah & Archie, CMS item `dqkpr8bH1`) |
 | `/404` | `AHZqS6vxL` | **rebuilt** from genuinely-empty state, verified clean |
 | `/contact` | `JhEGlRZQU` | existing, not yet re-audited this session |
-| `/about` | `nbiWtvW87` | existing, not yet re-audited this session |
+| `/about` | `nbiWtvW87` | **audited this session** — bio rewritten in "The Approach" section (see below), no Lorem Ipsum/placeholder text found elsewhere, links (`/contact` x2) valid |
 | `/portfolio` | `Ge70M7Flj` | existing, not yet re-audited this session |
 | `/portfolio/:slug` | `af3IrmIbP` | **created** (page was missing entirely) and built with Matt & Amanda content (CMS item `iiCxeDt0L`); orphan empty Desktop frame `uzvKyA9qq` deleted |
 
@@ -101,6 +101,19 @@ while editing, so future sessions don't have to rediscover them.
   be set via `updateXmlForNode`** — returns "No changes were made!" regardless
   of plain-path or JSON `{"type":"webPage","webPageId":"..."}` format. Must be
   set via the component's right-panel "Link" control in Framer UI.
+- **`alt` text on Image nodes cannot be set via `updateXmlForNode`** —
+  confirmed with `alt="..."` on `idkzjQrFK`: "No changes were made! Make sure
+  you are not using made up attributes". Alt text isn't part of the exposed
+  XML schema at all — must be set manually in Framer UI (image settings
+  panel) for every image, site-wide. This affects the "add alt text to every
+  image" checklist item entirely — **not MCP-doable for any page**.
+- **Reordering children via `updateXmlForNode` on a parent is fragile** —
+  referencing only some children by `nodeId` (to insert new nodes or move
+  one) can silently reshuffle *other* siblings not mentioned. Safest
+  approach: after inserting/moving nodes, re-issue one `updateXmlForNode`
+  call on the parent listing **all** children nodeIds in the exact desired
+  final order (bare `<Tag nodeId="..." />` refs, no need to restate
+  attributes), then verify with `getNodeXml`.
 - **`createPage` only creates a single Desktop frame** (e.g.
   `width="1200px" height="1080px"`, `/Gray BG`, no children) — no Tablet/Phone
   breakpoints. This default frame is an orphan once real content is added as a
@@ -221,8 +234,14 @@ site-wide:
 
 ### `/about` — photographer bio/story (provided 2026-06-12)
 
-Needs `/about` (`nbiWtvW87`) focused in Framer so its text nodes can be
-located and updated. Paste/adapt into the bio/story section:
+✅ **Inserted** into "The Approach" section of `/about` (`nbiWtvW87`),
+replacing the previous "Five years ago I picked up a camera..." copy
+(nodes `Obw7IIerm`, `SzeSR8KsV`, `hIkn_aHpS`, `sPZPubBZy`, `KVLpqbnn_`
+updated; two new nodes `KXvCSUGfp` and `gkxpsq2bj` created for the final two
+paragraphs). The "THE APPROACH" heading, hero image, and closing
+service-area paragraph (`VNYfZDtlC`, "I work with couples across Sydney,
+the South Coast, and the Hunter Valley...") were kept as-is. Original text
+for reference:
 
 > Photography found me right after high school, and it started with people.
 >
