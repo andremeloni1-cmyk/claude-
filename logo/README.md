@@ -1,55 +1,52 @@
 # AM Photography — Logo
 
-A bold, geometric monogram in the modern Pinterest/lettermark style: the
-**A** and **M** are locked together as a single heavy unit, interlocking
-with a clean notch where they meet (an "inline weave"). Confident, ownable,
-and unmistakably a monogram rather than two separate letters. Set against a
-warm-neutral palette with a simple geometric-sans wordmark. All type is
-converted to outlines, so the SVGs render identically everywhere with no
-font installed.
+A bold, modular lettermark: the **AM** monogram knocked out in white from a
+thin, black rounded-rectangle tile, with **ANDRE / MELONI / PHOTOGRAPHY**
+stacked alongside. Confident, contemporary, and instantly recognisable as a
+single mark. The notch between the A and M is a true cut-out, so it reads
+cleanly on any background. All type is converted to outlines — the SVGs
+render identically everywhere with no fonts installed.
 
 ## Files
 
+### Horizontal lockup
 | File | Use |
 |------|-----|
-| `svg/am-logo-primary.svg` | Main logo for light backgrounds (transparent) |
-| `svg/am-logo-dark.svg` | Main logo reversed on espresso, for dark backgrounds |
-| `svg/am-logo-twotone.svg` | Alternate — ink **A** + taupe **M** for a softer, two-tone look |
-| `svg/am-monogram.svg` | The merged AM mark only — social avatars, favicons, stamps |
-| `svg/am-monogram-dark.svg` | Mark only, reversed on espresso |
-| `svg/am-watermark-white.svg` | White mark + name at 92% opacity — overlay on photos |
-| `png/…` | High-resolution PNG renders of each |
+| `svg/am-logo-primary.svg` | Main logo — light backgrounds (black tile, transparent) |
+| `svg/am-logo-dark.svg` | Reversed — dark backgrounds (light tile on ink) |
+| `svg/am-logo-web-black.svg` | Transparent background, for light websites |
+| `svg/am-logo-web-light.svg` | Transparent background, for dark websites / over photos |
 
-### Transparent PNGs for website use
-
-These have a fully transparent background **and** a transparent notch between
-the A and M, so they sit cleanly on any page color or photo:
-
+### Tile only (avatar / app icon)
 | File | Use |
 |------|-----|
-| `png/am-logo-web-black.png` | Black lockup, transparent — light website backgrounds |
-| `png/am-logo-web-white.png` | White lockup, transparent — dark backgrounds / over photos |
-| `png/am-monogram-web-black.png` | Black AM mark only, transparent |
-| `png/am-monogram-web-white.png` | White AM mark only, transparent |
+| `svg/am-tile.svg` | Black tile + white AM — Instagram avatar, app icon |
+| `svg/am-tile-dark.svg` | Light tile + black AM, on ink |
+| `svg/am-tile-web.svg` | Black tile, transparent background |
 
-The SVGs are also fully transparent and are the best choice for the web —
-they stay razor-sharp at any size and on any background.
+### Mark & extras
+| File | Use |
+|------|-----|
+| `svg/am-monogram.svg` | The AM letters alone (no tile) — favicons, embossing, stamps |
+| `svg/am-monogram-web-white.svg` | White AM letters, transparent |
+| `svg/am-watermark-white.svg` | White outline tile + AM at 90% opacity — overlay on photos |
+| `png/…` | High-resolution PNG of every file (transparent where applicable) |
 
 SVGs are the masters — they scale to any size with no quality loss
-(business cards, website, album embossing, signage).
+(business cards, website, album embossing, signage). Use the SVGs on the
+web wherever possible; use the transparent PNGs where only images are accepted.
 
 ## Brand colors
 
 | Color | Hex | Role |
 |-------|-----|------|
-| Ink | `#1C1A17` | The monogram & wordmark |
-| Warm sand | `#EFEAE1` | Primary background |
-| Cream | `#F3ECDF` | Reversed text on dark |
-| Taupe | `#B0A089` | Two-tone accent |
+| Ink | `#1A1A1A` | The tile & wordmark |
+| Paper | `#F4F1EA` | Warm background / reversed tile |
+| White | `#FFFFFF` | AM knockout |
 
 ## Typeface
 
-- **Monogram:** Archivo Black (free, Google Fonts) — a heavy geometric grotesque,
-  customised so the A and M interlock.
-- **Wordmark:** Poppins (free, Google Fonts), letter-spaced. Use Poppins across
-  the website and stationery to match.
+- **Monogram:** Archivo Black (free, Google Fonts), customised so the A and M
+  interlock with a clean notch.
+- **Wordmark:** Poppins Bold (free, Google Fonts), letter-spaced. Use Poppins
+  across the website and stationery to match.
