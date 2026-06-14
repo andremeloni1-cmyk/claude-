@@ -34,6 +34,42 @@ def _jpeg_name(name: str) -> str:
     return f"{stem}.jpg"
 
 
+def _resolve_board_id(cfg: config.Config) -> str:
+    """Find the Pinterest board id Postiz needs for every pin.
+
+    Prefer the explicit `pinterest_board_id` from config.yaml. Otherwise look it
+    up with the read-only Pinterest token (boards:read works even on the trial
+    tier — only write is gated), matching the configured board name, else the
+    first board on the account.
+    """
+    if cfg.pinterest_board_id:
+        return cfg.pinterest_board_id
+
+    if not (cfg.pinterest_access_token or cfg.pinterest_refresh_token):
+        raise config.ConfigError(
+            "Postiz requires a Pinterest board id. Set 'pinterest_board_id' in "
+            "config.yaml, or provide a read-only PINTEREST_ACCESS_TOKEN so the "
+            "board can be looked up automatically by name."
+        )
+
+    boards = pinterest.PinterestClient(cfg.resolve_pinterest_token()).list_boards()
+    if not boards:
+        raise config.ConfigError(
+            "No Pinterest boards found on this account. Create a board first, or "
+            "set 'pinterest_board_id' in config.yaml."
+        )
+    target = cfg.board_name.strip().lower()
+    for board in boards:
+        if board.get("name", "").strip().lower() == target:
+            return board["id"]
+    log.warning(
+        "No board named %r found; using first board %r instead.",
+        cfg.board_name,
+        boards[0].get("name"),
+    )
+    return boards[0]["id"]
+
+
 def _build_poster(cfg: config.Config):
     """Return (post_fn, label). post_fn(copy, image_bytes, name) -> pin/post id."""
     link = _link_with_utm(cfg.website_url, cfg.utm)
@@ -41,6 +77,8 @@ def _build_poster(cfg: config.Config):
     if cfg.use_postiz:
         client = postiz.PostizClient(cfg.postiz_api_key, base_url=cfg.postiz_base_url)
         integration_id = cfg.postiz_integration_id or client.find_pinterest_integration_id()
+        board_id = _resolve_board_id(cfg)
+        log.info("Posting to Pinterest board id %s.", board_id)
 
         def post(copy: dict, image_bytes: bytes, name: str) -> str:
             return client.post_pin(
@@ -50,7 +88,7 @@ def _build_poster(cfg: config.Config):
                 link=link,
                 image_bytes=image_bytes,
                 filename=_jpeg_name(name),
-                board=cfg.pinterest_board_id,
+                board=board_id,
                 content_type=images.JPEG,
             )
 
