@@ -1,0 +1,14 @@
+{
+  "name": "framer-blog-publisher",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Pushes generated blog post bundles into the Framer CMS via the Framer Server API.",
+  "scripts": {
+    "publish-posts": "node publish.mjs"
+  },
+  "dependencies": {
+    "framer-api": "^1.0.0",
+    "yaml": "^2.5.0"
+  }
+}
