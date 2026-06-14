@@ -9,7 +9,7 @@ import logging
 import sys
 from urllib.parse import urlencode, urlparse, urlunparse, parse_qsl
 
-from . import captions, config, drive, pinterest, state
+from . import captions, config, drive, images, pinterest, state
 
 logging.basicConfig(
     level=logging.INFO,
@@ -56,16 +56,16 @@ def run() -> int:
         name = img["name"]
         try:
             log.info("Processing %s", name)
-            image_bytes = drive.download_image(drive_service, img["id"])
-            copy = captions.generate(cfg, image_bytes, img["mimeType"], name)
+            raw_bytes = drive.download_image(drive_service, img["id"])
+            copy = captions.generate(cfg, images.for_analysis(raw_bytes), images.JPEG, name)
             pin_id = pin_client.create_pin(
                 board_id=board_id,
                 title=copy["title"],
                 description=copy["description"],
                 link=link,
                 alt_text=copy["alt_text"],
-                image_bytes=image_bytes,
-                content_type=img["mimeType"],
+                image_bytes=images.for_pin(raw_bytes),
+                content_type=images.JPEG,
             )
             state.mark_posted(st, img["id"], name, pin_id)
             state.save(cfg.state_path, st)  # save after each so a crash never re-posts
