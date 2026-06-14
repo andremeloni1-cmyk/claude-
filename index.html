@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Schedule Dashboard</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <h1 id="business-name">Job Schedule Dashboard</h1>
+        <p class="subtitle">Upcoming jobs &amp; client emails</p>
+      </div>
+      <div class="topbar-actions">
+        <button id="add-job-btn" class="btn btn-primary">+ Add Job</button>
+        <button id="settings-btn" class="btn btn-secondary">Settings</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel calendar-panel">
+        <div class="calendar-header">
+          <button id="prev-month" class="btn btn-icon" aria-label="Previous month">&#8249;</button>
+          <h2 id="month-label"></h2>
+          <button id="next-month" class="btn btn-icon" aria-label="Next month">&#8250;</button>
+          <button id="today-btn" class="btn btn-secondary btn-small">Today</button>
+        </div>
+
+        <div class="calendar-weekdays">
+          <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+        </div>
+        <div id="calendar-grid" class="calendar-grid"></div>
+
+        <div class="legend">
+          <span class="legend-item"><i class="dot dot-inquiry"></i> Inquiry / Not booked</span>
+          <span class="legend-item"><i class="dot dot-booked"></i> Booked</span>
+          <span class="legend-item"><i class="dot dot-completed"></i> Completed</span>
+        </div>
+
+        <div class="upcoming">
+          <h3>Upcoming Jobs</h3>
+          <ul id="upcoming-list" class="job-list"></ul>
+        </div>
+      </section>
+
+      <section class="panel side-panel">
+        <div class="card">
+          <h3 id="selected-date-label">Select a date</h3>
+          <ul id="day-job-list" class="job-list"></ul>
+          <p id="day-empty-msg" class="empty-msg">No jobs on this date.</p>
+        </div>
+
+        <div class="card">
+          <h3>Email Composer</h3>
+          <div class="field">
+            <label for="email-job-select">Job</label>
+            <select id="email-job-select"></select>
+          </div>
+          <div class="field">
+            <label for="email-template-select">Template</label>
+            <select id="email-template-select"></select>
+          </div>
+          <div class="field">
+            <label for="email-subject">Subject</label>
+            <input type="text" id="email-subject" readonly />
+          </div>
+          <div class="field">
+            <label for="email-body">Email body</label>
+            <textarea id="email-body" rows="14"></textarea>
+          </div>
+          <div class="email-actions">
+            <button id="copy-email-btn" class="btn btn-secondary">Copy to Clipboard</button>
+            <button id="open-mail-btn" class="btn btn-primary">Open in Email App</button>
+          </div>
+          <p id="email-status" class="empty-msg" aria-live="polite"></p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Add / Edit Job Modal -->
+  <div id="job-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2 id="job-modal-title">Add Job</h2>
+      <form id="job-form">
+        <input type="hidden" id="job-id" />
+        <div class="field">
+          <label for="job-client">Client name</label>
+          <input type="text" id="job-client" required />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="job-type">Job type</label>
+            <select id="job-type">
+              <option>Wedding</option>
+              <option>Engagement</option>
+              <option>Portrait</option>
+              <option>Family</option>
+              <option>Maternity</option>
+              <option>Newborn</option>
+              <option>Event</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="job-status">Status</label>
+            <select id="job-status">
+              <option value="inquiry">Inquiry / Not booked</option>
+              <option value="booked">Booked</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="job-date">Date</label>
+            <input type="date" id="job-date" required />
+          </div>
+          <div class="field">
+            <label for="job-time">Time</label>
+            <input type="time" id="job-time" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="job-location">Location</label>
+          <input type="text" id="job-location" />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="job-email">Client email</label>
+            <input type="email" id="job-email" />
+          </div>
+          <div class="field">
+            <label for="job-price">Price ($)</label>
+            <input type="number" id="job-price" min="0" step="0.01" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="job-notes">Notes</label>
+          <textarea id="job-notes" rows="3"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="delete-job-btn" class="btn btn-danger hidden">Delete</button>
+          <div class="modal-actions-right">
+            <button type="button" id="cancel-job-btn" class="btn btn-secondary">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Settings</h2>
+      <form id="settings-form">
+        <div class="field">
+          <label for="settings-business-name">Business name</label>
+          <input type="text" id="settings-business-name" />
+        </div>
+        <div class="field">
+          <label for="settings-your-name">Your name (email sign-off)</label>
+          <input type="text" id="settings-your-name" />
+        </div>
+        <div class="field">
+          <label for="settings-email">Your email</label>
+          <input type="email" id="settings-email" />
+        </div>
+        <div class="field">
+          <label for="settings-phone">Your phone</label>
+          <input type="text" id="settings-phone" />
+        </div>
+        <div class="modal-actions">
+          <div class="modal-actions-right">
+            <button type="button" id="cancel-settings-btn" class="btn btn-secondary">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="assets/templates.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
