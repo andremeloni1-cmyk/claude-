@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import base64
+import binascii
 import io
 import json
 
@@ -13,8 +15,31 @@ from googleapiclient.http import MediaIoBaseDownload
 SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
 
 
+def _parse_service_account(value: str) -> dict:
+    """Accept the service account either as raw JSON or base64-encoded JSON.
+
+    Raw JSON is easy to corrupt when pasting into a secret (the long
+    private_key line in particular), so a base64 blob is also accepted as a
+    paste-safe alternative.
+    """
+    text = value.strip()
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+    try:
+        decoded = base64.b64decode(text, validate=True).decode("utf-8")
+        return json.loads(decoded)
+    except (binascii.Error, ValueError, json.JSONDecodeError) as exc:
+        raise ValueError(
+            "GOOGLE_SERVICE_ACCOUNT_JSON is not valid. Paste either the exact "
+            "contents of the service account .json file, or a base64-encoded "
+            "version of that file."
+        ) from exc
+
+
 def build_service(service_account_json: str):
-    info = json.loads(service_account_json)
+    info = _parse_service_account(service_account_json)
     creds = service_account.Credentials.from_service_account_info(info, scopes=SCOPES)
     return build("drive", "v3", credentials=creds, cache_discovery=False)
 

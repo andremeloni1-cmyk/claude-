@@ -51,7 +51,17 @@ You need four secrets. Everything else lives in `config.yaml`.
 5. The folder id is the last part of the folder URL
    (`https://drive.google.com/drive/folders/THIS_PART`) — that's
    `GDRIVE_FOLDER_ID`.
-6. The full contents of the JSON file is `GOOGLE_SERVICE_ACCOUNT_JSON`.
+6. `GOOGLE_SERVICE_ACCOUNT_JSON` is the service account file. You can provide
+   it two ways:
+   - **Raw JSON:** paste the entire contents of the `.json` file.
+   - **Base64 (paste-safe, recommended):** if pasting raw JSON gets corrupted
+     (the long `private_key` line is easy to mangle), base64-encode the file
+     and paste that single block instead. Generate it with:
+     ```bash
+     base64 -w0 service-account.json   # Linux
+     base64 service-account.json       # macOS
+     ```
+     The automation auto-detects and decodes base64.
 
 ### 3. Pinterest (auto-refreshing — recommended)
 Pinterest access tokens expire every ~30 days. To avoid re-pasting a token
