@@ -33,12 +33,12 @@ def run() -> int:
     st = state.load(cfg.state_path)
 
     drive_service = drive.build_service(cfg.google_service_account_json)
-    images = drive.list_images(drive_service, cfg.gdrive_folder_id)
-    new_images = [img for img in images if not state.is_posted(st, img["id"])]
+    drive_images = drive.list_images(drive_service, cfg.gdrive_folder_id)
+    new_images = [img for img in drive_images if not state.is_posted(st, img["id"])]
 
     log.info(
         "Found %d photo(s) in Drive, %d new. Posting up to %d this run.",
-        len(images),
+        len(drive_images),
         len(new_images),
         cfg.max_pins_per_run,
     )
