@@ -7,6 +7,7 @@ __all__ = [
     "images",
     "pinterest",
     "pinterest_auth",
+    "postiz",
     "state",
     "main",
 ]
