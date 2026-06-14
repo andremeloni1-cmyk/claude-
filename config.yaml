@@ -16,6 +16,7 @@ target_audience: >
   or lifestyle photographer.
 
 # Pins are created on this board. It is created automatically if missing.
+# (Used only by the direct Pinterest API path.)
 board_name: "Andre Meloni Photography"
 board_description: >
   Wedding, couple and portrait photography by Andre Meloni. Book your session
@@ -35,3 +36,7 @@ model: "claude-opus-4-8"
 # Safety limit: how many new photos to post per run. Keeps you well under
 # Pinterest rate limits and avoids dumping a whole folder at once.
 max_pins_per_run: 4
+
+# When posting via Postiz, the Pinterest board to pin to. Find the board id in
+# your Postiz dashboard (or leave blank to use the channel's default board).
+pinterest_board_id: ""
