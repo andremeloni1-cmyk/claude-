@@ -24,6 +24,7 @@ class Config:
     niche: str
     location: str
     target_audience: str
+    service_area: str
     board_name: str
     board_description: str
     utm: dict
@@ -115,6 +116,7 @@ def load() -> Config:
         niche=clean("niche"),
         location=clean("location"),
         target_audience=clean("target_audience"),
+        service_area=clean("service_area"),
         board_name=clean("board_name", "My Photography"),
         board_description=clean("board_description"),
         utm=data.get("utm") or {},

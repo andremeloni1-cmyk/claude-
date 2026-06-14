@@ -15,6 +15,11 @@ target_audience: >
   Engaged couples planning a wedding, and people looking to book a portrait
   or lifestyle photographer.
 
+# Wedding service area — the regions you shoot weddings in. Used as location
+# keywords in the copy (e.g. "Southern Highlands wedding photographer") so the
+# right couples find your pins.
+service_area: "Sydney, the South Coast and the Southern Highlands"
+
 # Pins are created on this board. It is created automatically if missing.
 # (Used only by the direct Pinterest API path.)
 board_name: "Andre Meloni Photography"
