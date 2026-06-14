@@ -32,12 +32,30 @@ class Config:
 
     # Secrets / per-environment (from env vars)
     anthropic_api_key: str
-    pinterest_access_token: str
     google_service_account_json: str
     gdrive_folder_id: str
 
+    # Pinterest auth: either a static access token, or app id/secret + refresh
+    # token for automatic refresh (preferred — never expires in practice).
+    pinterest_access_token: str = ""
+    pinterest_app_id: str = ""
+    pinterest_app_secret: str = ""
+    pinterest_refresh_token: str = ""
+
     # Resolved paths
     state_path: Path = field(default=_REPO_ROOT / "state" / "posted.json")
+
+    def resolve_pinterest_token(self) -> str:
+        """Return a usable access token, refreshing from credentials if needed."""
+        if self.pinterest_refresh_token:
+            from . import pinterest_auth
+
+            return pinterest_auth.refresh_access_token(
+                self.pinterest_app_id,
+                self.pinterest_app_secret,
+                self.pinterest_refresh_token,
+            )
+        return self.pinterest_access_token
 
 
 def _require_env(name: str) -> str:
@@ -60,6 +78,19 @@ def load() -> Config:
     def clean(key: str, default: str = "") -> str:
         return str(data.get(key, default)).strip()
 
+    access_token = os.environ.get("PINTEREST_ACCESS_TOKEN", "").strip()
+    app_id = os.environ.get("PINTEREST_APP_ID", "").strip()
+    app_secret = os.environ.get("PINTEREST_APP_SECRET", "").strip()
+    refresh_token = os.environ.get("PINTEREST_REFRESH_TOKEN", "").strip()
+
+    has_refresh = bool(app_id and app_secret and refresh_token)
+    if not access_token and not has_refresh:
+        raise ConfigError(
+            "Missing Pinterest credentials. Either set PINTEREST_ACCESS_TOKEN, "
+            "or set all of PINTEREST_APP_ID, PINTEREST_APP_SECRET and "
+            "PINTEREST_REFRESH_TOKEN to enable automatic token refresh."
+        )
+
     return Config(
         website_url=clean("website_url"),
         business_name=clean("business_name"),
@@ -72,7 +103,10 @@ def load() -> Config:
         model=clean("model", "claude-opus-4-8"),
         max_pins_per_run=int(data.get("max_pins_per_run", 4)),
         anthropic_api_key=_require_env("ANTHROPIC_API_KEY"),
-        pinterest_access_token=_require_env("PINTEREST_ACCESS_TOKEN"),
         google_service_account_json=_require_env("GOOGLE_SERVICE_ACCOUNT_JSON"),
         gdrive_folder_id=_require_env("GDRIVE_FOLDER_ID"),
+        pinterest_access_token=access_token,
+        pinterest_app_id=app_id,
+        pinterest_app_secret=app_secret,
+        pinterest_refresh_token=refresh_token,
     )

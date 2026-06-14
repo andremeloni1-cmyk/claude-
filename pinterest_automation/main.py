@@ -46,7 +46,7 @@ def run() -> int:
         log.info("Nothing new to post. Done.")
         return 0
 
-    pin_client = pinterest.PinterestClient(cfg.pinterest_access_token)
+    pin_client = pinterest.PinterestClient(cfg.resolve_pinterest_token())
     board_id = pin_client.get_or_create_board(cfg.board_name, cfg.board_description)
     link = _link_with_utm(cfg.website_url, cfg.utm)
 

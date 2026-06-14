@@ -53,24 +53,49 @@ You need four secrets. Everything else lives in `config.yaml`.
    `GDRIVE_FOLDER_ID`.
 6. The full contents of the JSON file is `GOOGLE_SERVICE_ACCOUNT_JSON`.
 
-### 3. Pinterest access token
-1. Create an app at <https://developers.pinterest.com> and request the
-   `boards:read`, `boards:write`, `pins:read`, and `pins:write` scopes.
-2. Generate an access token for your account.
-3. This is `PINTEREST_ACCESS_TOKEN`.
+### 3. Pinterest (auto-refreshing — recommended)
+Pinterest access tokens expire every ~30 days. To avoid re-pasting a token
+every month, the automation can refresh its own token from a long-lived
+refresh token. You set this up **once**:
 
-> Note: Pinterest access tokens expire. When yours does, generate a new one
-> and update the secret. (A refresh-token flow can be added later if you want
-> it to renew itself.)
+1. You need a Pinterest **business account** (free to convert in Pinterest
+   Settings → Account management).
+2. Create an app at <https://developers.pinterest.com/apps/> with the
+   `boards:read`, `boards:write`, `pins:read`, `pins:write` scopes.
+3. In the app settings, add a **Redirect URI** (e.g. `https://localhost/`).
+4. Run the helper locally — it prints the three secrets to store:
+   ```bash
+   pip install requests
+   python scripts/get_pinterest_refresh_token.py
+   ```
+   It asks for your App ID, App secret, and redirect URI, gives you a URL to
+   approve in your browser, then prints `PINTEREST_APP_ID`,
+   `PINTEREST_APP_SECRET`, and `PINTEREST_REFRESH_TOKEN`.
+5. Add those three as GitHub secrets. After this you never touch Pinterest
+   auth again — each run mints a fresh access token automatically.
+
+**Simpler alternative (token expires monthly):** skip the refresh flow and
+just generate a single access token in the Pinterest app UI, then store it as
+`PINTEREST_ACCESS_TOKEN`. When it expires, posting fails and you generate a
+new one. The automation accepts either setup.
 
 ### 4. Add the secrets to GitHub
 In this repository: **Settings → Secrets and variables → Actions → New
-repository secret**, and add all four:
+repository secret**. Always add:
 
 - `ANTHROPIC_API_KEY`
-- `PINTEREST_ACCESS_TOKEN`
 - `GOOGLE_SERVICE_ACCOUNT_JSON` (paste the entire JSON file contents)
 - `GDRIVE_FOLDER_ID`
+
+Plus Pinterest — **either** the auto-refresh trio:
+
+- `PINTEREST_APP_ID`
+- `PINTEREST_APP_SECRET`
+- `PINTEREST_REFRESH_TOKEN`
+
+**or** the single static token:
+
+- `PINTEREST_ACCESS_TOKEN`
 
 ### 5. Configure your brand
 Edit `config.yaml` — set `website_url`, `business_name`, `niche`,
