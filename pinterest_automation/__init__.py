@@ -4,6 +4,7 @@ __all__ = [
     "config",
     "drive",
     "captions",
+    "images",
     "pinterest",
     "pinterest_auth",
     "state",
