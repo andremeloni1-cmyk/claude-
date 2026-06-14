@@ -1,0 +1,37 @@
+# Brand and behaviour settings for the Pinterest automation.
+# Secrets (API keys, the Drive folder id) are NOT here — they come from
+# environment variables / GitHub Actions secrets. See README.md.
+
+# Where every pin should send people. UTM params are appended automatically.
+website_url: "https://www.andremeloniphotography.co"
+
+# Used to ground the SEO copy the model writes.
+business_name: "Andre Meloni Photography"
+niche: >
+  Professional photography — weddings, couples, portraits and lifestyle
+  sessions. Natural, warm, editorial style.
+location: "United Kingdom"
+target_audience: >
+  Engaged couples planning a wedding, and people looking to book a portrait
+  or lifestyle photographer.
+
+# Pins are created on this board. It is created automatically if missing.
+board_name: "Andre Meloni Photography"
+board_description: >
+  Wedding, couple and portrait photography by Andre Meloni. Book your session
+  at andremeloniphotography.co
+
+# UTM tags appended to the website link on every pin, so you can see
+# Pinterest traffic in your analytics.
+utm:
+  source: "pinterest"
+  medium: "social"
+  campaign: "organic_pins"
+
+# Claude model used to write the copy. claude-opus-4-8 is the most capable;
+# switch to claude-sonnet-4-6 for lower cost on high volume.
+model: "claude-opus-4-8"
+
+# Safety limit: how many new photos to post per run. Keeps you well under
+# Pinterest rate limits and avoids dumping a whole folder at once.
+max_pins_per_run: 4
