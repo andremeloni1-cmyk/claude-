@@ -64,19 +64,18 @@ blog:
 
   # Map the pipeline's logical fields to the FIELD NAMES in your Framer
   # collection. Names are matched case-insensitively; any field not present in
-  # your collection is skipped with a warning (so partial maps are fine).
-  # "slug" is set on the item itself and never needs mapping here.
+  # your collection is skipped (so partial maps are fine). "slug" is set on the
+  # item itself and never needs mapping here. These names match the actual
+  # fields in the "Blog" collection (Title / Preview / Intro 1 / Intro 2 /
+  # Content / Alt text / Date). Add more lines if you add fields in Framer.
   field_map:
     title: "Title"
-    excerpt: "Excerpt"
+    intro_1: "Intro 1"
+    intro_2: "Intro 2"
     body: "Content"
-    cover: "Cover Image"
+    cover: "Preview"
+    cover_alt: "Alt text"
     date: "Date"
-    category: "Category"
-    meta_title: "Meta Title"
-    meta_description: "Meta Description"
-    author: "Author"
-    keywords: "Keywords"
 
   # How many photos to embed per post (the first becomes the cover image).
   images_per_post: 4

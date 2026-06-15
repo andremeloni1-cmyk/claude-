@@ -38,6 +38,8 @@ def write(published_dir: Path, post: dict, images: list[dict], author: str) -> P
         "slug": slug,
         "fields": {
             "title": post["title"],
+            "intro_1": post["intro_1"],
+            "intro_2": post["intro_2"],
             "meta_title": post["meta_title"],
             "meta_description": post["meta_description"],
             "excerpt": post["excerpt"],
