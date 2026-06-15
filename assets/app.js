@@ -6,6 +6,8 @@ const DEFAULT_SETTINGS = {
   yourName: "Andre",
   yourEmail: "andre@andremeloniphotography.co",
   yourPhone: "",
+  googleClientId: "",
+  googleAutoSync: false,
 };
 
 const STATUS_LABELS = {
@@ -242,12 +244,20 @@ function renderCalendar() {
     cell.appendChild(numberEl);
 
     const dayJobs = jobs.filter((j) => j.date === dateStr);
-    if (dayJobs.length) {
+    const linkedIds = new Set(jobs.map((j) => j.googleEventId).filter(Boolean));
+    const otherEvents = GoogleSync.eventsOn(dateStr).filter((ev) => !linkedIds.has(ev.id));
+
+    if (dayJobs.length || otherEvents.length) {
       const dots = document.createElement("div");
       dots.className = "day-dots";
       dayJobs.forEach((j) => {
         const dot = document.createElement("span");
         dot.className = `dot dot-${j.status}`;
+        dots.appendChild(dot);
+      });
+      otherEvents.forEach(() => {
+        const dot = document.createElement("span");
+        dot.className = "dot dot-gcal";
         dots.appendChild(dot);
       });
       cell.appendChild(dots);
@@ -262,6 +272,7 @@ function selectDate(dateStr) {
   selectedDateStr = dateStr;
   renderCalendar();
   renderDayJobs();
+  renderDayGoogleEvents();
 }
 
 // ---------- Job list rendering ----------
@@ -324,6 +335,80 @@ function renderDayJobs() {
   dayJobs.forEach((job) => list.appendChild(createJobItem(job)));
 }
 
+function createGoogleEventItem(event) {
+  const li = document.createElement("li");
+  li.className = "job-item gcal-item";
+
+  const top = document.createElement("div");
+  top.className = "job-item-top";
+
+  const name = document.createElement("span");
+  name.className = "job-item-name";
+  name.textContent = event.title;
+  top.appendChild(name);
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "btn btn-small btn-secondary";
+  btn.textContent = "Add as Job";
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    openJobModal({
+      id: "",
+      clientName: event.title,
+      jobType: "Other",
+      status: "inquiry",
+      date: event.date,
+      time: event.time,
+      location: event.location,
+      email: "",
+      price: "",
+      notes: "Imported from Google Calendar.",
+      googleEventId: event.id,
+    });
+  });
+  top.appendChild(btn);
+
+  const meta = document.createElement("div");
+  meta.className = "job-item-meta";
+  meta.textContent = event.allDay ? "All day" : formatDisplayTime(event.time);
+  if (event.location) meta.textContent += ` · ${event.location}`;
+
+  li.appendChild(top);
+  li.appendChild(meta);
+  return li;
+}
+
+function renderDayGoogleEvents() {
+  const list = document.getElementById("day-gcal-list");
+  const emptyMsg = document.getElementById("day-gcal-empty-msg");
+  list.innerHTML = "";
+
+  if (!GoogleSync.isConnected()) {
+    emptyMsg.textContent = "Connect Google Calendar in Settings to see your full schedule here.";
+    emptyMsg.classList.remove("hidden");
+    return;
+  }
+
+  if (!selectedDateStr) {
+    emptyMsg.textContent = "Select a date to see other calendar events.";
+    emptyMsg.classList.remove("hidden");
+    return;
+  }
+
+  const linkedIds = new Set(jobs.map((j) => j.googleEventId).filter(Boolean));
+  const events = GoogleSync.eventsOn(selectedDateStr).filter((ev) => !linkedIds.has(ev.id));
+
+  if (!events.length) {
+    emptyMsg.textContent = "No other events on this date.";
+    emptyMsg.classList.remove("hidden");
+    return;
+  }
+
+  emptyMsg.classList.add("hidden");
+  events.forEach((event) => list.appendChild(createGoogleEventItem(event)));
+}
+
 function renderUpcomingJobs() {
   const list = document.getElementById("upcoming-list");
   list.innerHTML = "";
@@ -351,9 +436,12 @@ function openJobModal(job) {
   const form = document.getElementById("job-form");
   form.reset();
 
-  document.getElementById("job-id").value = job ? job.id : "";
-  document.getElementById("job-modal-title").textContent = job ? "Edit Job" : "Add Job";
-  document.getElementById("delete-job-btn").classList.toggle("hidden", !job);
+  const isExisting = !!(job && job.id);
+
+  document.getElementById("job-id").value = isExisting ? job.id : "";
+  document.getElementById("job-google-event-id").value = job ? job.googleEventId || "" : "";
+  document.getElementById("job-modal-title").textContent = isExisting ? "Edit Job" : "Add Job";
+  document.getElementById("delete-job-btn").classList.toggle("hidden", !isExisting);
 
   document.getElementById("job-client").value = job ? job.clientName : "";
   document.getElementById("job-type").value = job ? job.jobType : "Wedding";
@@ -372,7 +460,7 @@ function closeJobModal() {
   document.getElementById("job-modal").classList.add("hidden");
 }
 
-function handleJobFormSubmit(e) {
+async function handleJobFormSubmit(e) {
   e.preventDefault();
 
   const id = document.getElementById("job-id").value;
@@ -387,6 +475,7 @@ function handleJobFormSubmit(e) {
     email: document.getElementById("job-email").value.trim(),
     price: document.getElementById("job-price").value,
     notes: document.getElementById("job-notes").value.trim(),
+    googleEventId: document.getElementById("job-google-event-id").value || null,
   };
 
   if (id) {
@@ -399,17 +488,43 @@ function handleJobFormSubmit(e) {
   saveJobs();
   closeJobModal();
   refreshAll();
+
+  if (settings.googleAutoSync && GoogleSync.isConnected()) {
+    try {
+      if (jobData.googleEventId) {
+        await GoogleSync.updateEvent(jobData);
+      } else {
+        jobData.googleEventId = await GoogleSync.createEvent(jobData);
+      }
+      saveJobs();
+      await GoogleSync.fetchEvents();
+      refreshAll();
+    } catch (err) {
+      alert("Saved locally, but could not sync with Google Calendar: " + err.message);
+    }
+  }
 }
 
-function handleDeleteJob() {
+async function handleDeleteJob() {
   const id = document.getElementById("job-id").value;
   if (!id) return;
   if (!confirm("Delete this job?")) return;
 
+  const job = jobs.find((j) => j.id === id);
   jobs = jobs.filter((j) => j.id !== id);
   saveJobs();
   closeJobModal();
   refreshAll();
+
+  if (job && job.googleEventId && settings.googleAutoSync && GoogleSync.isConnected()) {
+    try {
+      await GoogleSync.deleteEvent(job.googleEventId);
+      await GoogleSync.fetchEvents();
+      refreshAll();
+    } catch (err) {
+      // local delete already succeeded; ignore calendar sync failure
+    }
+  }
 }
 
 // ---------- Settings modal ----------
@@ -419,6 +534,9 @@ function openSettingsModal() {
   document.getElementById("settings-your-name").value = settings.yourName;
   document.getElementById("settings-email").value = settings.yourEmail;
   document.getElementById("settings-phone").value = settings.yourPhone;
+  document.getElementById("settings-google-client-id").value = settings.googleClientId;
+  document.getElementById("settings-google-autosync").checked = settings.googleAutoSync;
+  updateGoogleStatusUI();
   document.getElementById("settings-modal").classList.remove("hidden");
 }
 
@@ -434,6 +552,8 @@ function handleSettingsFormSubmit(e) {
     yourName: document.getElementById("settings-your-name").value.trim(),
     yourEmail: document.getElementById("settings-email").value.trim(),
     yourPhone: document.getElementById("settings-phone").value.trim(),
+    googleClientId: document.getElementById("settings-google-client-id").value.trim(),
+    googleAutoSync: document.getElementById("settings-google-autosync").checked,
   };
 
   saveSettings();
@@ -550,6 +670,32 @@ function handleCopyEmail() {
     });
 }
 
+async function handleSaveDraft() {
+  const status = document.getElementById("email-status");
+
+  if (!GoogleSync.isConnected()) {
+    status.textContent = "Connect your Google account in Settings first.";
+    return;
+  }
+
+  const jobSelect = document.getElementById("email-job-select");
+  const job = jobs.find((j) => j.id === jobSelect.value);
+  const subject = document.getElementById("email-subject").value;
+  const body = document.getElementById("email-body").value;
+
+  if (!job || !job.email) {
+    status.textContent = "Add a client email address to this job first.";
+    return;
+  }
+
+  try {
+    await GoogleSync.createDraft(job.email, subject, body);
+    status.textContent = "Draft saved to your Gmail drafts folder.";
+  } catch (err) {
+    status.textContent = "Could not save draft: " + err.message;
+  }
+}
+
 function handleOpenMail() {
   const jobSelect = document.getElementById("email-job-select");
   const job = jobs.find((j) => j.id === jobSelect.value);
@@ -561,11 +707,58 @@ function handleOpenMail() {
   window.location.href = url;
 }
 
+// ---------- Google Sync UI ----------
+
+function updateGoogleStatusUI() {
+  const connected = GoogleSync.isConnected();
+  const label = connected ? `Connected${GoogleSync.userEmail ? " as " + GoogleSync.userEmail : ""}` : "Not connected";
+
+  document.getElementById("google-status").textContent = `Google: ${label}`;
+  document.getElementById("settings-google-status").textContent = label;
+  document.getElementById("google-connect-btn").textContent = connected ? "Reconnect Google" : "Connect Google";
+  document.getElementById("save-draft-btn").disabled = !connected;
+}
+
+function handleGoogleConnectClick() {
+  const clientId = settings.googleClientId;
+  if (!clientId) {
+    alert("Please enter your Google OAuth Client ID in Settings first. See SETUP.md for instructions.");
+    openSettingsModal();
+    return;
+  }
+
+  GoogleSync.connect(clientId, onGoogleConnected);
+}
+
+async function onGoogleConnected({ email, error }) {
+  if (error) {
+    alert("Google sign-in failed: " + error);
+    return;
+  }
+
+  updateGoogleStatusUI();
+
+  try {
+    await GoogleSync.fetchEvents();
+  } catch (err) {
+    // calendar fetch failure shouldn't block the rest of the UI
+  }
+
+  refreshAll();
+}
+
+function handleGoogleDisconnectClick() {
+  GoogleSync.disconnect();
+  updateGoogleStatusUI();
+  refreshAll();
+}
+
 // ---------- Refresh / init ----------
 
 function refreshAll() {
   renderCalendar();
   renderDayJobs();
+  renderDayGoogleEvents();
   renderUpcomingJobs();
   renderEmailJobSelect();
   renderEmailTemplateSelect();
@@ -606,7 +799,12 @@ function init() {
   document.getElementById("email-job-select").addEventListener("change", handleEmailJobChange);
   document.getElementById("email-template-select").addEventListener("change", renderEmailPreview);
   document.getElementById("copy-email-btn").addEventListener("click", handleCopyEmail);
+  document.getElementById("save-draft-btn").addEventListener("click", handleSaveDraft);
   document.getElementById("open-mail-btn").addEventListener("click", handleOpenMail);
+
+  document.getElementById("google-connect-btn").addEventListener("click", handleGoogleConnectClick);
+  document.getElementById("settings-google-connect-btn").addEventListener("click", handleGoogleConnectClick);
+  document.getElementById("settings-google-disconnect-btn").addEventListener("click", handleGoogleDisconnectClick);
 
   [document.getElementById("job-modal"), document.getElementById("settings-modal")].forEach((modal) => {
     modal.addEventListener("click", (e) => {
@@ -614,7 +812,16 @@ function init() {
     });
   });
 
+  GoogleSync.restoreSession();
+  updateGoogleStatusUI();
+
   refreshAll();
+
+  if (GoogleSync.isConnected()) {
+    GoogleSync.fetchEvents()
+      .then(refreshAll)
+      .catch(() => {});
+  }
 }
 
 document.addEventListener("DOMContentLoaded", init);

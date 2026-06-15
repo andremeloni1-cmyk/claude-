@@ -11,6 +11,7 @@
   --booked: #4caf91;
   --completed: #8e7cc3;
   --danger: #e35d6a;
+  --gcal: #5b8def;
 }
 
 * {
@@ -53,6 +54,8 @@ body {
 
 .topbar-actions {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
@@ -169,6 +172,7 @@ body {
 .dot-inquiry { background: var(--inquiry); }
 .dot-booked { background: var(--booked); }
 .dot-completed { background: var(--completed); }
+.dot-gcal { background: var(--gcal); }
 
 .legend {
   display: flex;
@@ -190,6 +194,18 @@ body {
   margin: 0 0 0.6rem;
   font-size: 1rem;
   color: var(--accent);
+}
+
+.sub-heading {
+  margin: 0.8rem 0 0.4rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+}
+
+.sub-heading:first-of-type {
+  margin-top: 0;
 }
 
 .job-list {
@@ -309,6 +325,11 @@ textarea {
   opacity: 0.85;
 }
 
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .btn-primary {
   background: var(--accent);
   color: #1a1a1a;
@@ -344,6 +365,53 @@ textarea {
   display: flex;
   gap: 0.6rem;
   margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.google-status {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.help-text {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin: 0 0 0.8rem;
+}
+
+.help-text a {
+  color: var(--accent);
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1rem 0;
+}
+
+.checkbox-field label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.checkbox-field input {
+  width: auto;
+}
+
+.google-connect-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.gcal-item .job-item-top {
+  align-items: flex-start;
 }
 
 .modal {

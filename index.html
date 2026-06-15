@@ -14,6 +14,8 @@
         <p class="subtitle">Upcoming jobs &amp; client emails</p>
       </div>
       <div class="topbar-actions">
+        <span id="google-status" class="google-status">Google: Not connected</span>
+        <button id="google-connect-btn" class="btn btn-secondary">Connect Google</button>
         <button id="add-job-btn" class="btn btn-primary">+ Add Job</button>
         <button id="settings-btn" class="btn btn-secondary">Settings</button>
       </div>
@@ -37,6 +39,7 @@
           <span class="legend-item"><i class="dot dot-inquiry"></i> Inquiry / Not booked</span>
           <span class="legend-item"><i class="dot dot-booked"></i> Booked</span>
           <span class="legend-item"><i class="dot dot-completed"></i> Completed</span>
+          <span class="legend-item"><i class="dot dot-gcal"></i> Other calendar event</span>
         </div>
 
         <div class="upcoming">
@@ -48,8 +51,13 @@
       <section class="panel side-panel">
         <div class="card">
           <h3 id="selected-date-label">Select a date</h3>
+          <h4 class="sub-heading">Jobs</h4>
           <ul id="day-job-list" class="job-list"></ul>
           <p id="day-empty-msg" class="empty-msg">No jobs on this date.</p>
+
+          <h4 class="sub-heading">Other Calendar Events</h4>
+          <ul id="day-gcal-list" class="job-list"></ul>
+          <p id="day-gcal-empty-msg" class="empty-msg">Connect Google Calendar in Settings to see your full schedule here.</p>
         </div>
 
         <div class="card">
@@ -72,6 +80,7 @@
           </div>
           <div class="email-actions">
             <button id="copy-email-btn" class="btn btn-secondary">Copy to Clipboard</button>
+            <button id="save-draft-btn" class="btn btn-secondary" disabled>Save as Gmail Draft</button>
             <button id="open-mail-btn" class="btn btn-primary">Open in Email App</button>
           </div>
           <p id="email-status" class="empty-msg" aria-live="polite"></p>
@@ -86,6 +95,7 @@
       <h2 id="job-modal-title">Add Job</h2>
       <form id="job-form">
         <input type="hidden" id="job-id" />
+        <input type="hidden" id="job-google-event-id" />
         <div class="field">
           <label for="job-client">Client name</label>
           <input type="text" id="job-client" required />
@@ -173,6 +183,28 @@
           <label for="settings-phone">Your phone</label>
           <input type="text" id="settings-phone" />
         </div>
+
+        <hr class="divider" />
+        <h3>Google Sync</h3>
+        <p class="help-text">
+          Connect your Google account to see your full calendar here and save email drafts to Gmail.
+          See <a href="SETUP.md" target="_blank" rel="noopener">SETUP.md</a> for how to get a Client ID.
+        </p>
+        <div class="field">
+          <label for="settings-google-client-id">Google OAuth Client ID</label>
+          <input type="text" id="settings-google-client-id" placeholder="xxxxxxxxxxxx.apps.googleusercontent.com" />
+        </div>
+        <div class="field checkbox-field">
+          <label><input type="checkbox" id="settings-google-autosync" /> Add &amp; update jobs in Google Calendar automatically</label>
+        </div>
+        <div class="field google-connect-row">
+          <span id="settings-google-status" class="google-status">Not connected</span>
+          <div class="modal-actions-right">
+            <button type="button" id="settings-google-connect-btn" class="btn btn-secondary btn-small">Connect</button>
+            <button type="button" id="settings-google-disconnect-btn" class="btn btn-secondary btn-small">Disconnect</button>
+          </div>
+        </div>
+
         <div class="modal-actions">
           <div class="modal-actions-right">
             <button type="button" id="cancel-settings-btn" class="btn btn-secondary">Cancel</button>
@@ -183,7 +215,9 @@
     </div>
   </div>
 
+  <script src="https://accounts.google.com/gsi/client" async></script>
   <script src="assets/templates.js"></script>
+  <script src="assets/google.js"></script>
   <script src="assets/app.js"></script>
 </body>
 </html>
