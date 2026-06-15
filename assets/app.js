@@ -197,6 +197,17 @@ function extractClientEmailFromBody(body, senderEmail) {
   return "";
 }
 
+// Looks for a line like "Address: 123 Smith St" / "Site Address: ..." /
+// "Location: ..." in the message body and returns the address part.
+function extractLocationFromBody(body) {
+  const lines = (body || "").split(/\r?\n/);
+  for (const line of lines) {
+    const match = line.match(/^\s*(?:job|site|property|event)?\s*(?:address|location)\s*:\s*(.+)$/i);
+    if (match && match[1].trim()) return match[1].trim();
+  }
+  return "";
+}
+
 // ---------- Date helpers ----------
 
 function pad2(n) {
@@ -529,7 +540,7 @@ function createInquiryItem(inquiry) {
       status: "booked",
       date: todayStr(),
       time: "",
-      location: "",
+      location: extractLocationFromBody(inquiry.body),
       email: extractClientEmailFromBody(inquiry.body, senderEmail),
       price: "",
       notes: `Referral inquiry from ${extractDisplayName(inquiry.from)} — accepted:\n${inquiry.subject}\n${inquiry.snippet}`,
