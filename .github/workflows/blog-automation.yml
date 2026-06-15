@@ -44,12 +44,25 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add published state/blog.json
-          if ! git diff --staged --quiet; then
-            git commit -m "Add generated blog post(s) [skip ci]"
-            git push
-          else
+          if git diff --staged --quiet; then
             echo "No new posts to commit."
+            exit 0
           fi
+          git commit -m "Add generated blog post(s) [skip ci]"
+          # main can advance between checkout and push — e.g. the Pinterest
+          # automation commits its own state to main concurrently. Rebase onto
+          # the latest main and retry so a competing push doesn't abort the run
+          # before the Framer publish step gets to run.
+          for attempt in 1 2 3 4 5; do
+            if git push; then
+              echo "Pushed on attempt ${attempt}."
+              exit 0
+            fi
+            echo "Push rejected (attempt ${attempt}); rebasing onto origin/${GITHUB_REF_NAME}…"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+          done
+          echo "Failed to push generated posts after multiple attempts." >&2
+          exit 1
 
       - uses: actions/setup-node@v4
         with:

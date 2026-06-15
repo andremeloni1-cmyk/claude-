@@ -52,9 +52,21 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add state/posted.json
-          if ! git diff --staged --quiet; then
-            git commit -m "Update posted state [skip ci]"
-            git push
-          else
+          if git diff --staged --quiet; then
             echo "No state changes to commit."
+            exit 0
           fi
+          git commit -m "Update posted state [skip ci]"
+          # main can advance between checkout and push — e.g. the blog
+          # automation commits its bundles to main concurrently. Rebase onto the
+          # latest main and retry so a competing push doesn't fail the run.
+          for attempt in 1 2 3 4 5; do
+            if git push; then
+              echo "Pushed on attempt ${attempt}."
+              exit 0
+            fi
+            echo "Push rejected (attempt ${attempt}); rebasing onto origin/${GITHUB_REF_NAME}…"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+          done
+          echo "Failed to push updated state after multiple attempts." >&2
+          exit 1
