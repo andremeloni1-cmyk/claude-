@@ -1,0 +1,70 @@
+name: Profile / Portfolio Automation
+
+on:
+  schedule:
+    # Every 6 hours. Adjust the cron as you like (https://crontab.guru).
+    - cron: "30 */6 * * *"
+  workflow_dispatch: {}   # lets you trigger a run manually from the Actions tab
+
+# Needed so the job can commit the generated bundles, images and state back.
+permissions:
+  contents: write
+
+# Prevent overlapping runs from double-uploading or double-publishing.
+concurrency:
+  group: profile-automation
+  cancel-in-progress: false
+
+jobs:
+  profile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Bundle new portfolio photos
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          # Use a dedicated profile folder if set, otherwise the shared one.
+          GDRIVE_FOLDER_ID: ${{ secrets.PROFILE_GDRIVE_FOLDER_ID || secrets.GDRIVE_FOLDER_ID }}
+        run: python -m profile_automation.main
+
+      # Commit + push BEFORE publishing so the images are live at their public
+      # raw.githubusercontent.com URLs when Framer ingests them.
+      - name: Commit generated bundles and images
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add published_profile state/profile.json
+          if ! git diff --staged --quiet; then
+            git commit -m "Add portfolio photo upload(s) [skip ci]"
+            git push
+          else
+            echo "No new photos to commit."
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Framer publisher dependencies
+        working-directory: framer
+        run: npm install --no-audit --no-fund
+
+      - name: Publish photos to Framer Portfolio CMS
+        working-directory: framer
+        env:
+          FRAMER_API_KEY: ${{ secrets.FRAMER_API_KEY }}
+          FRAMER_PROJECT_URL: ${{ secrets.FRAMER_PROJECT_URL }}
+          FRAMER_PROFILE_COLLECTION_ID: ${{ secrets.FRAMER_PROFILE_COLLECTION_ID }}
+          # Public base URL the committed images are served from.
+          IMAGE_BASE_URL: "https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}"
+        run: node publish-profile.mjs

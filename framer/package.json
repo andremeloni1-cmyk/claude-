@@ -5,7 +5,8 @@
   "type": "module",
   "description": "Pushes generated blog post bundles into the Framer CMS via the Framer Server API.",
   "scripts": {
-    "publish-posts": "node publish.mjs"
+    "publish-posts": "node publish.mjs",
+    "publish-profile": "node publish-profile.mjs"
   },
   "dependencies": {
     "framer-api": "^0.1.16",

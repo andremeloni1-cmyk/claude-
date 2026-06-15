@@ -7,6 +7,9 @@ business, both driven by Claude and run on a schedule by GitHub Actions:
 2. **[SEO Blog Automation](#seo-blog-automation)** — writes full SEO blog posts,
    illustrates them with your photos, and publishes them straight to your
    **Framer** CMS.
+3. **[Profile / Portfolio Uploads](#profile--portfolio-uploads)** — drop wedding
+   photos in a Drive folder and they appear in your **Framer Portfolio CMS**
+   (the profile/portfolio section of the site), titled and alt-texted by Claude.
 
 ---
 
@@ -332,3 +335,93 @@ order, one (by `blog.max_posts_per_run`) per run.
   back-filled onto already-published posts — on the next run.
 - The Drive folder is opened **read-only**. Photos are matched by Drive file id
   and (by default) not reused across posts until the unused pool runs out.
+
+---
+
+# Profile / Portfolio Uploads
+
+The simplest pipeline: **a Google Drive folder you drop wedding photos into, and
+they show up in the profile/portfolio section of your Framer site.** No
+copy-paste, no opening Framer.
+
+**How it works:** on a schedule, GitHub Actions runs the pipeline, which:
+
+1. Lists the photos in your Drive folder.
+2. For each photo it hasn't uploaded yet, asks **Claude** (vision) for a short,
+   elegant title and honest alt text (using the filename as a hint for the
+   couple's names and location — it never invents details).
+3. Resizes the photo for the web and saves it as a bundle under
+   `published_profile/<slug>/`, then commits it (so the image gets a public URL).
+4. Pushes each photo into your **Framer `Portfolio` CMS collection** via the
+   Framer Server API — filed under the **Wedding** category, with Title, Preview
+   image, Alt text and Date set — and publishes the site.
+5. Records what it uploaded in `state/profile.json` so nothing is double-posted.
+
+```
+Google Drive folder ──▶ GitHub Actions (cron) ──▶ Claude writes title + alt text ──▶ Framer Portfolio CMS ──▶ published site
+```
+
+## What you actually do
+
+**Just drop wedding photos into the Drive folder.** That's the whole workflow
+once it's set up. Within a few hours (or immediately, if you trigger the run
+manually) they appear in your Portfolio collection in Framer and on the live
+site. Re-running is safe — a photo is never uploaded twice.
+
+## Setup
+
+It reuses the **Anthropic**, **Google Drive** and **Framer** secrets from the
+two pipelines above — there's nothing new to create unless you want a *separate*
+folder for portfolio photos.
+
+| Secret | Needed? | Notes |
+|--------|---------|-------|
+| `ANTHROPIC_API_KEY` | reused | Already set up. |
+| `GOOGLE_SERVICE_ACCOUNT_JSON` | reused | Already set up. |
+| `FRAMER_API_KEY` / `FRAMER_PROJECT_URL` | reused | Already set up for the blog. |
+| `GDRIVE_FOLDER_ID` | reused | Portfolio photos are read from here by default. |
+| `PROFILE_GDRIVE_FOLDER_ID` | optional | Set this to use a **dedicated** Drive folder for portfolio photos (recommended, so portfolio shots and Pinterest/blog source photos don't mix). Share it with the same service-account email. |
+| `FRAMER_PROFILE_COLLECTION_ID` | optional | Pin an exact collection instead of matching by name (`profile.collection_name`, default `Portfolio`). |
+
+The **`Portfolio`** collection and a **`Category`** item named **Wedding** must
+exist in Framer (they already do in this project). Each upload requires Framer's
+mandatory Portfolio fields — Title, Category and Preview image — all of which the
+pipeline fills automatically.
+
+## Running it
+
+- **Automatically:** the workflow runs every 6 hours. Change the `cron` in
+  `.github/workflows/profile-automation.yml` to adjust the cadence.
+- **On demand:** Actions tab → *Profile / Portfolio Automation* → **Run
+  workflow**. Use this to test the setup or to push a fresh batch immediately.
+- **Locally:**
+  ```bash
+  pip install -r requirements.txt
+  export ANTHROPIC_API_KEY=... GDRIVE_FOLDER_ID=...
+  export GOOGLE_SERVICE_ACCOUNT_JSON="$(cat service-account.json)"
+  python -m profile_automation.main          # writes published_profile/<slug>/
+  cd framer && npm install
+  export FRAMER_API_KEY=... FRAMER_PROJECT_URL=...
+  export IMAGE_BASE_URL="https://raw.githubusercontent.com/<owner>/<repo>/<branch>"
+  node publish-profile.mjs
+  ```
+
+## Tuning
+
+- **Which category photos are filed under:** `profile.category` in `config.yaml`
+  (default `Wedding`; must match a `Category` item name/slug in Framer).
+- **How many photos per run:** `profile.max_per_run` (default 8).
+- **Cost vs. quality of titles/alt text:** `model` in `config.yaml`.
+- **Field names:** `profile.field_map` — only needed if you rename the Portfolio
+  fields in Framer.
+
+## Notes
+
+- Re-runs are safe: a Drive photo already in `state/profile.json` is never
+  uploaded again, and an existing slug in Framer is **updated in place** (never
+  duplicated), so a failed push is retried on the next run.
+- The Drive folder is opened **read-only** — the pipeline never changes or
+  deletes your photos.
+- Photos drop into Framer **as draft-free, published Portfolio items** under the
+  Wedding category. The two gallery-column fields on the Portfolio collection are
+  left untouched, so you can still curate multi-image galleries by hand.

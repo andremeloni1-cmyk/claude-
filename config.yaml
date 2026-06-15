@@ -118,3 +118,34 @@ blog:
       notes: "Golden hour, timeline planning tips for Australian light and seasons."
     - keyword: "Southern Highlands elopement photography guide"
       notes: "For couples considering eloping in the Southern Highlands; what to expect, permits, timing."
+
+# ---------------------------------------------------------------------------
+# PROFILE / PORTFOLIO UPLOADS
+# ---------------------------------------------------------------------------
+# Drop wedding photos into a Google Drive folder and they are uploaded into the
+# Framer "Portfolio" CMS collection that drives the profile/portfolio section of
+# the site. Each new photo gets a Claude-written title + alt text, is resized for
+# the web, and is filed under the category below. Reuses the brand settings above
+# (business_name, niche, location, service_area, website_url, model).
+profile:
+  # The CMS collection in Framer that holds portfolio items. Matched
+  # case-insensitively. Pin an exact collection with FRAMER_PROFILE_COLLECTION_ID.
+  collection_name: "Portfolio"
+
+  # Which Category each uploaded photo is filed under. Must match the name (or
+  # slug) of an item in your Framer "Category" collection. Yours currently has
+  # "Wedding" and "Engagement".
+  category: "Wedding"
+
+  # Map the pipeline's logical fields to the FIELD NAMES in your Portfolio
+  # collection. Names are matched case-insensitively; any field not present is
+  # skipped. These match this project's "Portfolio" collection.
+  field_map:
+    title: "Title"
+    alt_text: "Alt text"
+    preview: "Preview"
+    date: "Date"
+    category: "Category"
+
+  # Safety limit: how many NEW photos to upload per run.
+  max_per_run: 8
