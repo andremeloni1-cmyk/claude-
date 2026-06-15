@@ -179,14 +179,17 @@ function formatInquiryDate(dateHeader) {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
-// Strips common reply/forward/booking prefixes so a subject line like
-// "Re: New job - Smith Family" or "Booking K2 Konstructions (Atkinson)
-// Kangaroo Valley" becomes a usable client/job name.
+// Strips common reply/forward/booking prefixes and job codes so a subject
+// line like "Re: New job - Smith Family", "Booking-Craig @ Bowral", or
+// "(H) QU3460 - 64 Terry Street, Rozelle" becomes a usable client/job name.
 function extractClientNameFromSubject(subject) {
-  return (subject || "")
+  let s = (subject || "")
     .replace(/^\s*(re|fwd?|fw)\s*:\s*/i, "")
-    .replace(/^\s*booking\s+/i, "")
+    .replace(/^\s*(booking|cancelled)[\s-]+/i, "")
+    .replace(/^\(?\w*\)?\s*QU\d+\s*-\s*/i, "")
     .trim();
+  s = s.replace(/\s*@\s*.+$/, "").trim();
+  return s;
 }
 
 // Finds the first email address in the message body that isn't on the
@@ -209,6 +212,23 @@ function extractLocationFromBody(body) {
     const match = line.match(/^\s*(?:job|site|property|event)?\s*(?:address|location)\s*:\s*(.+)$/i);
     if (match && match[1].trim()) return match[1].trim();
   }
+  return "";
+}
+
+// Falls back to common subject-line address formats used by referral
+// sources, e.g. "(H) QU3460 - 64 Terry Street, Rozelle", a bare
+// "64 Terry Street, Rozelle", or "Booking-Craig @ Bowral".
+function extractLocationFromSubject(subject) {
+  const s = (subject || "").trim();
+
+  const jobCodeMatch = s.match(/QU\d+\s*-\s*(.+)$/i);
+  if (jobCodeMatch && jobCodeMatch[1].trim()) return jobCodeMatch[1].trim();
+
+  const atMatch = s.match(/@\s*([A-Za-z][\w'-]*)/);
+  if (atMatch) return atMatch[1].trim();
+
+  if (/^\d+\s+.+,\s*[A-Za-z]/.test(s)) return s;
+
   return "";
 }
 
@@ -585,7 +605,7 @@ function createInquiryItem(inquiry) {
       status: "booked",
       date: details.date || todayStr(),
       time: "",
-      location: details.location || extractLocationFromBody(inquiry.body),
+      location: details.location || extractLocationFromBody(inquiry.body) || extractLocationFromSubject(inquiry.subject),
       email: extractClientEmailFromBody(inquiry.body, senderEmail),
       price: "",
       notes: `Referral inquiry from ${extractDisplayName(inquiry.from)} — accepted:\n${inquiry.subject}\n${inquiry.snippet}`,
