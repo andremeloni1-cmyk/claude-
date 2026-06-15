@@ -168,7 +168,8 @@ const GoogleSync = {
   },
 
   // Searches Gmail for messages from the given sender email addresses and
-  // returns basic metadata (subject, from, date, snippet) for each match.
+  // returns metadata (subject, from, date, snippet) plus the plain-text
+  // body for each match, so jobs can be pre-filled from the email content.
   async fetchInquiries(senders) {
     const addresses = (senders || []).map((s) => s.trim()).filter(Boolean);
     if (!addresses.length) {
@@ -183,10 +184,7 @@ const GoogleSync = {
 
     const messages = await Promise.all(
       messageRefs.map(async (ref) => {
-        const params = new URLSearchParams({ format: "metadata" });
-        params.append("metadataHeaders", "Subject");
-        params.append("metadataHeaders", "From");
-        params.append("metadataHeaders", "Date");
+        const params = new URLSearchParams({ format: "full" });
         const msg = await this.apiFetch(`https://www.googleapis.com/gmail/v1/users/me/messages/${ref.id}?${params}`);
         const headers = (msg.payload && msg.payload.headers) || [];
         const getHeader = (name) => (headers.find((h) => h.name === name) || {}).value || "";
@@ -197,6 +195,7 @@ const GoogleSync = {
           from: getHeader("From"),
           date: getHeader("Date"),
           snippet: msg.snippet || "",
+          body: extractPlainTextBody(msg.payload),
         };
       })
     );
@@ -273,6 +272,40 @@ const GoogleSync = {
     });
   },
 };
+
+function decodeBase64Url(data) {
+  const base64 = data.replace(/-/g, "+").replace(/_/g, "/");
+  try {
+    return decodeURIComponent(escape(atob(base64)));
+  } catch (e) {
+    return atob(base64);
+  }
+}
+
+// Recursively walks a Gmail message payload to find the first text/plain
+// part and returns its decoded body text (empty string if none found).
+function extractPlainTextBody(payload) {
+  if (!payload) return "";
+
+  if (payload.mimeType === "text/plain" && payload.body && payload.body.data) {
+    return decodeBase64Url(payload.body.data);
+  }
+
+  if (payload.parts) {
+    for (const part of payload.parts) {
+      const text = extractPlainTextBody(part);
+      if (text) return text;
+    }
+  }
+
+  if (!payload.mimeType || payload.mimeType.startsWith("text/")) {
+    if (payload.body && payload.body.data) {
+      return decodeBase64Url(payload.body.data);
+    }
+  }
+
+  return "";
+}
 
 function addDaysToDateStr(dateStr, days) {
   const d = new Date(`${dateStr}T00:00:00`);

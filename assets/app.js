@@ -7,7 +7,7 @@ const DEFAULT_SETTINGS = {
   yourEmail: "andre@andremeloniphotography.co",
   yourPhone: "",
   googleClientId: "",
-  googleAutoSync: false,
+  googleAutoSync: true,
   referralSources: [
     { name: "Mii Kitchen", email: "emily@miikitchen.com.au" },
     { name: "Harrington Kitchens", email: "service@harringtonkitchens.com.au" },
@@ -177,6 +177,24 @@ function formatInquiryDate(dateHeader) {
   const d = new Date(dateHeader);
   if (isNaN(d.getTime())) return dateHeader || "";
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+// Strips common reply/forward prefixes so a subject line like
+// "Re: New job - Smith Family" becomes a usable client/job name.
+function extractClientNameFromSubject(subject) {
+  return (subject || "").replace(/^\s*(re|fwd?|fw)\s*:\s*/i, "").trim();
+}
+
+// Finds the first email address in the message body that isn't on the
+// referral source's own domain, so we can pre-fill the client's email.
+function extractClientEmailFromBody(body, senderEmail) {
+  const senderDomain = (senderEmail.split("@")[1] || "").toLowerCase();
+  const matches = (body || "").match(/[\w.+-]+@[\w-]+\.[\w.-]+/g) || [];
+  for (const m of matches) {
+    const domain = (m.split("@")[1] || "").toLowerCase();
+    if (domain && domain !== senderDomain) return m;
+  }
+  return "";
 }
 
 // ---------- Date helpers ----------
@@ -503,15 +521,16 @@ function createInquiryItem(inquiry) {
   btn.textContent = "Add as Job";
   btn.addEventListener("click", (e) => {
     e.stopPropagation();
+    const senderEmail = extractEmailAddress(inquiry.from);
     openJobModal({
       id: "",
-      clientName: "",
+      clientName: extractClientNameFromSubject(inquiry.subject),
       jobType: "Other",
       status: "booked",
       date: todayStr(),
       time: "",
       location: "",
-      email: "",
+      email: extractClientEmailFromBody(inquiry.body, senderEmail),
       price: "",
       notes: `Referral inquiry from ${extractDisplayName(inquiry.from)} — accepted:\n${inquiry.subject}\n${inquiry.snippet}`,
       gmailMessageId: inquiry.id,
