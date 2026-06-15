@@ -720,11 +720,21 @@ function updateGoogleStatusUI() {
 }
 
 function handleGoogleConnectClick() {
-  const clientId = settings.googleClientId;
+  const settingsModal = document.getElementById("settings-modal");
+  const modalOpen = !settingsModal.classList.contains("hidden");
+  const clientIdInput = document.getElementById("settings-google-client-id");
+
+  const clientId = modalOpen ? clientIdInput.value.trim() : settings.googleClientId;
+
   if (!clientId) {
     alert("Please enter your Google OAuth Client ID in Settings first. See SETUP.md for instructions.");
-    openSettingsModal();
+    if (!modalOpen) openSettingsModal();
     return;
+  }
+
+  if (clientId !== settings.googleClientId) {
+    settings.googleClientId = clientId;
+    saveSettings();
   }
 
   GoogleSync.connect(clientId, onGoogleConnected);
