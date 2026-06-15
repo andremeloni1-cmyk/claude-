@@ -179,10 +179,14 @@ function formatInquiryDate(dateHeader) {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
-// Strips common reply/forward prefixes so a subject line like
-// "Re: New job - Smith Family" becomes a usable client/job name.
+// Strips common reply/forward/booking prefixes so a subject line like
+// "Re: New job - Smith Family" or "Booking K2 Konstructions (Atkinson)
+// Kangaroo Valley" becomes a usable client/job name.
 function extractClientNameFromSubject(subject) {
-  return (subject || "").replace(/^\s*(re|fwd?|fw)\s*:\s*/i, "").trim();
+  return (subject || "")
+    .replace(/^\s*(re|fwd?|fw)\s*:\s*/i, "")
+    .replace(/^\s*booking\s+/i, "")
+    .trim();
 }
 
 // Finds the first email address in the message body that isn't on the
@@ -206,6 +210,46 @@ function extractLocationFromBody(body) {
     if (match && match[1].trim()) return match[1].trim();
   }
   return "";
+}
+
+// Calendar invite / auto-reply / status-update emails about jobs that are
+// already on the Google Calendar — Google Calendar's own automation already
+// turns these into calendar events, so they're filtered out of Email
+// Inquiries instead of being treated (and mis-parsed) as new job leads.
+function isCalendarNoiseEmail(subject) {
+  return /^\s*(re:\s*)?(invitation|updated invitation|cancelled invitation|cancelled event|accepted|declined|tentative|automatic reply)\s*[:\-]/i.test(
+    subject || ""
+  );
+}
+
+// Looks for a booking line in the email body such as
+// "Installation 30/6 - 2/7 K2 Konstructions (Atkinson) Kangaroo Valley" and
+// pulls the job/client name, location, and start date out of it.
+function extractJobDetailsFromBody(body) {
+  const text = (body || "").replace(/\r\n/g, "\n");
+  const match = text.match(/Installation\s+(\d{1,2}\/\d{1,2})\s*[-–—]\s*\d{1,2}\/\d{1,2}\s+(.+?\([^)]*\))\s+([A-Za-z][\w' ]*)/);
+  if (!match) return null;
+  return {
+    clientName: match[2].trim(),
+    location: match[3].trim(),
+    date: parseAuShortDate(match[1]),
+  };
+}
+
+// Converts a "D/M" Australian-format date (no year) to an ISO date string,
+// choosing the next occurrence on or after today.
+function parseAuShortDate(shortDate) {
+  const parts = (shortDate || "").split("/").map(Number);
+  const day = parts[0];
+  const month = parts[1];
+  if (!day || !month) return "";
+  const now = new Date();
+  const year = now.getFullYear();
+  let candidate = new Date(year, month - 1, day);
+  if (candidate < new Date(year, now.getMonth(), now.getDate())) {
+    candidate = new Date(year + 1, month - 1, day);
+  }
+  return formatDateStr(candidate.getFullYear(), candidate.getMonth(), candidate.getDate());
 }
 
 // ---------- Date helpers ----------
@@ -502,7 +546,7 @@ function renderInquiries() {
   }
 
   const linkedIds = new Set(jobs.map((j) => j.gmailMessageId).filter(Boolean));
-  const inquiries = GoogleSync.inquiries.filter((m) => !linkedIds.has(m.id));
+  const inquiries = GoogleSync.inquiries.filter((m) => !linkedIds.has(m.id) && !isCalendarNoiseEmail(m.subject));
 
   if (!inquiries.length) {
     emptyMsg.textContent = "No new inquiry emails.";
@@ -533,14 +577,15 @@ function createInquiryItem(inquiry) {
   btn.addEventListener("click", (e) => {
     e.stopPropagation();
     const senderEmail = extractEmailAddress(inquiry.from);
+    const details = extractJobDetailsFromBody(inquiry.body) || {};
     openJobModal({
       id: "",
-      clientName: extractClientNameFromSubject(inquiry.subject),
+      clientName: details.clientName || extractClientNameFromSubject(inquiry.subject),
       jobType: "Other",
       status: "booked",
-      date: todayStr(),
+      date: details.date || todayStr(),
       time: "",
-      location: extractLocationFromBody(inquiry.body),
+      location: details.location || extractLocationFromBody(inquiry.body),
       email: extractClientEmailFromBody(inquiry.body, senderEmail),
       price: "",
       notes: `Referral inquiry from ${extractDisplayName(inquiry.from)} — accepted:\n${inquiry.subject}\n${inquiry.snippet}`,
