@@ -261,8 +261,9 @@ never needs mapping.
 The logical fields the pipeline can produce are: `title`, `intro_1`, `intro_2`
 (two short lede paragraphs shown above the article), `body` (the full article —
 map this to a *formatted text / rich text* field), `cover` (map to an *image*
-field), `cover_alt` (alt text for the cover, a *string* field) and `date`. The
-default map matches this project's "Blog" collection:
+field), `cover_alt` (alt text for the cover, a *string* field), `image_1` (a
+secondary feature image, also shown above the article) and `date`. The default
+map matches this project's "Blog" collection:
 
 ```yaml
 field_map:
@@ -272,6 +273,7 @@ field_map:
   body: "Content"
   cover: "Preview"
   cover_alt: "Alt text"
+  image_1: "Image 1"
   date: "Date"
 ```
 
@@ -314,7 +316,8 @@ order, one (by `blog.max_posts_per_run`) per run.
 
 - **Topics & angles:** `blog.topics` in `config.yaml`.
 - **Posts per run / cadence:** `blog.max_posts_per_run` + the workflow `cron`.
-- **Photos per post:** `blog.images_per_post` (first is the cover).
+- **Photos per post:** `blog.images_per_post` (first is the cover, second is the
+  secondary feature image, the rest are placed inline in the article).
 - **Image matching cost:** `blog.image_candidate_pool` (how many photos Claude
   reviews per post).
 - **Cost vs. quality:** `model` in `config.yaml` (`claude-opus-4-8` for best

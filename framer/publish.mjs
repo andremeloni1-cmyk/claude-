@@ -154,6 +154,7 @@ async function main() {
       body: "formattedText",
       cover: "image",
       cover_alt: null,
+      image_1: null,
       date: "date",
       category: null,
       meta_title: null,
@@ -178,6 +179,7 @@ async function main() {
       }
 
       const cover = b.images.find((i) => i.is_cover) || b.images[0];
+      const secondary = b.images.find((i) => !i.is_cover) || null;
       const body = embedImages(b.body_markdown, b.slug, b.images, imageBase);
 
       // logical field -> raw value
@@ -189,6 +191,7 @@ async function main() {
         body,
         cover: cover ? imageUrl(imageBase, b.slug, cover.path) : null,
         cover_alt: cover?.alt,
+        image_1: secondary ? imageUrl(imageBase, b.slug, secondary.path) : null,
         date: b.fields.date,
         category: b.fields.category,
         meta_title: b.fields.meta_title,
@@ -201,7 +204,8 @@ async function main() {
       for (const [logical, raw] of Object.entries(values)) {
         const field = resolved[logical];
         if (!field) continue;
-        const alt = logical === "cover" ? cover?.alt : undefined;
+        const alt =
+          logical === "cover" ? cover?.alt : logical === "image_1" ? secondary?.alt : undefined;
         const entry = buildFieldValue(field, raw, alt);
         if (entry) fieldData[field.id] = entry;
       }
