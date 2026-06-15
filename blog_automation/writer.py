@@ -210,19 +210,27 @@ def write_post(cfg, topic, image_alts: list[str]) -> dict:
     For each available image, the writer inserts a placeholder ``{{image_N}}``
     (1-based) at a natural point in the body. The Framer publish step replaces
     each placeholder with the real, hosted image. The first image is the cover
-    and need not be repeated inline.
+    and the second is a secondary feature image shown above the article —
+    neither needs to be repeated inline.
     """
     client = anthropic.Anthropic(api_key=cfg.anthropic_api_key)
 
     n = len(image_alts)
-    if n > 1:
-        placeholders = ", ".join(f"{{{{image_{i}}}}}" for i in range(2, n + 1))
+    if n >= 3:
+        placeholders = ", ".join(f"{{{{image_{i}}}}}" for i in range(3, n + 1))
         image_instr = (
-            f"You have {n} photos for this post. Photo 1 is the cover (shown above the "
-            f"article automatically — do not place it inline). Place these {n - 1} "
-            f"placeholders, each on its own line, at natural points between sections: "
-            f"{placeholders}. Use each placeholder exactly once. Their subjects are:\n"
-            + "\n".join(f"- {{{{image_{i + 1}}}}}: {alt}" for i, alt in enumerate(image_alts[1:], start=1))
+            f"You have {n} photos for this post. Photo 1 is the cover and photo 2 is a "
+            f"secondary feature image — both are shown above the article automatically, "
+            f"so do not place either inline. Place these {n - 2} placeholders, each on "
+            f"its own line, at natural points between sections: {placeholders}. Use each "
+            f"placeholder exactly once. Their subjects are:\n"
+            + "\n".join(f"- {{{{image_{i + 1}}}}}: {alt}" for i, alt in enumerate(image_alts[2:], start=2))
+        )
+    elif n == 2:
+        image_instr = (
+            "You have 2 photos for this post: a cover photo and a secondary feature "
+            "image, both shown automatically above the article. Do not add inline "
+            "image placeholders."
         )
     elif n == 1:
         image_instr = "You have 1 cover photo (shown automatically above the article). Do not add inline image placeholders."

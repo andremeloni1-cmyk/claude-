@@ -75,6 +75,7 @@ blog:
     body: "Content"
     cover: "Preview"
     cover_alt: "Alt text"
+    image_1: "Image 1"
     date: "Date"
 
   # How many photos to embed per post (the first becomes the cover image).
