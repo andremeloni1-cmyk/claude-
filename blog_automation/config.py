@@ -34,6 +34,7 @@ class BlogConfig:
     business_name: str
     niche: str
     location: str
+    service_area: str
     target_audience: str
     model: str
 
@@ -96,6 +97,7 @@ def load() -> BlogConfig:
         business_name=clean("business_name"),
         niche=clean("niche"),
         location=clean("location"),
+        service_area=clean("service_area"),
         target_audience=clean("target_audience"),
         model=clean("model", "claude-opus-4-8"),
         collection_name=str(blog.get("collection_name", "Blog")).strip(),
