@@ -507,13 +507,13 @@ function createInquiryItem(inquiry) {
       id: "",
       clientName: "",
       jobType: "Other",
-      status: "inquiry",
+      status: "booked",
       date: todayStr(),
       time: "",
       location: "",
       email: "",
       price: "",
-      notes: `Referral inquiry from ${extractDisplayName(inquiry.from)}:\n${inquiry.subject}\n${inquiry.snippet}`,
+      notes: `Referral inquiry from ${extractDisplayName(inquiry.from)} — accepted:\n${inquiry.subject}\n${inquiry.snippet}`,
       gmailMessageId: inquiry.id,
     });
   });
