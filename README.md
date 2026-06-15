@@ -75,15 +75,42 @@ You need four secrets. Everything else lives in `config.yaml`.
      ```
      The automation auto-detects and decodes base64.
 
-### 3. Pinterest (auto-refreshing — recommended)
-Pinterest access tokens expire every ~30 days. To avoid re-pasting a token
-every month, the automation can refresh its own token from a long-lived
-refresh token. You set this up **once**:
+### 3. Posting backend — Postiz (recommended)
+Pinterest's own API gates the write scopes you need (`boards:write`,
+`pins:write`) behind a manual **Standard access** review that can take days to
+weeks. To skip that entirely, the automation can post through
+[**Postiz**](https://postiz.com), which already holds approved Pinterest write
+access. Set this up **once**:
+
+1. Create a Postiz account at <https://postiz.com> (the public API requires a
+   paid plan — see <https://platform.postiz.com/billing>).
+2. In the Postiz dashboard, **connect your Pinterest account** as a channel.
+3. Go to **Settings → Public API** and copy your **API key**.
+4. Store it as the GitHub secret `POSTIZ_API_KEY`. The automation auto-detects
+   your connected Pinterest channel.
+
+Optional Postiz settings:
+- `POSTIZ_INTEGRATION_ID` — pin to a specific channel instead of auto-detecting
+  the Pinterest one (only needed if you connect more than one Pinterest
+  account).
+- `POSTIZ_BASE_URL` — point at a self-hosted Postiz instance (defaults to the
+  cloud API).
+- `pinterest_board_id` in `config.yaml` — the board to pin to. Leave blank to
+  use the channel's default board.
+
+If `POSTIZ_API_KEY` is set, posting goes through Postiz and the direct
+Pinterest credentials below are ignored.
+
+### 3b. Direct Pinterest API (only if you have Standard access)
+If Pinterest grants your app Standard access, you can post directly instead.
+Access tokens expire every ~30 days, so the automation can refresh its own
+token from a long-lived refresh token. Set this up **once**:
 
 1. You need a Pinterest **business account** (free to convert in Pinterest
    Settings → Account management).
 2. Create an app at <https://developers.pinterest.com/apps/> with the
-   `boards:read`, `boards:write`, `pins:read`, `pins:write` scopes.
+   `boards:read`, `boards:write`, `pins:read`, `pins:write` scopes, and apply
+   for **Standard access** (write scopes are unavailable on the trial tier).
 3. In the app settings, add a **Redirect URI** (e.g. `https://localhost/`).
 4. Run the helper locally — it prints the three secrets to store:
    ```bash
@@ -109,13 +136,18 @@ repository secret**. Always add:
 - `GOOGLE_SERVICE_ACCOUNT_JSON` (paste the entire JSON file contents)
 - `GDRIVE_FOLDER_ID`
 
-Plus Pinterest — **either** the auto-refresh trio:
+Plus a posting backend. **Recommended** — Postiz (no Pinterest review needed):
+
+- `POSTIZ_API_KEY`
+
+**or** the direct Pinterest API (requires Standard access) — either the
+auto-refresh trio:
 
 - `PINTEREST_APP_ID`
 - `PINTEREST_APP_SECRET`
 - `PINTEREST_REFRESH_TOKEN`
 
-**or** the single static token:
+or the single static token:
 
 - `PINTEREST_ACCESS_TOKEN`
 

@@ -24,6 +24,7 @@ class Config:
     niche: str
     location: str
     target_audience: str
+    service_area: str
     board_name: str
     board_description: str
     utm: dict
@@ -35,12 +36,24 @@ class Config:
     google_service_account_json: str
     gdrive_folder_id: str
 
+    # Posting backend. If a Postiz API key is set, posting is routed through
+    # Postiz (which holds approved Pinterest write access). Otherwise the
+    # direct Pinterest API path below is used.
+    postiz_api_key: str = ""
+    postiz_base_url: str = ""
+    postiz_integration_id: str = ""  # optional; auto-detected if blank
+    pinterest_board_id: str = ""  # Postiz Pinterest board id (from config.yaml)
+
     # Pinterest auth: either a static access token, or app id/secret + refresh
     # token for automatic refresh (preferred — never expires in practice).
     pinterest_access_token: str = ""
     pinterest_app_id: str = ""
     pinterest_app_secret: str = ""
     pinterest_refresh_token: str = ""
+
+    @property
+    def use_postiz(self) -> bool:
+        return bool(self.postiz_api_key)
 
     # Resolved paths
     state_path: Path = field(default=_REPO_ROOT / "state" / "posted.json")
@@ -78,17 +91,23 @@ def load() -> Config:
     def clean(key: str, default: str = "") -> str:
         return str(data.get(key, default)).strip()
 
+    postiz_api_key = os.environ.get("POSTIZ_API_KEY", "").strip()
+    postiz_base_url = os.environ.get("POSTIZ_BASE_URL", "").strip()
+    postiz_integration_id = os.environ.get("POSTIZ_INTEGRATION_ID", "").strip()
+
     access_token = os.environ.get("PINTEREST_ACCESS_TOKEN", "").strip()
     app_id = os.environ.get("PINTEREST_APP_ID", "").strip()
     app_secret = os.environ.get("PINTEREST_APP_SECRET", "").strip()
     refresh_token = os.environ.get("PINTEREST_REFRESH_TOKEN", "").strip()
 
     has_refresh = bool(app_id and app_secret and refresh_token)
-    if not access_token and not has_refresh:
+    if not postiz_api_key and not access_token and not has_refresh:
         raise ConfigError(
-            "Missing Pinterest credentials. Either set PINTEREST_ACCESS_TOKEN, "
-            "or set all of PINTEREST_APP_ID, PINTEREST_APP_SECRET and "
-            "PINTEREST_REFRESH_TOKEN to enable automatic token refresh."
+            "Missing posting credentials. Set POSTIZ_API_KEY to post via Postiz "
+            "(recommended — no Pinterest review needed), or set "
+            "PINTEREST_ACCESS_TOKEN, or all of PINTEREST_APP_ID, "
+            "PINTEREST_APP_SECRET and PINTEREST_REFRESH_TOKEN for the direct "
+            "Pinterest API (requires Pinterest Standard access)."
         )
 
     return Config(
@@ -97,6 +116,7 @@ def load() -> Config:
         niche=clean("niche"),
         location=clean("location"),
         target_audience=clean("target_audience"),
+        service_area=clean("service_area"),
         board_name=clean("board_name", "My Photography"),
         board_description=clean("board_description"),
         utm=data.get("utm") or {},
@@ -105,6 +125,10 @@ def load() -> Config:
         anthropic_api_key=_require_env("ANTHROPIC_API_KEY"),
         google_service_account_json=_require_env("GOOGLE_SERVICE_ACCOUNT_JSON"),
         gdrive_folder_id=_require_env("GDRIVE_FOLDER_ID"),
+        postiz_api_key=postiz_api_key,
+        postiz_base_url=postiz_base_url,
+        postiz_integration_id=postiz_integration_id,
+        pinterest_board_id=clean("pinterest_board_id"),
         pinterest_access_token=access_token,
         pinterest_app_id=app_id,
         pinterest_app_secret=app_secret,
