@@ -72,7 +72,7 @@ function embedImages(markdown, slug, images, base) {
 }
 
 // Build a Framer { type, value } entry appropriate to the target field's type.
-function buildFieldValue(field, rawValue) {
+function buildFieldValue(field, rawValue, alt) {
   if (rawValue === undefined || rawValue === null || rawValue === "") return null;
   switch (field.type) {
     case "string":
@@ -80,7 +80,7 @@ function buildFieldValue(field, rawValue) {
     case "formattedText":
       return { type: "formattedText", value: String(rawValue), contentType: "markdown" };
     case "image":
-      return { type: "image", value: String(rawValue) };
+      return alt ? { type: "image", value: String(rawValue), alt } : { type: "image", value: String(rawValue) };
     case "date":
       return { type: "date", value: String(rawValue) };
     case "link":
@@ -168,7 +168,8 @@ async function main() {
       for (const [logical, raw] of Object.entries(values)) {
         const field = resolve(logical);
         if (!field) continue;
-        const entry = buildFieldValue(field, raw);
+        const alt = logical === "cover" ? cover?.alt : undefined;
+        const entry = buildFieldValue(field, raw, alt);
         if (entry) fieldData[field.id] = entry;
       }
 
