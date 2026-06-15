@@ -252,12 +252,33 @@ setup above, plus two new Framer secrets.
 
 ### 3. Your Framer blog collection
 You need a CMS collection in Framer for blog posts (most blog templates ship
-with one). Map your collection's **field names** to the pipeline's fields in
-`config.yaml` under `blog.field_map`. Names are matched case-insensitively, and
-any field your collection doesn't have is simply skipped — so a partial map is
-fine. The post **slug** is set automatically and never needs mapping. The
-**Content** field should be a *formatted text / rich text* field, and the
-**Cover Image** field an *image* field.
+with one). Map your collection's **field names** to the pipeline's logical
+fields in `config.yaml` under `blog.field_map`. Names are matched
+case-insensitively, and any logical field your collection doesn't have is simply
+skipped — so a partial map is fine. The post **slug** is set automatically and
+never needs mapping.
+
+The logical fields the pipeline can produce are: `title`, `intro_1`, `intro_2`
+(two short lede paragraphs shown above the article), `body` (the full article —
+map this to a *formatted text / rich text* field), `cover` (map to an *image*
+field), `cover_alt` (alt text for the cover, a *string* field) and `date`. The
+default map matches this project's "Blog" collection:
+
+```yaml
+field_map:
+  title: "Title"
+  intro_1: "Intro 1"
+  intro_2: "Intro 2"
+  body: "Content"
+  cover: "Preview"
+  cover_alt: "Alt text"
+  date: "Date"
+```
+
+If a mapped name isn't found, the publisher falls back to the only field of an
+unambiguous type (image → cover, formatted-text → body, date → date) so cover
+photos still land even if a name is slightly off. The run log prints every
+collection field name so you can correct the map.
 
 ### 4. Make the repo public (for image hosting)
 Images are served to Framer from `raw.githubusercontent.com`, which requires a
@@ -302,8 +323,9 @@ order, one (by `blog.max_posts_per_run`) per run.
 
 ## Notes
 
-- Re-runs are safe: a keyword already in `state/blog.json` is never rewritten,
-  and a post whose slug already exists in Framer is never duplicated. If the
-  Framer push fails, the next run retries it from the committed bundle.
+- Re-runs are safe: a keyword already in `state/blog.json` is never rewritten.
+  In Framer, a new slug is created and an existing slug is **updated in place**
+  (never duplicated), so a failed push is retried — and a field-map fix is
+  back-filled onto already-published posts — on the next run.
 - The Drive folder is opened **read-only**. Photos are matched by Drive file id
   and (by default) not reused across posts until the unused pool runs out.

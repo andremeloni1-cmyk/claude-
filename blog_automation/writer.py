@@ -14,6 +14,8 @@ _SUPPORTED_MEDIA = {"image/jpeg", "image/png", "image/gif", "image/webp"}
 _META_TITLE_MAX = 60
 _META_DESC_MAX = 155
 _EXCERPT_MAX = 200
+# The two intro paragraphs render as the lede above the article body.
+_INTRO_MAX = 320
 
 # --- Image selection -------------------------------------------------------
 
@@ -123,6 +125,8 @@ _POST_SCHEMA = {
     "properties": {
         "title": {"type": "string"},
         "slug": {"type": "string"},
+        "intro_1": {"type": "string"},
+        "intro_2": {"type": "string"},
         "meta_title": {"type": "string"},
         "meta_description": {"type": "string"},
         "excerpt": {"type": "string"},
@@ -133,6 +137,8 @@ _POST_SCHEMA = {
     "required": [
         "title",
         "slug",
+        "intro_1",
+        "intro_2",
         "meta_title",
         "meta_description",
         "excerpt",
@@ -171,9 +177,12 @@ def _system_prompt(cfg) -> str:
         "(e.g. \"Southern Highlands\", \"South Coast\") so the post ranks for "
         "local search — but never invent venue names or claim to have shot at a "
         "specific place you have no evidence for.\n"
-        "- Structure the body in markdown: an engaging intro, multiple ## H2 sections "
-        "(use ### H3 where helpful), short scannable paragraphs and bullet lists, and "
-        "a short ## FAQ section of 3-4 question/answer pairs near the end.\n"
+        "- The post opens with two short intro paragraphs (intro_1, intro_2) shown as "
+        "a lede ABOVE the article. The body itself must NOT repeat them or add another "
+        "introduction — start the body directly with the first ## H2 section.\n"
+        "- Structure the body in markdown: multiple ## H2 sections (use ### H3 where "
+        "helpful), short scannable paragraphs and bullet lists, and a short ## FAQ "
+        "section of 3-4 question/answer pairs near the end.\n"
         "- End with a warm call to action linking to the website.\n"
         "- Aim for roughly 900-1400 words of substantive content.\n"
         "- Never invent specific venue names, prices, client names, dates, or facts "
@@ -181,6 +190,10 @@ def _system_prompt(cfg) -> str:
         "Field rules:\n"
         f"- title: compelling, keyword-led H1 (not clickbait).\n"
         f"- slug: lowercase, hyphenated, keyword-based, no stop-word padding.\n"
+        f"- intro_1: opening lede paragraph, 1-2 sentences, max {_INTRO_MAX} characters. "
+        "Hook the reader and use the primary keyword/location naturally.\n"
+        f"- intro_2: second lede paragraph, 1-2 sentences, max {_INTRO_MAX} characters. "
+        "Set up what the article covers and the writer's first-hand perspective.\n"
         f"- meta_title: max {_META_TITLE_MAX} characters.\n"
         f"- meta_description: max {_META_DESC_MAX} characters, includes the keyword and a hook.\n"
         f"- excerpt: 1-2 sentence summary, max {_EXCERPT_MAX} characters.\n"
@@ -238,6 +251,8 @@ def write_post(cfg, topic, image_alts: list[str]) -> dict:
     return {
         "title": " ".join(data["title"].split()),
         "slug": _slugify(data.get("slug") or data["title"]),
+        "intro_1": _clamp(data["intro_1"], _INTRO_MAX),
+        "intro_2": _clamp(data["intro_2"], _INTRO_MAX),
         "meta_title": _clamp(data["meta_title"], _META_TITLE_MAX),
         "meta_description": _clamp(data["meta_description"], _META_DESC_MAX),
         "excerpt": _clamp(data["excerpt"], _EXCERPT_MAX),

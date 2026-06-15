@@ -124,26 +124,56 @@ async function main() {
     console.log(`Using collection "${collection.name}" (${collection.id}).`);
 
     const fields = await collection.getFields();
+    console.log("Collection fields:");
+    for (const f of fields) console.log(`  - "${f.name}" [${f.type}] (id=${f.id})`);
+
     const fieldByName = new Map(fields.map((f) => [(f.name || "").trim().toLowerCase(), f]));
-    const resolve = (logical) => {
+    const firstOfType = (type) => fields.find((f) => f.type === type) || null;
+
+    // Resolve each logical field to a real collection field. Prefer the
+    // configured name; if that name isn't present, fall back to the only
+    // field of an unambiguous type (image/formattedText/date) so cover photos
+    // and dates still land even when the field_map name is slightly off.
+    const resolve = (logical, fallbackType) => {
       const name = fieldMap[logical];
-      if (!name) return null;
-      const field = fieldByName.get(String(name).trim().toLowerCase());
-      if (!field) console.warn(`  ! mapped field "${name}" (${logical}) not found in collection — skipping`);
+      let field = name ? fieldByName.get(String(name).trim().toLowerCase()) : null;
+      if (!field && name) console.warn(`  ! mapped field "${name}" (${logical}) not found`);
+      if (!field && fallbackType) {
+        field = firstOfType(fallbackType);
+        if (field) console.log(`  ~ ${logical}: falling back to "${field.name}" [${field.type}]`);
+      }
       return field || null;
     };
 
+    // logical field -> unambiguous type to fall back on (null = name only).
+    const FALLBACK_TYPE = {
+      title: null,
+      intro_1: null,
+      intro_2: null,
+      excerpt: null,
+      body: "formattedText",
+      cover: "image",
+      cover_alt: null,
+      date: "date",
+      category: null,
+      meta_title: null,
+      meta_description: null,
+      author: null,
+      keywords: null,
+    };
+    const resolved = Object.fromEntries(
+      Object.entries(FALLBACK_TYPE).map(([logical, type]) => [logical, resolve(logical, type)])
+    );
+
     const existingItems = await collection.getItems();
-    const existingSlugs = new Set(existingItems.map((it) => it.slug).filter(Boolean));
+    const itemBySlug = new Map(existingItems.filter((it) => it.slug).map((it) => [it.slug, it]));
 
     let added = 0;
+    let updated = 0;
     for (const b of bundles) {
-      if (existingSlugs.has(b.slug)) {
-        console.log(`= "${b.slug}" already in CMS — skipping.`);
-        continue;
-      }
-      if (maxPerRun > 0 && added >= maxPerRun) {
-        console.log(`Reached MAX_PUBLISH_PER_RUN=${maxPerRun}; stopping.`);
+      const existing = itemBySlug.get(b.slug);
+      if (!existing && maxPerRun > 0 && added >= maxPerRun) {
+        console.log(`Reached MAX_PUBLISH_PER_RUN=${maxPerRun}; stopping new posts.`);
         break;
       }
 
@@ -153,9 +183,12 @@ async function main() {
       // logical field -> raw value
       const values = {
         title: b.fields.title,
+        intro_1: b.fields.intro_1,
+        intro_2: b.fields.intro_2,
         excerpt: b.fields.excerpt,
         body,
         cover: cover ? imageUrl(imageBase, b.slug, cover.path) : null,
+        cover_alt: cover?.alt,
         date: b.fields.date,
         category: b.fields.category,
         meta_title: b.fields.meta_title,
@@ -166,24 +199,31 @@ async function main() {
 
       const fieldData = {};
       for (const [logical, raw] of Object.entries(values)) {
-        const field = resolve(logical);
+        const field = resolved[logical];
         if (!field) continue;
         const alt = logical === "cover" ? cover?.alt : undefined;
         const entry = buildFieldValue(field, raw, alt);
         if (entry) fieldData[field.id] = entry;
       }
 
-      await collection.addItems([{ slug: b.slug, fieldData }]);
-      console.log(`+ Added "${b.fields.title}" (${b.slug}).`);
-      added++;
+      if (existing) {
+        // Passing the existing id updates the item in place (backfills fields).
+        await collection.addItems([{ id: existing.id, slug: b.slug, fieldData }]);
+        console.log(`* Updated "${b.fields.title}" (${b.slug}).`);
+        updated++;
+      } else {
+        await collection.addItems([{ slug: b.slug, fieldData }]);
+        console.log(`+ Added "${b.fields.title}" (${b.slug}).`);
+        added++;
+      }
     }
 
-    if (added > 0) {
+    if (added + updated > 0) {
       console.log("Publishing site…");
       await framer.publish();
-      console.log(`Published. ${added} new post(s) live.`);
+      console.log(`Published. ${added} new, ${updated} updated.`);
     } else {
-      console.log("No new posts to add; skipping publish.");
+      console.log("Nothing to publish.");
     }
   } finally {
     await framer.disconnect();
