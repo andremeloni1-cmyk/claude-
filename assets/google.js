@@ -187,13 +187,15 @@ const GoogleSync = {
         const params = new URLSearchParams({ format: "full" });
         const msg = await this.apiFetch(`https://www.googleapis.com/gmail/v1/users/me/messages/${ref.id}?${params}`);
         const headers = (msg.payload && msg.payload.headers) || [];
-        const getHeader = (name) => (headers.find((h) => h.name === name) || {}).value || "";
+        const getHeader = (name) =>
+          (headers.find((h) => h.name.toLowerCase() === name.toLowerCase()) || {}).value || "";
         return {
           id: msg.id,
           threadId: msg.threadId,
           subject: getHeader("Subject") || "(No subject)",
           from: getHeader("From"),
           date: getHeader("Date"),
+          messageId: getHeader("Message-ID"),
           snippet: msg.snippet || "",
           body: extractPlainTextBody(msg.payload),
         };
@@ -269,6 +271,28 @@ const GoogleSync = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: { raw: encoded } }),
+    });
+  },
+
+  // Creates a Gmail draft that replies within an existing thread (e.g. to
+  // confirm a job back to the referral source that sent the inquiry).
+  async createReplyDraft(threadId, inReplyToMessageId, to, subject, body) {
+    const headerLines = [`To: ${to}`, `Subject: ${subject}`, 'Content-Type: text/plain; charset="UTF-8"'];
+    if (inReplyToMessageId) {
+      headerLines.push(`In-Reply-To: ${inReplyToMessageId}`);
+      headerLines.push(`References: ${inReplyToMessageId}`);
+    }
+    const message = [...headerLines, "", body].join("\r\n");
+
+    const encoded = btoa(unescape(encodeURIComponent(message)))
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+
+    return this.apiFetch("https://www.googleapis.com/gmail/v1/users/me/drafts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: { raw: encoded, threadId } }),
     });
   },
 };

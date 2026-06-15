@@ -2,7 +2,7 @@ const JOBS_KEY = "jsd_jobs";
 const SETTINGS_KEY = "jsd_settings";
 
 const DEFAULT_SETTINGS = {
-  businessName: "Andre Meloni Photography",
+  businessName: "Andre Meloni Joinery",
   yourName: "Andre",
   yourEmail: "andre@andremeloniphotography.co",
   yourPhone: "",
@@ -73,63 +73,63 @@ function seedJobs() {
   return [
     {
       id: uid(),
-      clientName: "Sarah & Tom",
-      jobType: "Wedding",
+      clientName: "Smith Residence",
+      jobType: "Kitchen Install",
       date: addDays(6),
-      time: "14:00",
-      location: "Riverside Gardens",
+      time: "08:00",
+      location: "12 Wattle St, Suburbtown",
       status: "booked",
-      email: "sarah.tom@example.com",
-      price: "2500",
-      notes: "Full day coverage, second shooter requested.",
+      email: "smith@example.com",
+      price: "4500",
+      notes: "Full kitchen cabinetry install, referred by Mii Kitchen.",
     },
     {
       id: uid(),
       clientName: "Johnson Family",
-      jobType: "Family",
+      jobType: "Kitchen Install",
       date: addDays(4),
-      time: "10:00",
-      location: "Sunset Park",
+      time: "09:00",
+      location: "8 Park Ave, Suburbtown",
       status: "inquiry",
       email: "mjohnson@example.com",
       price: "",
-      notes: "Asked about mini-session pricing.",
+      notes: "Asked about kitchen install pricing and timeline.",
     },
     {
       id: uid(),
-      clientName: "Emily Carter",
-      jobType: "Engagement",
+      clientName: "Carter Renovation",
+      jobType: "Kitchen Install",
       date: addDays(13),
-      time: "17:30",
-      location: "Downtown Rooftop",
+      time: "07:30",
+      location: "5 Rooftop Ln, Downtown",
       status: "booked",
       email: "emily.carter@example.com",
-      price: "450",
-      notes: "",
+      price: "6200",
+      notes: "Referred by Harrington Kitchens.",
     },
     {
       id: uid(),
-      clientName: "Lopez Maternity",
-      jobType: "Maternity",
+      clientName: "Lopez Repair",
+      jobType: "Other",
       date: addDays(-4),
       time: "09:00",
-      location: "Studio",
+      location: "Workshop",
       status: "completed",
       email: "lopez@example.com",
       price: "350",
-      notes: "Gallery still needs to be sent.",
+      notes: "Final invoice still needs to be sent.",
     },
     {
       id: uid(),
-      clientName: "Tech Co. Headshots",
-      jobType: "Event",
+      clientName: "Tech Co. Office Fitout",
+      jobType: "Other",
       date: addDays(21),
       time: "11:00",
       location: "Tech Co HQ",
       status: "inquiry",
       email: "hr@techco.example.com",
       price: "",
-      notes: "",
+      notes: "Referred by Peter Baldwin (Ingenuity Joinery).",
     },
   ];
 }
@@ -599,7 +599,7 @@ function openJobModal(job) {
   document.getElementById("delete-job-btn").classList.toggle("hidden", !isExisting);
 
   document.getElementById("job-client").value = job ? job.clientName : "";
-  document.getElementById("job-type").value = job ? job.jobType : "Wedding";
+  document.getElementById("job-type").value = job ? job.jobType : "Kitchen Install";
   document.getElementById("job-status").value = job ? job.status : "inquiry";
   document.getElementById("job-date").value = job ? job.date : (selectedDateStr || todayStr());
   document.getElementById("job-time").value = job ? job.time : "";
@@ -659,6 +659,30 @@ async function handleJobFormSubmit(e) {
       alert("Saved locally, but could not sync with Google Calendar: " + err.message);
     }
   }
+
+  // Accepting a job that came from a referral inquiry — draft a reply to
+  // let the referral source know it's been booked in.
+  if (!id && jobData.gmailMessageId && jobData.status === "booked" && GoogleSync.isConnected()) {
+    try {
+      await sendReferralAcceptedDraft(jobData);
+    } catch (err) {
+      // referral confirmation draft failed — not fatal
+    }
+  }
+}
+
+async function sendReferralAcceptedDraft(job) {
+  const inquiry = GoogleSync.inquiries.find((i) => i.id === job.gmailMessageId);
+  if (!inquiry) return;
+
+  const senderEmail = extractEmailAddress(inquiry.from);
+  const template = REFERRAL_REPLY_TEMPLATES[senderEmail];
+  if (!template) return;
+
+  const subject = /^re:/i.test(inquiry.subject.trim()) ? inquiry.subject : `Re: ${inquiry.subject}`;
+  const body = fillTemplate(template.body, job);
+
+  await GoogleSync.createReplyDraft(inquiry.threadId, inquiry.messageId, senderEmail, subject, body);
 }
 
 async function handleDeleteJob() {

@@ -29,7 +29,7 @@ Note the exact URL (including port, if any) — you'll need it in step 4.
 
 1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
 2. Click the project dropdown at the top → **New Project**.
-3. Give it any name (e.g. "Photography Dashboard") and create it.
+3. Give it any name (e.g. "Job Schedule Dashboard") and create it.
 
 ## 3. Enable the APIs
 

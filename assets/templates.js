@@ -7,17 +7,19 @@ const EMAIL_TEMPLATES = {
     {
       id: "inquiry-response",
       name: "Inquiry Response / Check Availability",
-      subject: "Re: {{jobType}} Photography on {{date}}",
+      subject: "Re: {{jobType}} on {{date}}",
       body:
 `Hi {{clientName}},
 
-Thanks so much for reaching out about {{jobType}} photography on {{date}}!
+Thanks for reaching out about your {{jobType}} — I'd be glad to help.
 
-I'd love to be a part of it. That date is currently available on my calendar, and I'd be happy to send over more details about my packages and pricing.
+{{date}} is currently available on my schedule. To put together an accurate quote, could you let me know a few details:
 
-Could you let me know a bit more about what you're picturing (timing, location, number of people, and any specific shots you're hoping for)? That'll help me put together the best package for you.
+- The site address and best access instructions
+- The scope of work (cabinetry layout, finishes, and any plans or measurements you have)
+- Your preferred timeframe or any deadlines
 
-Looking forward to hearing from you!
+Once I have these, I'll get a quote over to you.
 
 Best,
 {{yourName}}
@@ -25,21 +27,21 @@ Best,
 {{yourEmail}} | {{yourPhone}}`
     },
     {
-      id: "quote-package",
-      name: "Send Quote / Package Details",
-      subject: "Photography Packages & Pricing for {{date}}",
+      id: "send-quote",
+      name: "Send Quote",
+      subject: "Quote for your {{jobType}} on {{date}}",
       body:
 `Hi {{clientName}},
 
-Thanks for the extra details! Here's an overview of what I'd suggest for your {{jobType}} on {{date}}:
+Thanks for the details! Here's a quote for your {{jobType}} on {{date}}:
 
-- Coverage: [add hours/duration]
-- Includes: edited high-resolution gallery, online proofing & download
-- Investment: {{price}}
+- Scope: [add scope of work]
+- Materials/finishes: [add details]
+- Total price: {{price}}
 
-To lock in {{date}}, I require a signed agreement and a deposit to secure the date — after that it's all yours!
+To lock in {{date}}, I'll need a signed confirmation and a deposit to secure the date and order materials.
 
-Let me know if you have any questions or if you'd like to move forward, and I can send the booking paperwork over right away.
+Let me know if you have any questions or you'd like to go ahead, and I'll send the booking details over.
 
 Best,
 {{yourName}}
@@ -47,15 +49,15 @@ Best,
 {{yourEmail}} | {{yourPhone}}`
     },
     {
-      id: "booking-follow-up",
-      name: "Booking Follow-Up (after quote sent)",
-      subject: "Following up — {{jobType}} on {{date}}",
+      id: "quote-follow-up",
+      name: "Quote Follow-Up",
+      subject: "Following up — quote for {{jobType}} on {{date}}",
       body:
 `Hi {{clientName}},
 
-Just following up on the quote I sent over for your {{jobType}} on {{date}}. I wanted to check in and see if you had any questions, or if you're ready to get the date booked.
+Just following up on the quote I sent for your {{jobType}} on {{date}}. Wanted to check in and see if you had any questions, or if you're ready to lock in the date.
 
-Spots for {{date}} are filling up, so if you'd like to move forward just let me know and I'll send the booking agreement and deposit details right away.
+{{date}} is filling up, so if you'd like to go ahead just let me know and I'll get the booking confirmed and materials ordered.
 
 Happy to help with anything else in the meantime!
 
@@ -71,11 +73,11 @@ Best,
       body:
 `Hi {{clientName}},
 
-I wanted to send a quick reminder that I'm currently holding {{date}} for your {{jobType}}, but I'm not able to hold it indefinitely as other inquiries are coming in for that date.
+Just a quick reminder that I'm currently holding {{date}} for your {{jobType}}, but I can't hold it indefinitely as other jobs are coming in for that date.
 
-If you'd like to confirm the booking, just let me know and I'll get the paperwork and deposit link sent over so we can lock it in.
+If you'd like to confirm, let me know and I'll send the booking details and deposit info so we can lock it in.
 
-No worries at all if your plans have changed — just let me know either way!
+No worries if your plans have changed — just let me know either way!
 
 Best,
 {{yourName}}
@@ -87,47 +89,43 @@ Best,
   booked: [
     {
       id: "booking-confirmation",
-      name: "Booking Confirmation",
-      subject: "You're Booked! {{jobType}} on {{date}}",
+      name: "Install Confirmation",
+      subject: "Confirmed: {{jobType}} on {{date}}",
       body:
 `Hi {{clientName}},
 
-You're all set! I'm excited to confirm your {{jobType}} session on {{date}} at {{time}}, location: {{location}}.
+You're all set! I'm confirming your {{jobType}} on {{date}} at {{time}}, at {{location}}.
 
 Here's a quick recap:
 - Date: {{date}}
-- Time: {{time}}
-- Location: {{location}}
-- Investment: {{price}}
+- Start time: {{time}}
+- Site address: {{location}}
+- Total price: {{price}}
 
-I'll be in touch closer to the date with any prep details, but in the meantime, feel free to reach out with any questions at all.
+I'll be in touch closer to the date to confirm site access details. In the meantime, feel free to reach out with any questions.
 
-Can't wait!
-
-Best,
+Thanks again,
 {{yourName}}
 {{businessName}}
 {{yourEmail}} | {{yourPhone}}`
     },
     {
-      id: "pre-shoot-details",
-      name: "Pre-Shoot Details & Questionnaire",
+      id: "pre-install-details",
+      name: "Pre-Install Details & Site Access",
       subject: "Getting ready for {{date}} — a few details",
       body:
 `Hi {{clientName}},
 
-We're getting close to your {{jobType}} on {{date}}! To help things run smoothly, could you send over a few details when you get a chance:
+We're getting close to your {{jobType}} on {{date}}! To make sure everything goes smoothly, could you let me know:
 
-- Any must-have shots or specific people/groups you'd like photographed
-- Timeline for the day (if there's a schedule of events)
-- Any outfit changes or locations you have in mind
-- Best phone number to reach you on the day
+- How I'll access the site (keys, gate/alarm codes, or will someone be home)
+- Where I can park and bring in materials/tools
+- Power and water access on site
+- Anything else I should know before I arrive
 
-Once I have these, I'll put together a shot list and timeline so everything goes off without a hitch.
+Once I have these, I'll confirm the schedule for the day.
 
-Talk soon!
-
-Best,
+Talk soon,
 {{yourName}}
 {{businessName}}
 {{yourEmail}} | {{yourPhone}}`
@@ -139,37 +137,33 @@ Best,
       body:
 `Hi {{clientName}},
 
-Just a quick note to confirm I'll see you tomorrow, {{date}}, at {{time}} at {{location}}.
+Just confirming I'll be on site tomorrow, {{date}}, from {{time}} at {{location}} for your {{jobType}}.
 
-A few quick reminders:
-- Please arrive a few minutes early if possible so we can start on time
-- Bring any extra outfits, props, or accessories you'd like included
-- Check the weather and dress accordingly if we're outdoors
+A couple of reminders:
+- Please make sure the area is clear so I can get started on time
+- Let me know if access details have changed since we last spoke
 
-If anything changes or you need to reach me, just reply to this email or call/text {{yourPhone}}.
+If anything comes up, just reply to this email or call/text {{yourPhone}}.
 
-Looking forward to it!
-
-Best,
+See you then,
 {{yourName}}
 {{businessName}}
 {{yourEmail}} | {{yourPhone}}`
     },
     {
       id: "thank-you-next-steps",
-      name: "Thank You & Next Steps (post-shoot)",
-      subject: "Thank you! Here's what happens next",
+      name: "Thank You & Next Steps (post-install)",
+      subject: "Thanks for the opportunity — what's next",
       body:
 `Hi {{clientName}},
 
-Thank you so much for the {{jobType}} session on {{date}} — it was a pleasure working with you!
+Thank you for trusting me with your {{jobType}} on {{date}} — it was great working with you!
 
 Here's what to expect next:
-- I'll begin editing your images shortly
-- You'll receive a link to your online gallery once it's ready
-- From there you can view, download, and order prints/products
+- I'll send through the final invoice ({{price}}) shortly
+- Once payment is received, I'll follow up with any care and maintenance notes for your new joinery
 
-I'll be in touch as soon as your gallery is ready. Thanks again, and please don't hesitate to reach out with any questions in the meantime!
+Thanks again, and please don't hesitate to reach out with any questions in the meantime!
 
 Best,
 {{yourName}}
@@ -180,19 +174,21 @@ Best,
 
   completed: [
     {
-      id: "gallery-delivery",
-      name: "Gallery Delivery",
-      subject: "Your photos are ready! 📸",
+      id: "job-complete-invoice",
+      name: "Job Complete & Invoice",
+      subject: "Your {{jobType}} is complete — invoice attached",
       body:
 `Hi {{clientName}},
 
-Great news — your gallery from {{date}} is ready!
+Great news — your {{jobType}} from {{date}} is now complete!
 
-You can view, download, and order prints/products here: [insert gallery link]
+Total due: {{price}}
+[Attach or link to invoice/payment details]
 
-The gallery will be available for [insert amount of time], so be sure to download your favorites. Let me know if you have any trouble accessing anything.
+A few care notes for your new joinery:
+- [add cleaning/maintenance tips]
 
-Thanks again for choosing {{businessName}} — I hope you love these as much as I do!
+Thanks again for choosing {{businessName}} — it was a pleasure working on your home.
 
 Best,
 {{yourName}}
@@ -202,17 +198,17 @@ Best,
     {
       id: "review-referral",
       name: "Follow-Up: Review & Referral Request",
-      subject: "How did everything turn out?",
+      subject: "How's everything looking?",
       body:
 `Hi {{clientName}},
 
-I hope you've had a chance to look through your gallery from {{date}} and that you're loving the photos!
+I hope you're loving your new {{jobType}} from {{date}}!
 
-If you have a minute, I'd be so grateful if you could leave a quick review — it really helps a small business like mine. [insert review link]
+If you have a minute, I'd really appreciate a quick review — it helps a lot. [insert review link]
 
-Also, if you know anyone else who might need a photographer, referrals mean the world to me and I always love working with new faces through your recommendation.
+And if you know anyone else who needs cabinetry or joinery work, I'd love an introduction — referrals mean the world to a small business like mine.
 
-Thanks again for trusting me with your {{jobType}}!
+Thanks again for trusting me with your project!
 
 Best,
 {{yourName}}
@@ -220,4 +216,51 @@ Best,
 {{yourEmail}} | {{yourPhone}}`
     }
   ]
+};
+
+// Auto-drafted replies sent back to referral sources when a job from one
+// of their inquiry emails is accepted. Keyed by the referral source's
+// email address (lowercase). Drafted as a reply in the original thread.
+const REFERRAL_REPLY_TEMPLATES = {
+  "emily@miikitchen.com.au": {
+    body:
+`Hi Emily,
+
+Thanks for sending this one through! I've accepted the job for {{clientName}}'s {{jobType}} — it's now booked in for {{date}} at {{location}}.
+
+I'll be in touch with {{clientName}} directly to confirm the details. Thanks again for thinking of me, and please keep them coming!
+
+Best,
+{{yourName}}
+{{businessName}}
+{{yourEmail}} | {{yourPhone}}`
+  },
+
+  "service@harringtonkitchens.com.au": {
+    body:
+`Hi team,
+
+Thanks for the referral! I've accepted the job for {{clientName}}'s {{jobType}} — it's now booked in for {{date}} at {{location}}.
+
+I'll be in touch with {{clientName}} directly to arrange the details. Really appreciate you thinking of me for this one.
+
+Best,
+{{yourName}}
+{{businessName}}
+{{yourEmail}} | {{yourPhone}}`
+  },
+
+  "peter.baldwin@ingenuityjoinery.com": {
+    body:
+`Hi Peter,
+
+Thanks for passing this one on! I've accepted the job for {{clientName}}'s {{jobType}} — it's booked in for {{date}} at {{location}}.
+
+I'll get in touch with {{clientName}} directly to sort out the details. Appreciate the referral as always.
+
+Best,
+{{yourName}}
+{{businessName}}
+{{yourEmail}} | {{yourPhone}}`
+  },
 };
