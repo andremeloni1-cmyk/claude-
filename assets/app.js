@@ -527,6 +527,52 @@ async function handleDeleteJob() {
   }
 }
 
+async function handleImportCalendarJobs() {
+  if (!GoogleSync.isConnected()) {
+    alert("Connect your Google account first.");
+    return;
+  }
+
+  const linkedIds = new Set(jobs.map((j) => j.googleEventId).filter(Boolean));
+  const toImport = GoogleSync.events.filter((ev) => !linkedIds.has(ev.id));
+
+  if (!toImport.length) {
+    alert("No new calendar events to import.");
+    return;
+  }
+
+  if (!confirm(`Import ${toImport.length} event(s) from Google Calendar as jobs?`)) return;
+
+  toImport.forEach((ev) => {
+    jobs.push({
+      id: uid(),
+      clientName: ev.title,
+      jobType: "Other",
+      status: "booked",
+      date: ev.date,
+      time: ev.time,
+      location: ev.location,
+      email: "",
+      price: "",
+      notes: "Imported from Google Calendar.",
+      googleEventId: ev.id,
+    });
+  });
+
+  saveJobs();
+  closeSettingsModal();
+  refreshAll();
+  alert(`Imported ${toImport.length} job(s) from Google Calendar.`);
+}
+
+function handleClearJobs() {
+  if (!confirm("Remove ALL jobs from this dashboard? This cannot be undone.")) return;
+  jobs = [];
+  saveJobs();
+  closeSettingsModal();
+  refreshAll();
+}
+
 // ---------- Settings modal ----------
 
 function openSettingsModal() {
@@ -805,6 +851,8 @@ function init() {
   document.getElementById("settings-btn").addEventListener("click", openSettingsModal);
   document.getElementById("cancel-settings-btn").addEventListener("click", closeSettingsModal);
   document.getElementById("settings-form").addEventListener("submit", handleSettingsFormSubmit);
+  document.getElementById("import-calendar-jobs-btn").addEventListener("click", handleImportCalendarJobs);
+  document.getElementById("clear-jobs-btn").addEventListener("click", handleClearJobs);
 
   document.getElementById("email-job-select").addEventListener("change", handleEmailJobChange);
   document.getElementById("email-template-select").addEventListener("change", renderEmailPreview);
