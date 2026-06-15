@@ -5,6 +5,7 @@ The dashboard can sign in to your Google account directly in the browser to:
 - Show everything on your **Google Calendar** alongside your jobs
 - Push new/edited jobs to your calendar automatically (optional)
 - Save pre-written emails as **Gmail drafts**
+- Surface inquiry emails from your referral sources as potential jobs
 
 This requires a one-time setup where you create a free Google OAuth "Client ID"
 and tell Google which web address is allowed to use it. Takes about 10 minutes.
@@ -45,6 +46,7 @@ With your new project selected, go to **APIs & Services → Library** and enable
 3. On the **Scopes** step, add:
    - `.../auth/calendar.events`
    - `.../auth/gmail.compose`
+   - `.../auth/gmail.readonly`
    - `.../auth/userinfo.email`
 4. On the **Test users** step, add your own Google account email address.
 5. Save. While the app is in "Testing" mode, only the test users you list can
@@ -76,6 +78,16 @@ Once connected:
   as blue dots and in the **"Other Calendar Events"** list for the selected
   day, with an **"Add as Job"** button to turn any of them into a job.
 - The **"Save as Gmail Draft"** button in the Email Composer becomes active.
+- Emails from the **Referral Sources** you've listed in Settings (under
+  "Email Inquiries") show up in the **"Email Inquiries"** list, with an
+  **"Add as Job"** button to turn any of them into a job.
+
+## Adding/updating the Gmail read access scope
+
+If you set up your OAuth Client ID before the "Email Inquiries" feature was
+added, you'll need to add the `gmail.readonly` scope to your OAuth consent
+screen (step 4 above) and then click **Reconnect Google** in the dashboard so
+you can grant the new permission.
 
 ## Notes
 

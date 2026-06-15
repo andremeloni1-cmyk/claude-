@@ -7,6 +7,7 @@ const GOOGLE_TOKEN_KEY = "jsd_google_token";
 const GOOGLE_SCOPES = [
   "https://www.googleapis.com/auth/calendar.events",
   "https://www.googleapis.com/auth/gmail.compose",
+  "https://www.googleapis.com/auth/gmail.readonly",
   "https://www.googleapis.com/auth/userinfo.email",
 ].join(" ");
 
@@ -18,6 +19,7 @@ const GoogleSync = {
   tokenExpiry: 0,
   userEmail: null,
   events: [],
+  inquiries: [],
 
   restoreSession() {
     const saved = sessionStorage.getItem(GOOGLE_TOKEN_KEY);
@@ -102,6 +104,7 @@ const GoogleSync = {
     this.tokenExpiry = 0;
     this.userEmail = null;
     this.events = [];
+    this.inquiries = [];
     sessionStorage.removeItem(GOOGLE_TOKEN_KEY);
   },
 
@@ -162,6 +165,45 @@ const GoogleSync = {
 
   eventsOn(dateStr) {
     return this.events.filter((e) => e.date === dateStr);
+  },
+
+  // Searches Gmail for messages from the given sender email addresses and
+  // returns basic metadata (subject, from, date, snippet) for each match.
+  async fetchInquiries(senders) {
+    const addresses = (senders || []).map((s) => s.trim()).filter(Boolean);
+    if (!addresses.length) {
+      this.inquiries = [];
+      return this.inquiries;
+    }
+
+    const query = `from:(${addresses.join(" OR ")})`;
+    const listParams = new URLSearchParams({ q: query, maxResults: "25" });
+    const listData = await this.apiFetch(`https://www.googleapis.com/gmail/v1/users/me/messages?${listParams}`);
+    const messageRefs = listData.messages || [];
+
+    const messages = await Promise.all(
+      messageRefs.map(async (ref) => {
+        const params = new URLSearchParams({ format: "metadata" });
+        params.append("metadataHeaders", "Subject");
+        params.append("metadataHeaders", "From");
+        params.append("metadataHeaders", "Date");
+        const msg = await this.apiFetch(`https://www.googleapis.com/gmail/v1/users/me/messages/${ref.id}?${params}`);
+        const headers = (msg.payload && msg.payload.headers) || [];
+        const getHeader = (name) => (headers.find((h) => h.name === name) || {}).value || "";
+        return {
+          id: msg.id,
+          threadId: msg.threadId,
+          subject: getHeader("Subject") || "(No subject)",
+          from: getHeader("From"),
+          date: getHeader("Date"),
+          snippet: msg.snippet || "",
+        };
+      })
+    );
+
+    messages.sort((a, b) => new Date(b.date) - new Date(a.date));
+    this.inquiries = messages;
+    return this.inquiries;
   },
 
   jobToEventBody(job) {

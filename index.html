@@ -61,6 +61,16 @@
         </div>
 
         <div class="card">
+          <h3>Email Inquiries</h3>
+          <p class="help-text">
+            New emails from your referral sources (configured in Settings) that haven't been added as jobs yet.
+          </p>
+          <ul id="inquiries-list" class="job-list"></ul>
+          <p id="inquiries-empty-msg" class="empty-msg">Connect Google in Settings to see inquiry emails here.</p>
+          <button type="button" id="refresh-inquiries-btn" class="btn btn-secondary btn-small">Refresh Inquiries</button>
+        </div>
+
+        <div class="card">
           <h3>Email Composer</h3>
           <div class="field">
             <label for="email-job-select">Job</label>
@@ -96,6 +106,7 @@
       <form id="job-form">
         <input type="hidden" id="job-id" />
         <input type="hidden" id="job-google-event-id" />
+        <input type="hidden" id="job-gmail-message-id" />
         <div class="field">
           <label for="job-client">Client name</label>
           <input type="text" id="job-client" required />
@@ -207,6 +218,18 @@
         <div class="field">
           <button type="button" id="import-calendar-jobs-btn" class="btn btn-secondary btn-small">Import Calendar Events as Jobs</button>
           <p class="help-text">Pulls every event from your connected Google Calendar into the Jobs list as "Booked", skipping any already imported.</p>
+        </div>
+
+        <hr class="divider" />
+        <h3>Email Inquiries</h3>
+        <p class="help-text">
+          List the email addresses of referral sources (kitchen companies, builders, etc.) whose emails
+          should appear in the "Email Inquiries" list. One per line, format: <code>Name &lt;email@example.com&gt;</code>
+          or just an email address. Requires Gmail access — reconnect Google after changing this list.
+        </p>
+        <div class="field">
+          <label for="settings-referral-sources">Referral sources</label>
+          <textarea id="settings-referral-sources" rows="4"></textarea>
         </div>
 
         <hr class="divider" />

@@ -8,6 +8,11 @@ const DEFAULT_SETTINGS = {
   yourPhone: "",
   googleClientId: "",
   googleAutoSync: false,
+  referralSources: [
+    { name: "Mii Kitchen", email: "emily@miikitchen.com.au" },
+    { name: "Harrington Kitchens", email: "service@harringtonkitchens.com.au" },
+    { name: "Peter Baldwin (Ingenuity Joinery)", email: "peter.baldwin@ingenuityjoinery.com" },
+  ],
 };
 
 const STATUS_LABELS = {
@@ -131,6 +136,47 @@ function seedJobs() {
 
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+// ---------- Referral sources ----------
+
+function parseReferralSources(text) {
+  return (text || "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const match = line.match(/^(.*)<(.+)>$/);
+      if (match) {
+        const name = match[1].trim();
+        const email = match[2].trim();
+        return { name: name || email, email };
+      }
+      return { name: line, email: line };
+    });
+}
+
+function formatReferralSources(sources) {
+  return (sources || [])
+    .map((s) => (s.name && s.name !== s.email ? `${s.name} <${s.email}>` : s.email))
+    .join("\n");
+}
+
+function extractEmailAddress(fromHeader) {
+  const match = (fromHeader || "").match(/<(.+)>/);
+  return (match ? match[1] : fromHeader || "").trim().toLowerCase();
+}
+
+function extractDisplayName(fromHeader) {
+  const match = (fromHeader || "").match(/^"?([^"<]*)"?\s*<.+>$/);
+  if (match && match[1].trim()) return match[1].trim();
+  return extractEmailAddress(fromHeader);
+}
+
+function formatInquiryDate(dateHeader) {
+  const d = new Date(dateHeader);
+  if (isNaN(d.getTime())) return dateHeader || "";
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
 // ---------- Date helpers ----------
@@ -409,6 +455,84 @@ function renderDayGoogleEvents() {
   events.forEach((event) => list.appendChild(createGoogleEventItem(event)));
 }
 
+function renderInquiries() {
+  const list = document.getElementById("inquiries-list");
+  const emptyMsg = document.getElementById("inquiries-empty-msg");
+  list.innerHTML = "";
+
+  if (!GoogleSync.isConnected()) {
+    emptyMsg.textContent = "Connect Google in Settings to see inquiry emails here.";
+    emptyMsg.classList.remove("hidden");
+    return;
+  }
+
+  if (!settings.referralSources.length) {
+    emptyMsg.textContent = "Add referral source emails in Settings to see inquiries here.";
+    emptyMsg.classList.remove("hidden");
+    return;
+  }
+
+  const linkedIds = new Set(jobs.map((j) => j.gmailMessageId).filter(Boolean));
+  const inquiries = GoogleSync.inquiries.filter((m) => !linkedIds.has(m.id));
+
+  if (!inquiries.length) {
+    emptyMsg.textContent = "No new inquiry emails.";
+    emptyMsg.classList.remove("hidden");
+    return;
+  }
+
+  emptyMsg.classList.add("hidden");
+  inquiries.forEach((inquiry) => list.appendChild(createInquiryItem(inquiry)));
+}
+
+function createInquiryItem(inquiry) {
+  const li = document.createElement("li");
+  li.className = "job-item";
+
+  const top = document.createElement("div");
+  top.className = "job-item-top";
+
+  const name = document.createElement("span");
+  name.className = "job-item-name";
+  name.textContent = inquiry.subject;
+  top.appendChild(name);
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "btn btn-small btn-secondary";
+  btn.textContent = "Add as Job";
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    openJobModal({
+      id: "",
+      clientName: "",
+      jobType: "Other",
+      status: "inquiry",
+      date: todayStr(),
+      time: "",
+      location: "",
+      email: "",
+      price: "",
+      notes: `Referral inquiry from ${extractDisplayName(inquiry.from)}:\n${inquiry.subject}\n${inquiry.snippet}`,
+      gmailMessageId: inquiry.id,
+    });
+  });
+  top.appendChild(btn);
+
+  const meta = document.createElement("div");
+  meta.className = "job-item-meta";
+  meta.textContent = `${extractDisplayName(inquiry.from)} · ${formatInquiryDate(inquiry.date)}`;
+
+  const snippet = document.createElement("div");
+  snippet.className = "job-item-meta";
+  snippet.textContent = inquiry.snippet;
+
+  li.appendChild(top);
+  li.appendChild(meta);
+  li.appendChild(snippet);
+  return li;
+}
+
 function renderUpcomingJobs() {
   const list = document.getElementById("upcoming-list");
   list.innerHTML = "";
@@ -440,6 +564,7 @@ function openJobModal(job) {
 
   document.getElementById("job-id").value = isExisting ? job.id : "";
   document.getElementById("job-google-event-id").value = job ? job.googleEventId || "" : "";
+  document.getElementById("job-gmail-message-id").value = job ? job.gmailMessageId || "" : "";
   document.getElementById("job-modal-title").textContent = isExisting ? "Edit Job" : "Add Job";
   document.getElementById("delete-job-btn").classList.toggle("hidden", !isExisting);
 
@@ -476,6 +601,7 @@ async function handleJobFormSubmit(e) {
     price: document.getElementById("job-price").value,
     notes: document.getElementById("job-notes").value.trim(),
     googleEventId: document.getElementById("job-google-event-id").value || null,
+    gmailMessageId: document.getElementById("job-gmail-message-id").value || null,
   };
 
   if (id) {
@@ -582,6 +708,7 @@ function openSettingsModal() {
   document.getElementById("settings-phone").value = settings.yourPhone;
   document.getElementById("settings-google-client-id").value = settings.googleClientId;
   document.getElementById("settings-google-autosync").checked = settings.googleAutoSync;
+  document.getElementById("settings-referral-sources").value = formatReferralSources(settings.referralSources);
   updateGoogleStatusUI();
   document.getElementById("settings-modal").classList.remove("hidden");
 }
@@ -590,7 +717,7 @@ function closeSettingsModal() {
   document.getElementById("settings-modal").classList.add("hidden");
 }
 
-function handleSettingsFormSubmit(e) {
+async function handleSettingsFormSubmit(e) {
   e.preventDefault();
 
   settings = {
@@ -600,12 +727,22 @@ function handleSettingsFormSubmit(e) {
     yourPhone: document.getElementById("settings-phone").value.trim(),
     googleClientId: document.getElementById("settings-google-client-id").value.trim(),
     googleAutoSync: document.getElementById("settings-google-autosync").checked,
+    referralSources: parseReferralSources(document.getElementById("settings-referral-sources").value),
   };
 
   saveSettings();
   document.getElementById("business-name").textContent = settings.businessName;
   closeSettingsModal();
   renderEmailPreview();
+
+  if (GoogleSync.isConnected()) {
+    try {
+      await GoogleSync.fetchInquiries(settings.referralSources.map((s) => s.email));
+      renderInquiries();
+    } catch (err) {
+      // inquiry refresh failure shouldn't block settings save
+    }
+  }
 }
 
 // ---------- Email composer ----------
@@ -800,7 +937,27 @@ async function onGoogleConnected({ email, error }) {
     // calendar fetch failure shouldn't block the rest of the UI
   }
 
+  try {
+    await GoogleSync.fetchInquiries(settings.referralSources.map((s) => s.email));
+  } catch (err) {
+    // inquiry fetch failure shouldn't block the rest of the UI
+  }
+
   refreshAll();
+}
+
+async function handleRefreshInquiries() {
+  if (!GoogleSync.isConnected()) {
+    alert("Connect your Google account first.");
+    return;
+  }
+
+  try {
+    await GoogleSync.fetchInquiries(settings.referralSources.map((s) => s.email));
+    renderInquiries();
+  } catch (err) {
+    alert("Could not fetch inquiry emails: " + err.message);
+  }
 }
 
 function handleGoogleDisconnectClick() {
@@ -815,6 +972,7 @@ function refreshAll() {
   renderCalendar();
   renderDayJobs();
   renderDayGoogleEvents();
+  renderInquiries();
   renderUpcomingJobs();
   renderEmailJobSelect();
   renderEmailTemplateSelect();
@@ -853,6 +1011,7 @@ function init() {
   document.getElementById("settings-form").addEventListener("submit", handleSettingsFormSubmit);
   document.getElementById("import-calendar-jobs-btn").addEventListener("click", handleImportCalendarJobs);
   document.getElementById("clear-jobs-btn").addEventListener("click", handleClearJobs);
+  document.getElementById("refresh-inquiries-btn").addEventListener("click", handleRefreshInquiries);
 
   document.getElementById("email-job-select").addEventListener("change", handleEmailJobChange);
   document.getElementById("email-template-select").addEventListener("change", renderEmailPreview);
@@ -876,9 +1035,10 @@ function init() {
   refreshAll();
 
   if (GoogleSync.isConnected()) {
-    GoogleSync.fetchEvents()
-      .then(refreshAll)
-      .catch(() => {});
+    Promise.all([
+      GoogleSync.fetchEvents().catch(() => {}),
+      GoogleSync.fetchInquiries(settings.referralSources.map((s) => s.email)).catch(() => {}),
+    ]).then(refreshAll);
   }
 }
 
