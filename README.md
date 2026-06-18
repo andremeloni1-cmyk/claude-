@@ -1,3 +1,19 @@
+# Photography Marketing Automations
+
+This repo contains two hands-off marketing pipelines for a photography
+business, both driven by Claude and run on a schedule by GitHub Actions:
+
+1. **Pinterest Automation** — turns Drive photos into SEO-optimised pins (below).
+2. **[SEO Blog Automation](#seo-blog-automation)** — writes full SEO blog posts,
+   illustrates them with your photos, and publishes them straight to your
+   **Framer** CMS.
+
+It also includes the [Claude SEO](https://github.com/AgriciDaniel/claude-seo)
+skill set for ad-hoc, interactive SEO audits of the live site (separate from
+the two automations above — see [below](#claude-seo-skill)).
+
+---
+
 # Pinterest Automation
 
 Fully automated, SEO-optimised Pinterest posting for a photography business.
@@ -174,3 +190,191 @@ the first run if it doesn't exist.
   won't cause a re-post, but re-uploading (which creates a new id) will.
 - The Drive folder is opened **read-only** — the automation never changes or
   deletes your photos.
+
+---
+
+# SEO Blog Automation
+
+Fully automated, SEO-optimised blog posts for your photography website,
+written by Claude, illustrated with your own photos, and published straight
+into your **Framer** CMS — no copy-paste, and you never have to open Framer.
+
+**How it works:** you list the keywords you want to rank for in `config.yaml`.
+On a schedule, GitHub Actions runs the pipeline, which:
+
+1. Takes the next keyword you haven't covered yet.
+2. Pulls candidate photos from your Google Drive folder and asks **Claude**
+   (vision) to pick the ones that best fit the topic and write alt text.
+3. Asks **Claude** to write a complete, genuinely useful SEO article — title,
+   slug, meta title + description, excerpt, category, keywords, and a
+   markdown body with headings, internal links, a FAQ and a call to action —
+   with your photos placed inline.
+4. Commits the post + resized images to the repo (so the images have public
+   URLs), then pushes the post into your **Framer CMS** via the **Framer
+   Server API** and publishes the site.
+5. Records what it wrote in `state/blog.json` so nothing is ever duplicated.
+
+```
+config.yaml keywords ─▶ GitHub Actions (cron) ─▶ Claude picks photos + writes post ─▶ Framer CMS ─▶ published site
+```
+
+## How the two halves fit together
+
+| Part | What it does |
+|------|--------------|
+| `blog_automation/` (Python) | Picks the topic, chooses + resizes photos, writes the post, and saves a self-contained bundle under `published/<slug>/`. |
+| `framer/publish.mjs` (Node) | Reads each bundle and pushes it into the Framer CMS via the Framer Server API, then publishes the site. |
+| `published/<slug>/` | A committed bundle: `post.json` (the CMS fields) + the resized JPEGs. Committing them gives the images public URLs Framer can ingest. |
+| `state/blog.json` | Tracks which keywords are done and which photos have been used. |
+| `.github/workflows/blog-automation.yml` | The scheduled run (weekly by default). |
+
+> **Why two languages?** Framer has no public REST CMS write API; the official,
+> first-party way to write to the CMS from a server is the `framer-api` npm
+> package (the **Server API**, free in open beta). So the post is generated in
+> Python and pushed to Framer in a small Node step.
+
+## Setup
+
+You reuse the **Anthropic** and **Google Drive** secrets from the Pinterest
+setup above, plus two new Framer secrets.
+
+### 1. Reuse existing secrets
+- `ANTHROPIC_API_KEY` and `GOOGLE_SERVICE_ACCOUNT_JSON` — already set up for
+  Pinterest, nothing to do.
+- Photos: by default the blog reuses `GDRIVE_FOLDER_ID`. To draw blog images
+  from a **different** Drive folder, set `BLOG_GDRIVE_FOLDER_ID` instead
+  (share that folder with the same service-account email).
+
+### 2. Framer Server API key + project URL
+1. Open your site in Framer → **Site Settings → General** → generate an
+   **API key**. Add it as the secret `FRAMER_API_KEY`.
+2. Your project URL is `https://framer.com/projects/Sites--xxxxxxxx` (copy it
+   from the address bar in the Framer editor). Add it as `FRAMER_PROJECT_URL`.
+3. *(Optional)* To target an exact collection, set `FRAMER_COLLECTION_ID`.
+   Otherwise the pipeline matches the collection by name (`blog.collection_name`
+   in `config.yaml`, default `Blog`).
+
+### 3. Your Framer blog collection
+You need a CMS collection in Framer for blog posts (most blog templates ship
+with one). Map your collection's **field names** to the pipeline's logical
+fields in `config.yaml` under `blog.field_map`. Names are matched
+case-insensitively, and any logical field your collection doesn't have is simply
+skipped — so a partial map is fine. The post **slug** is set automatically and
+never needs mapping.
+
+The logical fields the pipeline can produce are: `title`, `intro_1`, `intro_2`
+(two short lede paragraphs shown above the article), `body` (the full article —
+map this to a *formatted text / rich text* field), `cover` (map to an *image*
+field), `cover_alt` (alt text for the cover, a *string* field), `image_1` (a
+secondary feature image, also shown above the article) and `date`. The default
+map matches this project's "Blog" collection:
+
+```yaml
+field_map:
+  title: "Title"
+  intro_1: "Intro 1"
+  intro_2: "Intro 2"
+  body: "Content"
+  cover: "Preview"
+  cover_alt: "Alt text"
+  image_1: "Image 1"
+  date: "Date"
+```
+
+If a mapped name isn't found, the publisher falls back to the only field of an
+unambiguous type (image → cover, formatted-text → body, date → date) so cover
+photos still land even if a name is slightly off. The run log prints every
+collection field name so you can correct the map.
+
+### 4. Make the repo public (for image hosting)
+Images are served to Framer from `raw.githubusercontent.com`, which requires a
+**public** repository. If you'd rather keep the repo private, host the images
+elsewhere (an S3/R2 bucket or CDN) and set the workflow's `IMAGE_BASE_URL` to
+that base instead — everything else stays the same.
+
+### 5. Add your keywords
+Edit `config.yaml` → `blog.topics`: one entry per keyword you want to target,
+with optional `notes` to steer the angle. The pipeline works through them in
+order, one (by `blog.max_posts_per_run`) per run.
+
+## Running it
+
+- **Automatically:** the workflow runs weekly (Monday 09:00 UTC). Change the
+  `cron` in `.github/workflows/blog-automation.yml` and `max_posts_per_run` in
+  `config.yaml` to change the pace.
+- **On demand:** Actions tab → *SEO Blog Automation* → **Run workflow**.
+- **Locally (generate only):**
+  ```bash
+  pip install -r requirements.txt
+  export ANTHROPIC_API_KEY=... GDRIVE_FOLDER_ID=...
+  export GOOGLE_SERVICE_ACCOUNT_JSON="$(cat service-account.json)"
+  python -m blog_automation.main          # writes published/<slug>/
+  # then push to Framer:
+  cd framer && npm install
+  export FRAMER_API_KEY=... FRAMER_PROJECT_URL=...
+  export IMAGE_BASE_URL="https://raw.githubusercontent.com/<owner>/<repo>/<branch>"
+  node publish.mjs
+  ```
+
+## Tuning
+
+- **Topics & angles:** `blog.topics` in `config.yaml`.
+- **Posts per run / cadence:** `blog.max_posts_per_run` + the workflow `cron`.
+- **Photos per post:** `blog.images_per_post` (first is the cover, second is the
+  secondary feature image, the rest are placed inline in the article).
+- **Image matching cost:** `blog.image_candidate_pool` (how many photos Claude
+  reviews per post).
+- **Cost vs. quality:** `model` in `config.yaml` (`claude-opus-4-8` for best
+  writing, `claude-sonnet-4-6` for cheaper high-volume).
+- **Field mapping & internal links:** `blog.field_map` and `blog.internal_links`.
+
+## Notes
+
+- Re-runs are safe: a keyword already in `state/blog.json` is never rewritten.
+  In Framer, a new slug is created and an existing slug is **updated in place**
+  (never duplicated), so a failed push is retried — and a field-map fix is
+  back-filled onto already-published posts — on the next run.
+- The Drive folder is opened **read-only**. Photos are matched by Drive file id
+  and (by default) not reused across posts until the unused pool runs out.
+
+---
+
+# Claude SEO skill
+
+[Claude SEO](https://github.com/AgriciDaniel/claude-seo) (MIT licensed) is
+installed at the project level — 25 sub-skills under `.claude/skills/` and 18
+specialist sub-agents under `.claude/agents/`. It's independent of the two
+automations above: it's an interactive toolkit you invoke yourself in a
+Claude Code session to audit a live site on demand.
+
+## Usage
+
+In a Claude Code session in this repo:
+
+```
+/seo audit https://yoursite.com
+/seo technical https://yoursite.com
+/seo schema https://yoursite.com
+/seo content https://yoursite.com
+/seo geo https://yoursite.com
+```
+
+Run `/seo` with no arguments for the full command list (audit, page,
+technical, content, schema, geo, local, ecommerce, backlinks, sitemap,
+images, and more).
+
+## One-time setup
+
+The skill's Python dependencies are kept separate from this project's own
+`requirements.txt` since they're only needed when you actually run a `/seo`
+command:
+
+```bash
+pip install -r .claude/skills/seo/requirements.txt
+playwright install chromium   # optional, enables visual/SPA rendering
+```
+
+Optional MCP extensions (DataForSEO, Firecrawl, Google Search Console/PageSpeed,
+Ahrefs, Bing Webmaster, etc.) are not installed — see the
+[upstream docs](https://github.com/AgriciDaniel/claude-seo/blob/main/docs/MCP-INTEGRATION.md)
+if you want to add any of those.

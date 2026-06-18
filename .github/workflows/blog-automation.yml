@@ -1,0 +1,83 @@
+name: SEO Blog Automation
+
+on:
+  schedule:
+    # Weekly, Monday 09:00 UTC. With max_posts_per_run: 1 that's ~one post a
+    # week. Adjust the cron (https://crontab.guru) and config.yaml to change pace.
+    - cron: "0 9 * * 1"
+  workflow_dispatch: {}   # lets you trigger a run manually from the Actions tab
+
+# Needed so the job can commit the generated posts, images and state back.
+permissions:
+  contents: write
+
+# Prevent overlapping runs from double-writing or double-publishing.
+concurrency:
+  group: blog-automation
+  cancel-in-progress: false
+
+jobs:
+  blog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Write new SEO post(s) and bundle images
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GDRIVE_FOLDER_ID: ${{ secrets.BLOG_GDRIVE_FOLDER_ID || secrets.GDRIVE_FOLDER_ID }}
+        run: python -m blog_automation.main
+
+      # Commit + push BEFORE publishing so the images are live at their public
+      # raw.githubusercontent.com URLs when Framer ingests them.
+      - name: Commit generated posts and images
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add published state/blog.json
+          if git diff --staged --quiet; then
+            echo "No new posts to commit."
+            exit 0
+          fi
+          git commit -m "Add generated blog post(s) [skip ci]"
+          # main can advance between checkout and push — e.g. the Pinterest
+          # automation commits its own state to main concurrently. Rebase onto
+          # the latest main and retry so a competing push doesn't abort the run
+          # before the Framer publish step gets to run.
+          for attempt in 1 2 3 4 5; do
+            if git push; then
+              echo "Pushed on attempt ${attempt}."
+              exit 0
+            fi
+            echo "Push rejected (attempt ${attempt}); rebasing onto origin/${GITHUB_REF_NAME}…"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+          done
+          echo "Failed to push generated posts after multiple attempts." >&2
+          exit 1
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Install Framer publisher dependencies
+        working-directory: framer
+        run: npm install --no-audit --no-fund
+
+      - name: Publish posts to Framer CMS
+        working-directory: framer
+        env:
+          FRAMER_API_KEY: ${{ secrets.FRAMER_API_KEY }}
+          FRAMER_PROJECT_URL: ${{ secrets.FRAMER_PROJECT_URL }}
+          FRAMER_COLLECTION_ID: ${{ secrets.FRAMER_COLLECTION_ID }}
+          # Public base URL the committed images are served from.
+          IMAGE_BASE_URL: "https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}"
+        run: node publish.mjs

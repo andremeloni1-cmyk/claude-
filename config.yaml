@@ -10,7 +10,7 @@ business_name: "Andre Meloni Photography"
 niche: >
   Professional photography — weddings, couples, portraits and lifestyle
   sessions. Natural, warm, editorial style.
-location: "United Kingdom"
+location: "New South Wales, Australia"
 target_audience: >
   Engaged couples planning a wedding, and people looking to book a portrait
   or lifestyle photographer.
@@ -45,3 +45,76 @@ max_pins_per_run: 4
 # When posting via Postiz, the Pinterest board to pin to. Find the board id in
 # your Postiz dashboard (or leave blank to use the channel's default board).
 pinterest_board_id: "734509089167220712"
+
+# ---------------------------------------------------------------------------
+# SEO BLOG PIPELINE
+# ---------------------------------------------------------------------------
+# Writes a full SEO blog post for each keyword below, illustrates it with the
+# best-matching photos from your Drive folder, and publishes it to the Framer
+# CMS via the Framer Server API. Reuses the brand settings above
+# (website_url, business_name, niche, location, target_audience, model).
+blog:
+  # The name of the CMS collection in your Framer project that holds blog
+  # posts. The pipeline matches this case-insensitively. You can instead pin
+  # an exact collection by setting FRAMER_COLLECTION_ID as a secret.
+  collection_name: "Blog"
+
+  # The author byline written into posts.
+  author: "Andre Meloni"
+
+  # Map the pipeline's logical fields to the FIELD NAMES in your Framer
+  # collection. Names are matched case-insensitively; any field not present in
+  # your collection is skipped (so partial maps are fine). "slug" is set on the
+  # item itself and never needs mapping here. These names match the actual
+  # fields in the "Blog" collection (Title / Preview / Intro 1 / Intro 2 /
+  # Content / Alt text / Date). Add more lines if you add fields in Framer.
+  field_map:
+    title: "Title"
+    intro_1: "Intro 1"
+    intro_2: "Intro 2"
+    body: "Content"
+    cover: "Preview"
+    cover_alt: "Alt text"
+    image_1: "Image 1"
+    date: "Date"
+
+  # How many photos to embed per post (the first becomes the cover image).
+  images_per_post: 4
+
+  # How many candidate photos to show Claude when choosing images for a post.
+  # Higher = better matches but more vision tokens per run.
+  image_candidate_pool: 24
+
+  # Don't reuse a photo that has already illustrated a previous post, until the
+  # unused pool runs out. Keeps posts visually distinct.
+  avoid_reusing_images: true
+
+  # How many NEW posts to write per run. One per run + a weekly schedule is a
+  # healthy, natural publishing cadence for SEO.
+  max_posts_per_run: 1
+
+  # Internal links the writer should weave into posts naturally where relevant
+  # (great for SEO and for funnelling readers toward booking).
+  internal_links:
+    - anchor: "wedding photography"
+      url: "https://www.andremeloniphotography.co"
+    - anchor: "get in touch"
+      url: "https://www.andremeloniphotography.co/contact"
+
+  # The target keywords / topics to write about, worked through in order. Add
+  # as many as you like — one becomes a post each run until the list is
+  # exhausted. Each entry is the primary keyword; the optional `notes` steer
+  # angle and intent.
+  topics:
+    - keyword: "best intimate wedding venues in the Southern Highlands"
+      notes: "Listicle + planning advice for couples wanting a small Southern Highlands wedding."
+    - keyword: "South Coast NSW wedding photography locations"
+      notes: "Showcase scenic South Coast spots for ceremonies, portraits and elopements."
+    - keyword: "how to choose a wedding photographer in Sydney"
+      notes: "Buyer's guide; build trust, mention questions to ask, what to look for in a portfolio."
+    - keyword: "what to wear for an engagement photoshoot"
+      notes: "Practical style guide; reassure nervous couples."
+    - keyword: "best time of day for wedding photos"
+      notes: "Golden hour, timeline planning tips for Australian light and seasons."
+    - keyword: "Southern Highlands elopement photography guide"
+      notes: "For couples considering eloping in the Southern Highlands; what to expect, permits, timing."
