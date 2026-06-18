@@ -93,6 +93,16 @@ blog:
   # healthy, natural publishing cadence for SEO.
   max_posts_per_run: 1
 
+  # Automatically research new SEO blog topics with Claude's web search tool
+  # once the queue below runs low, so the pipeline never goes idle waiting on
+  # a human to add keywords. Researched topics are appended to `topics:`
+  # below (and committed) and go straight into the write/publish queue with
+  # no manual approval step. Set to false to go back to a fully manual queue.
+  auto_research: true
+
+  # How many new topics to research and queue at once when topping up.
+  research_batch_size: 3
+
   # Internal links the writer should weave into posts naturally where relevant
   # (great for SEO and for funnelling readers toward booking).
   internal_links:
