@@ -8,6 +8,10 @@ business, both driven by Claude and run on a schedule by GitHub Actions:
    illustrates them with your photos, and publishes them straight to your
    **Framer** CMS.
 
+It also includes the [Claude SEO](https://github.com/AgriciDaniel/claude-seo)
+skill set for ad-hoc, interactive SEO audits of the live site (separate from
+the two automations above — see [below](#claude-seo-skill)).
+
 ---
 
 # Pinterest Automation
@@ -332,3 +336,45 @@ order, one (by `blog.max_posts_per_run`) per run.
   back-filled onto already-published posts — on the next run.
 - The Drive folder is opened **read-only**. Photos are matched by Drive file id
   and (by default) not reused across posts until the unused pool runs out.
+
+---
+
+# Claude SEO skill
+
+[Claude SEO](https://github.com/AgriciDaniel/claude-seo) (MIT licensed) is
+installed at the project level — 25 sub-skills under `.claude/skills/` and 18
+specialist sub-agents under `.claude/agents/`. It's independent of the two
+automations above: it's an interactive toolkit you invoke yourself in a
+Claude Code session to audit a live site on demand.
+
+## Usage
+
+In a Claude Code session in this repo:
+
+```
+/seo audit https://yoursite.com
+/seo technical https://yoursite.com
+/seo schema https://yoursite.com
+/seo content https://yoursite.com
+/seo geo https://yoursite.com
+```
+
+Run `/seo` with no arguments for the full command list (audit, page,
+technical, content, schema, geo, local, ecommerce, backlinks, sitemap,
+images, and more).
+
+## One-time setup
+
+The skill's Python dependencies are kept separate from this project's own
+`requirements.txt` since they're only needed when you actually run a `/seo`
+command:
+
+```bash
+pip install -r .claude/skills/seo/requirements.txt
+playwright install chromium   # optional, enables visual/SPA rendering
+```
+
+Optional MCP extensions (DataForSEO, Firecrawl, Google Search Console/PageSpeed,
+Ahrefs, Bing Webmaster, etc.) are not installed — see the
+[upstream docs](https://github.com/AgriciDaniel/claude-seo/blob/main/docs/MCP-INTEGRATION.md)
+if you want to add any of those.
