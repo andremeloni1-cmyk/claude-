@@ -44,7 +44,7 @@ max_pins_per_run: 4
 
 # When posting via Postiz, the Pinterest board to pin to. Find the board id in
 # your Postiz dashboard (or leave blank to use the channel's default board).
-pinterest_board_id: ""
+pinterest_board_id: "734509089167220712"
 
 # ---------------------------------------------------------------------------
 # SEO BLOG PIPELINE
@@ -118,3 +118,5 @@ blog:
       notes: "Golden hour, timeline planning tips for Australian light and seasons."
     - keyword: "Southern Highlands elopement photography guide"
       notes: "For couples considering eloping in the Southern Highlands; what to expect, permits, timing."
+    - keyword: "top five couple poses for your wedding day"
+      notes: "Listicle of five flattering, natural couple poses for the wedding day; reassure camera-shy couples and explain how a photographer guides each pose. Keep it practical and experience-led."

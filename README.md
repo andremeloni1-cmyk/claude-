@@ -437,3 +437,33 @@ Once connected:
 `/seo audit`, `/seo technical`, and `/seo sitemap` use Firecrawl's `map`/
 `crawl` to discover and analyze pages beyond what the XML sitemap lists.
 Details: [extension README](https://github.com/AgriciDaniel/claude-seo/blob/main/extensions/firecrawl/README.md).
+
+---
+
+# Ship-feature pipeline
+
+A four-agent dev pipeline under `.claude/agents/` (`pipeline-planner`,
+`pipeline-coder`, `pipeline-tester`, `pipeline-reviewer`) chained together by
+the `/ship-feature` command. Each stage hands context to the next through
+plain files in a local `.pipeline/` scratch folder (gitignored) instead of
+through the orchestrator's own context window:
+
+| Stage | Agent | Model | Reads | Writes |
+|---|---|---|---|---|
+| Plan | `pipeline-planner` | Opus | `.pipeline/request.md` | `.pipeline/specs.md` |
+| Code | `pipeline-coder` | Sonnet | `.pipeline/specs.md` | code + `.pipeline/changes.md` |
+| Test | `pipeline-tester` | Sonnet | `specs.md` + `changes.md` | tests + `.pipeline/tests.md` |
+| Review | `pipeline-reviewer` (read-only) | Sonnet | all of the above + `git diff` | `.pipeline/review.md` |
+
+## Usage
+
+In a Claude Code session in this repo:
+
+```
+/ship-feature add rate limiting to the login endpoint
+```
+
+The reviewer's verdict (`APPROVE` / `REQUEST_CHANGES` / `BLOCK`) is reported
+back at the end, but nothing is committed, pushed, or merged automatically —
+the pipeline only prepares a reviewed diff on the current branch for a human
+to act on.
