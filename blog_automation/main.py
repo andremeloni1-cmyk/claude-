@@ -17,7 +17,7 @@ import sys
 # Drive access is a pure utility shared with the Pinterest automation.
 from pinterest_automation import drive
 
-from . import bundle, config, images, state, writer
+from . import bundle, config, images, research, state, writer
 
 logging.basicConfig(
     level=logging.INFO,
@@ -80,6 +80,22 @@ def run() -> int:
     st = state.load(cfg.state_path)
 
     pending = [t for t in cfg.topics if not state.is_done(st, t.keyword)]
+
+    if cfg.auto_research and len(pending) < cfg.max_posts_per_run:
+        log.info("Pending queue running low; researching new topics automatically.")
+        try:
+            avoid_keywords = {t.keyword for t in cfg.topics}
+            new_topics = research.research_topics(cfg, avoid_keywords, cfg.research_batch_size)
+        except Exception as exc:  # noqa: BLE001 - a research hiccup shouldn't kill the run
+            log.warning("Auto-research failed, continuing with existing queue: %s", exc)
+            new_topics = []
+        if new_topics:
+            for t in new_topics:
+                log.info("Researched new topic: %r", t.keyword)
+            config.append_topics(new_topics)
+            cfg.topics.extend(new_topics)
+            pending.extend(new_topics)
+
     log.info(
         "%d topic(s) configured, %d pending. Writing up to %d this run.",
         len(cfg.topics),
