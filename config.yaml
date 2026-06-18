@@ -44,4 +44,4 @@ max_pins_per_run: 4
 
 # When posting via Postiz, the Pinterest board to pin to. Find the board id in
 # your Postiz dashboard (or leave blank to use the channel's default board).
-pinterest_board_id: ""
+pinterest_board_id: "734509089167220712"
