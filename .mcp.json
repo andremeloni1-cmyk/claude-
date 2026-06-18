@@ -10,6 +10,14 @@
         "ENABLED_MODULES": "SERP,KEYWORDS_DATA,ONPAGE,DATAFORSEO_LABS,BACKLINKS,DOMAIN_ANALYTICS,BUSINESS_DATA,CONTENT_ANALYSIS,AI_OPTIMIZATION",
         "FIELD_CONFIG_PATH": ".claude/skills/seo/dataforseo-field-config.json"
       }
+    },
+    "firecrawl-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "firecrawl-mcp@3.11.0"],
+      "env": {
+        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
+      }
     }
   }
 }
