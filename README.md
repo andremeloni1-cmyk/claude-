@@ -362,6 +362,34 @@ Pinterest-keyword angles that don't fit the blog queue.
 
 ---
 
+# Photo curator agent
+
+`photo-curator` (`.claude/agents/photo-curator.md`) is an on-demand sub-agent
+for matching photos to topics and auditing alt text — by actually looking at
+each photo itself, rather than trusting the automated pipeline's single
+one-shot vision call in `blog_automation/writer.py` /
+`pinterest_automation/captions.py`.
+
+It always works in **audit mode**: reviewing the real, committed JPEGs and alt
+text under `published/<slug>/` for accuracy, specificity, and visual
+redundancy, and fixing weak alt text in place when asked. If your Drive
+credentials (`GOOGLE_SERVICE_ACCOUNT_JSON` + `GDRIVE_FOLDER_ID`) are also set
+in your local environment, it can additionally pull fresh candidate photos
+and recommend pairings for upcoming `blog.topics` ahead of a run.
+
+## Usage
+
+In a Claude Code session in this repo:
+
+```
+Use the photo-curator agent to audit alt text across all published posts.
+```
+
+It reports what it reviewed, every alt-text fix proposed (and whether it
+applied it), and any redundancy flags.
+
+---
+
 # Claude SEO skill
 
 [Claude SEO](https://github.com/AgriciDaniel/claude-seo) (MIT licensed) is
