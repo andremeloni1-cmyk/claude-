@@ -130,3 +130,17 @@ blog:
       notes: "For couples considering eloping in the Southern Highlands; what to expect, permits, timing."
     - keyword: "top five couple poses for your wedding day"
       notes: "Listicle of five flattering, natural couple poses for the wedding day; reassure camera-shy couples and explain how a photographer guides each pose. Keep it practical and experience-led."
+
+# ---------------------------------------------------------------------------
+# ETSY LISTING AUTOMATION
+# ---------------------------------------------------------------------------
+# Copywriting/listing defaults for the etsy-automation skill (digital
+# downloads). Used to pre-fill new listing specs; the skill still asks about
+# anything product-specific. Secrets (API keys, shop id, tokens) are NOT
+# here — see the skill's references/auth-setup.md.
+etsy:
+  currency: "AUD"
+  default_who_made: "i_did"
+  default_when_made: "2020_2026"
+  default_type: "download"
+  default_quantity: 999

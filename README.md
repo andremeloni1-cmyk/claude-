@@ -8,9 +8,10 @@ business, both driven by Claude and run on a schedule by GitHub Actions:
    illustrates them with your photos, and publishes them straight to your
    **Framer** CMS.
 
-It also includes the [Claude SEO](https://github.com/AgriciDaniel/claude-seo)
-skill set for ad-hoc, interactive SEO audits of the live site (separate from
-the two automations above — see [below](#claude-seo-skill)).
+It also includes an on-demand **[Etsy Listing Automation](#etsy-listing-automation)**
+skill for creating Etsy listings for digital-download products, and the
+[Claude SEO](https://github.com/AgriciDaniel/claude-seo) skill set for ad-hoc,
+interactive SEO audits of the live site (see [below](#claude-seo-skill)).
 
 ---
 
@@ -336,6 +337,95 @@ order, one (by `blog.max_posts_per_run`) per run.
   back-filled onto already-published posts — on the next run.
 - The Drive folder is opened **read-only**. Photos are matched by Drive file id
   and (by default) not reused across posts until the unused pool runs out.
+
+---
+
+# Etsy Listing Automation
+
+An on-demand Claude Code skill (`.claude/skills/etsy-automation/`) for
+creating Etsy listings for digital-download products (presets, templates,
+printables, guides). Unlike the two cron pipelines above, you invoke this
+yourself in a Claude Code session whenever you have a new product to list —
+nothing runs on a schedule.
+
+**How it works:** you tell Claude what the product is and where the photos
+and digital files live on disk. It writes SEO-ready listing copy (title,
+description, tags, materials) and then either:
+
+- **Creates the listing as a draft via the Etsy API** (if you have an
+  approved Etsy app set up — see setup below), uploading the images and
+  files and reporting the resulting `listing_id`; or
+- **Prints a ready-to-paste draft** for you to enter manually in Etsy's
+  listing editor, if API access isn't set up yet.
+
+Either way, the listing is **never published live automatically** — moving
+a draft to active is always a separate, explicit step you ask for after
+reviewing it.
+
+```
+"List this on Etsy" ─▶ Claude writes SEO copy ─▶ Etsy draft listing (API or copy-paste) ─▶ you review ─▶ you say "publish it"
+```
+
+## Project layout
+
+| File | Purpose |
+|------|---------|
+| `.claude/skills/etsy-automation/SKILL.md` | The skill definition Claude follows. |
+| `.claude/skills/etsy-automation/scripts/etsy_client.py` | Etsy Open API v3 client (listings, images, files, taxonomy). |
+| `.claude/skills/etsy-automation/scripts/etsy_auth.py` | Refreshes an Etsy access token from a refresh token. |
+| `.claude/skills/etsy-automation/scripts/create_listing.py` | CLI the skill runs: `create`, `activate`, `taxonomy`. |
+| `.claude/skills/etsy-automation/scripts/get_etsy_refresh_token.py` | One-time OAuth setup helper (run locally). |
+| `.claude/skills/etsy-automation/references/auth-setup.md` | Etsy app approval tips + first-time OAuth setup walkthrough. |
+| `.claude/skills/etsy-automation/references/digital-listing-fields.md` | Field cheat sheet (title/tag/taxonomy rules). |
+| `config.yaml` (`etsy:` block) | Non-secret copywriting defaults (currency, who_made, when_made, type, quantity). |
+| `state/etsy_listings.json` | Tracks created listings (created on first live-mode use). |
+
+## Setup
+
+**Nothing is required to use draft/copy-paste mode** — just invoke the
+skill. To enable live API mode (the skill creates real draft listings
+directly via the Etsy API):
+
+1. Register an app at <https://www.etsy.com/developers/your-apps> and wait
+   for it to show **Approved** — Etsy manually reviews every app, including
+   the API key itself, so nothing works until then. If you've been denied,
+   see `.claude/skills/etsy-automation/references/auth-setup.md` for common
+   denial causes and how to escalate (developers@etsy.com is the only
+   official channel).
+2. Run the one-time OAuth helper locally:
+   ```bash
+   pip install requests
+   python .claude/skills/etsy-automation/scripts/get_etsy_refresh_token.py
+   ```
+   It prints `ETSY_API_KEY`, `ETSY_SHARED_SECRET`, and `ETSY_REFRESH_TOKEN`.
+3. Find your shop id manually (Shop Manager → Settings → Options — it's in
+   that page's URL) and store it as `ETSY_SHOP_ID`.
+4. Store all four as secrets (GitHub Actions secrets, or export them locally
+   for ad-hoc sessions): `ETSY_API_KEY`, `ETSY_SHARED_SECRET`,
+   `ETSY_SHOP_ID`, `ETSY_REFRESH_TOKEN`.
+
+## Running it
+
+In a Claude Code session in this repo:
+
+```
+List this digital download on Etsy: a set of 10 Lightroom presets, photos
+and zip file are in ~/Desktop/preset-pack/, $12 AUD.
+```
+
+The skill asks for anything it still needs, writes the copy, and reports
+either a draft `listing_id` (live mode) or copy-paste-ready text (draft
+mode). To publish a draft it already created, ask explicitly — e.g. "publish
+listing 12345".
+
+## Notes
+
+- Listing photos and digital product files are **never** committed to this
+  (public) repo — the skill reads them straight from the local paths you
+  give it.
+- Etsy rotates the refresh token every time it's used; if
+  `create_listing.py` prints a new one, update the `ETSY_REFRESH_TOKEN`
+  secret with it or the next run will fail.
 
 ---
 
