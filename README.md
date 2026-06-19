@@ -339,6 +339,29 @@ order, one (by `blog.max_posts_per_run`) per run.
 
 ---
 
+# Topic scout agent
+
+`topic-scout` (`.claude/agents/topic-scout.md`) is an on-demand sub-agent for
+planning the blog content queue ahead of time, instead of waiting for
+`blog_automation/research.py`'s quick five-search top-up to kick in once the
+queue nearly runs dry. It reads your current `blog.topics` and
+`state/blog.json`, does deeper SERP and competitor research with WebSearch,
+and appends the strongest new keywords to `config.yaml` in the same format
+the automated pipeline uses.
+
+## Usage
+
+In a Claude Code session in this repo:
+
+```
+Use the topic-scout agent to find 5 new blog topics.
+```
+
+It reports what it added (and why), what it rejected (and why), and any
+Pinterest-keyword angles that don't fit the blog queue.
+
+---
+
 # Claude SEO skill
 
 [Claude SEO](https://github.com/AgriciDaniel/claude-seo) (MIT licensed) is
