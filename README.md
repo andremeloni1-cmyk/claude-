@@ -390,6 +390,62 @@ applied it), and any redundancy flags.
 
 ---
 
+# Automation doctor agent
+
+`automation-doctor` (`.claude/agents/automation-doctor.md`) diagnoses failed —
+or silently degraded — runs of the Pinterest and SEO Blog Automation GitHub
+Actions workflows. It pulls real run logs (via the GitHub Actions MCP tools),
+classifies the root cause against this repo's known failure patterns (expired
+Pinterest token, missing secret, a Framer `field_map` mismatch, the
+concurrent-push race the workflows already retry around, or a partial failure
+that a `main.py` run swallows without failing CI), and fixes genuine code or
+`config.yaml` bugs directly. It never touches secrets or live external
+accounts, and never re-triggers a workflow itself — both are the human's call.
+
+## Usage
+
+In a Claude Code session in this repo:
+
+```
+Use the automation-doctor agent to find out why the last blog automation run failed.
+```
+
+It reports the actual error quoted from the logs, the root-cause
+classification, what it fixed directly, and what only you can fix (with exact
+steps).
+
+---
+
+# Content quality gate agent
+
+`content-quality-gate` (`.claude/agents/content-quality-gate.md`) is the
+review step neither pipeline has today: both `blog_automation/main.py` and
+`pinterest_automation/main.py` commit or post the moment generation succeeds,
+with nothing checking that the model actually followed its own system
+prompt's brand-voice and factual-safety rules. Run it against a freshly
+generated (not-yet-published) bundle, or as a post-hoc audit of anything
+already published, to catch invented facts, tone drift, or awkward
+field-limit truncation before — or after — it goes live. Pinterest posts in
+the same step it generates copy, so for Pinterest it can only audit the
+caption-writing prompt itself, not historical pins (their text isn't stored
+locally).
+
+## Usage
+
+In a Claude Code session in this repo:
+
+```
+python -m blog_automation.main   # writes published/<slug>/ but doesn't publish yet
+```
+```
+Use the content-quality-gate agent to review the bundles before I publish them.
+```
+
+It reports a PASS/FLAGGED verdict per bundle, with specifics on anything
+flagged and what it fixed if asked to.
+
+---
+
 # Claude SEO skill
 
 [Claude SEO](https://github.com/AgriciDaniel/claude-seo) (MIT licensed) is
