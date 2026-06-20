@@ -19,8 +19,11 @@ All the dials live in the `:root` block at the top of `index.html`:
 | `--kern-slide` | how far A & M travel to lock together |
 | `--draw-dur` | letter draw-on speed |
 | `--slide-dur` | slide-together speed |
-| `--bar-dur` | sightline extend speed |
 | `--loop-gap` | pause before the animation loops |
+
+> Letterforms are heavy, rounded "bubble" strokes clipped flat at the baseline
+> (matched to the type specimen): flat feet, rounded tops, thin slit counters.
+> Raise `--stroke-weight` for even thinner counters; lower it to open them up.
 
 - **Replay** button re-triggers the animation; it also auto-loops.
 - Respects `prefers-reduced-motion` (renders the static final state, no motion).

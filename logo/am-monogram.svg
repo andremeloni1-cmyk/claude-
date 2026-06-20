@@ -1,18 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 400"
      role="img" aria-label="Andre Meloni Photography AM monogram">
+  <defs>
+    <clipPath id="baseline"><rect x="0" y="0" width="660" height="330"/></clipPath>
+  </defs>
   <rect width="660" height="400" fill="#f0ede6"/>
-  <g fill="none" stroke="#1a1a1a" stroke-width="62"
+  <g clip-path="url(#baseline)" fill="none" stroke="#1a1a1a" stroke-width="94"
      stroke-linecap="round" stroke-linejoin="round">
     <!-- A -->
-    <path d="M 96 328 L 188 92"/>
-    <path d="M 188 92 L 280 328"/>
-    <path d="M 135 232 L 241 232"/>
+    <path d="M 104 370 L 195 78"/>
+    <path d="M 195 78 L 286 370"/>
+    <path d="M 145 240 L 245 240"/>
     <!-- M -->
-    <path d="M 352 328 L 352 92"/>
-    <path d="M 352 92 L 466 224"/>
-    <path d="M 466 224 L 580 92"/>
-    <path d="M 580 92 L 580 328"/>
+    <path d="M 360 370 L 360 78"/>
+    <path d="M 360 78 L 474 250"/>
+    <path d="M 474 250 L 588 78"/>
+    <path d="M 588 78 L 588 370"/>
   </g>
-  <!-- shared sightline locking A to M -->
-  <rect x="241" y="216" width="111" height="32" rx="16" fill="#1a1a1a"/>
 </svg>
