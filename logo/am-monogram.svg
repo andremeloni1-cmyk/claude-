@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 400"
+     role="img" aria-label="Andre Meloni Photography AM monogram">
+  <rect width="660" height="400" fill="#f0ede6"/>
+  <g fill="none" stroke="#1a1a1a" stroke-width="62"
+     stroke-linecap="round" stroke-linejoin="round">
+    <!-- A -->
+    <path d="M 96 328 L 188 92"/>
+    <path d="M 188 92 L 280 328"/>
+    <path d="M 135 232 L 241 232"/>
+    <!-- M -->
+    <path d="M 352 328 L 352 92"/>
+    <path d="M 352 92 L 466 224"/>
+    <path d="M 466 224 L 580 92"/>
+    <path d="M 580 92 L 580 328"/>
+  </g>
+  <!-- shared sightline locking A to M -->
+  <rect x="241" y="216" width="111" height="32" rx="16" fill="#1a1a1a"/>
+</svg>
