@@ -487,10 +487,69 @@ pip install -r .claude/skills/seo/requirements.txt
 playwright install chromium   # optional, enables visual/SPA rendering
 ```
 
-Optional MCP extensions (DataForSEO, Firecrawl, Google Search Console/PageSpeed,
-Ahrefs, Bing Webmaster, etc.) are not installed — see the
+Optional MCP extensions (Google Search Console/PageSpeed, Ahrefs, Bing
+Webmaster, etc. — DataForSEO and Firecrawl are wired up below) are not
+installed — see the
 [upstream docs](https://github.com/AgriciDaniel/claude-seo/blob/main/docs/MCP-INTEGRATION.md)
 if you want to add any of those.
+
+## DataForSEO extension (live SERP, keywords, backlinks, AI visibility)
+
+The `seo-dataforseo` skill/agent are installed, and the MCP server is
+configured in `.mcp.json` — but it needs your own
+[DataForSEO](https://app.dataforseo.com/register) credentials (paid,
+pay-as-you-go; new accounts get a free trial balance). The config reads them
+from environment variables rather than storing them in the repo:
+
+```bash
+DATAFORSEO_USERNAME=your-email@example.com
+DATAFORSEO_PASSWORD=your-api-password
+```
+
+Set these as secrets/environment variables in whatever environment runs
+Claude Code (e.g. this repo's Claude Code on the web environment settings,
+or your local shell before running `claude`) — never commit them. The first
+time Claude Code starts with these set, it'll prompt you to approve the new
+`dataforseo` MCP server from `.mcp.json`.
+
+Once connected:
+
+```
+/seo dataforseo serp best wedding photographers near me
+/seo dataforseo keywords wedding photography
+/seo dataforseo backlinks yoursite.com
+/seo dataforseo ai-mentions your brand name
+```
+
+`/seo audit`, `/seo technical`, `/seo content`, and `/seo geo` also
+automatically use live DataForSEO data instead of estimates once it's
+connected. Full command list and per-call credit costs:
+[extension README](https://github.com/AgriciDaniel/claude-seo/blob/main/extensions/dataforseo/README.md).
+
+## Firecrawl extension (full-site crawling with JS rendering)
+
+The `seo-firecrawl` skill is installed and the MCP server is configured in
+`.mcp.json`. It needs a [Firecrawl](https://www.firecrawl.dev/app/sign-up)
+API key (free tier: 500 credits/month):
+
+```bash
+FIRECRAWL_API_KEY=fc-your-api-key
+```
+
+Set this the same way as the DataForSEO credentials above — as an
+environment variable/secret in whatever runs Claude Code, never committed.
+Once connected:
+
+```
+/seo firecrawl map https://yoursite.com
+/seo firecrawl crawl https://yoursite.com
+/seo firecrawl scrape https://yoursite.com/some-page
+/seo firecrawl search "wedding photographer" https://yoursite.com
+```
+
+`/seo audit`, `/seo technical`, and `/seo sitemap` use Firecrawl's `map`/
+`crawl` to discover and analyze pages beyond what the XML sitemap lists.
+Details: [extension README](https://github.com/AgriciDaniel/claude-seo/blob/main/extensions/firecrawl/README.md).
 
 ---
 
