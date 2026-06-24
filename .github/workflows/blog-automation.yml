@@ -1,10 +1,11 @@
 name: SEO Blog Automation
 
 on:
-  schedule:
-    # Weekly, Monday 09:00 UTC. With max_posts_per_run: 1 that's ~one post a
-    # week. Adjust the cron (https://crontab.guru) and config.yaml to change pace.
-    - cron: "0 9 * * 1"
+  # PAUSED — uncomment the schedule block below to re-enable automatic runs.
+  # schedule:
+  #   # Weekly, Monday 09:00 UTC. With max_posts_per_run: 1 that's ~one post a
+  #   # week. Adjust the cron (https://crontab.guru) and config.yaml to change pace.
+  #   - cron: "0 9 * * 1"
   workflow_dispatch: {}   # lets you trigger a run manually from the Actions tab
 
 # Needed so the job can commit the generated posts, images and state back.
