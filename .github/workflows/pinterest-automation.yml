@@ -1,9 +1,10 @@
 name: Pinterest Automation
 
 on:
-  schedule:
-    # Every 6 hours. Adjust the cron as you like (https://crontab.guru).
-    - cron: "0 */6 * * *"
+  # PAUSED — uncomment the schedule block below to re-enable automatic runs.
+  # schedule:
+  #   # Every 6 hours. Adjust the cron as you like (https://crontab.guru).
+  #   - cron: "0 */6 * * *"
   workflow_dispatch: {}   # lets you trigger a run manually from the Actions tab
 
 # Needed so the job can commit the updated state file back to the repo.
