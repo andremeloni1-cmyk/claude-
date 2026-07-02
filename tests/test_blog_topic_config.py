@@ -380,5 +380,77 @@ def test_no_secrets_introduced(raw_config_text: str):
         assert not re.search(pattern, raw_config_text), f"Possible secret matching {pattern!r} found in config.yaml"
 
 
+# ---------------------------------------------------------------------------
+# append_topics() sanitises untrusted (LLM/web-search) keyword/notes strings
+# ---------------------------------------------------------------------------
+
+
+def _fresh_config_module():
+    sys.path.insert(0, str(REPO_ROOT))
+    import importlib
+
+    import blog_automation.config as config_mod
+
+    return importlib.reload(config_mod)
+
+
+def test_append_topics_normalises_newlines_and_control_chars(tmp_path, monkeypatch):
+    """A keyword/notes value with an embedded newline or control char must be
+    collapsed to a single line so it can't break the double-quoted YAML scalar
+    and corrupt config.yaml for every subsequent run.
+    """
+    config_mod = _fresh_config_module()
+
+    tmp_config = tmp_path / "config.yaml"
+    tmp_config.write_text(
+        "blog:\n"
+        "  topics:\n"
+        '    - keyword: "existing keyword"\n'
+        '      notes: "existing notes"\n',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(config_mod, "_CONFIG_PATH", tmp_config)
+
+    dirty = config_mod.Topic(
+        keyword="poses\nfor\tcouples",
+        notes="line one\r\nline two\twith   spaces",
+    )
+    config_mod.append_topics([dirty])
+
+    # File must still be valid YAML after the append.
+    data = yaml.safe_load(tmp_config.read_text(encoding="utf-8"))
+    topics = data["blog"]["topics"]
+    assert topics[-1]["keyword"] == "poses for couples"
+    assert topics[-1]["notes"] == "line one line two with spaces"
+    # No stray newline/tab survived into the raw file body of the new entry.
+    assert "\t" not in tmp_config.read_text(encoding="utf-8")
+
+
+def test_append_topics_rolls_back_on_invalid_yaml(tmp_path, monkeypatch):
+    """If a write somehow yields invalid YAML, the original file is restored
+    and a ConfigError is raised — a corrupt config is never left behind.
+    """
+    config_mod = _fresh_config_module()
+
+    original = (
+        "blog:\n"
+        "  topics:\n"
+        '    - keyword: "existing keyword"\n'
+        '      notes: "existing notes"\n'
+    )
+    tmp_config = tmp_path / "config.yaml"
+    tmp_config.write_text(original, encoding="utf-8")
+    monkeypatch.setattr(config_mod, "_CONFIG_PATH", tmp_config)
+
+    # Force a corrupt write: make _yaml_dquote a no-op so a stray quote in the
+    # keyword produces malformed YAML, proving the rollback path works.
+    monkeypatch.setattr(config_mod, "_yaml_dquote", lambda v: v)
+
+    with pytest.raises(config_mod.ConfigError):
+        config_mod.append_topics([config_mod.Topic(keyword='bad " quote', notes="x")])
+
+    assert tmp_config.read_text(encoding="utf-8") == original
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-v"]))
