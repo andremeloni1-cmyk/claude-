@@ -8,6 +8,10 @@ business, both driven by Claude and run on a schedule by GitHub Actions:
    illustrates them with your photos, and publishes them straight to your
    **Framer** CMS.
 
+A committed **[Ops Dashboard](#ops-dashboard)** (`dashboard.html`) gives you an
+at-a-glance view of both pipelines' health — what's been posted, what's queued,
+and whether anything is paused or running low on fresh photos.
+
 It also includes an on-demand **[Etsy Listing Automation](#etsy-listing-automation)**
 skill for creating Etsy listings for digital-download products, and the
 [Claude SEO](https://github.com/AgriciDaniel/claude-seo) skill set for ad-hoc,
@@ -337,6 +341,42 @@ order, one (by `blog.max_posts_per_run`) per run.
   back-filled onto already-published posts — on the next run.
 - The Drive folder is opened **read-only**. Photos are matched by Drive file id
   and (by default) not reused across posts until the unused pool runs out.
+
+---
+
+# Ops Dashboard
+
+A single, self-contained `dashboard.html` at the repo root that shows both
+pipelines at a glance: pins posted (and the daily cadence), which shoots they
+came from, blog posts published, keywords done, and how many topics are still
+in the queue — plus whether each pipeline is **live** or **paused**. It's built
+by `scripts/build_dashboard.py`, which only ever **reads committed state**
+(`state/posted.json`, `state/blog.json`, `config.yaml` and the workflow files),
+so it needs no API keys and makes no network calls.
+
+The page is a plain HTML file — open it locally, or (since the repo is public
+for image hosting) view the latest committed copy at
+`https://raw.githack.com/<owner>/<repo>/<branch>/dashboard.html`.
+
+**It stays current automatically:**
+
+- The **Pinterest** and **SEO Blog** workflows rebuild it inline in their commit
+  step, so it refreshes the moment new pins or posts land.
+- A dedicated **Ops Dashboard** workflow (`.github/workflows/dashboard.yml`)
+  rebuilds it on a manual trigger (Actions tab → *Ops Dashboard* → **Run
+  workflow**) and on a light weekly schedule, so it self-heals even while the
+  two automations are paused.
+
+**Rebuild it locally** (no secrets needed):
+
+```bash
+pip install PyYAML
+python scripts/build_dashboard.py          # writes dashboard.html
+```
+
+The generator splits data collection (`collect()`) from rendering
+(`render_body()`), so the numbers are unit-tested in
+`tests/test_build_dashboard.py` without touching the HTML.
 
 ---
 

@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Andre Meloni Photography — Automation Dashboard</title>
+</head>
+<body>
+<style>
+:root {
+  --bg: #f4f2ee; --panel: #fbfaf8; --ink: #21201c; --muted: #6f6b62;
+  --line: #e3ded4; --line-strong: #d3ccbe;
+  --accent: #2f7d84; --accent-soft: #d9ebec;
+  --ok: #3f8f5a; --warn: #b7822b; --crit: #b5432f; --paused: #8a8577;
+  --shadow: 0 1px 2px rgba(30,28,22,.05), 0 8px 24px rgba(30,28,22,.05);
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --serif: Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --panel: #1f1f25; --ink: #ece9e2; --muted: #9a958b;
+    --line: #2c2c34; --line-strong: #3a3a44;
+    --accent: #5bb6bd; --accent-soft: #1c3a3d;
+    --ok: #5cc27e; --warn: #d8a24e; --crit: #e0715a; --paused: #8f8a7e;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="light"] {
+  --bg: #f4f2ee; --panel: #fbfaf8; --ink: #21201c; --muted: #6f6b62;
+  --line: #e3ded4; --line-strong: #d3ccbe;
+  --accent: #2f7d84; --accent-soft: #d9ebec;
+  --ok: #3f8f5a; --warn: #b7822b; --crit: #b5432f; --paused: #8a8577;
+  --shadow: 0 1px 2px rgba(30,28,22,.05), 0 8px 24px rgba(30,28,22,.05);
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --panel: #1f1f25; --ink: #ece9e2; --muted: #9a958b;
+  --line: #2c2c34; --line-strong: #3a3a44;
+  --accent: #5bb6bd; --accent-soft: #1c3a3d;
+  --ok: #5cc27e; --warn: #d8a24e; --crit: #e0715a; --paused: #8f8a7e;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--sans); line-height: 1.5;
+  -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: clamp(20px, 4vw, 44px); }
+
+.masthead { display: flex; flex-wrap: wrap; gap: 16px 24px;
+  justify-content: space-between; align-items: flex-start;
+  padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand-mark { color: var(--accent); font-size: 26px; line-height: 1; }
+.masthead h1 { font-family: var(--serif); font-weight: 600;
+  font-size: clamp(22px, 3.4vw, 30px); margin: 0; letter-spacing: -.01em;
+  text-wrap: balance; }
+.tagline { margin: 2px 0 0; color: var(--muted); font-size: 13.5px; }
+.health { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; }
+.stamp { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+.pill { display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 600; letter-spacing: .02em;
+  padding: 4px 11px; border-radius: 999px; white-space: nowrap;
+  border: 1px solid transparent; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%;
+  background: currentColor; }
+.pill--lg { font-size: 13px; padding: 6px 14px; }
+.pill--live { color: var(--ok); background: color-mix(in srgb, var(--ok) 13%, transparent);
+  border-color: color-mix(in srgb, var(--ok) 30%, transparent); }
+.pill--paused { color: var(--paused); background: color-mix(in srgb, var(--paused) 15%, transparent);
+  border-color: color-mix(in srgb, var(--paused) 32%, transparent); }
+.pill--mixed { color: var(--warn); background: color-mix(in srgb, var(--warn) 15%, transparent);
+  border-color: color-mix(in srgb, var(--warn) 32%, transparent); }
+
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+  margin: 24px 0; }
+.stat { background: var(--panel); border: 1px solid var(--line);
+  border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 4px; }
+.stat-val { font-size: clamp(26px, 4vw, 34px); font-weight: 650;
+  font-variant-numeric: tabular-nums; letter-spacing: -.02em; line-height: 1; }
+.stat-lbl { color: var(--muted); font-size: 12.5px; }
+.stat--ok { border-left: 3px solid var(--ok); }
+.stat--warn .stat-val { color: var(--warn); }
+.stat--warn { border-left: 3px solid var(--warn); }
+.stat--crit .stat-val { color: var(--crit); }
+.stat--crit { border-left: 3px solid var(--crit); }
+
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.card { background: var(--panel); border: 1px solid var(--line);
+  border-radius: 14px; padding: 20px 22px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; }
+.card-head { display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; }
+.card-head h2 { font-family: var(--serif); font-weight: 600; font-size: 19px;
+  margin: 0; }
+.card-sub { color: var(--muted); font-size: 12.5px; margin: 4px 0 16px; }
+
+.flag { display: inline-block; font-size: 11px; font-weight: 600;
+  padding: 1px 7px; border-radius: 6px; margin-left: 4px; }
+.flag--warn { color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 16%, transparent); }
+
+.chart-wrap { margin: 2px 0 18px; }
+.chart { width: 100%; height: auto; overflow: visible; }
+.chart .bar { fill: var(--accent); opacity: .42; }
+.chart .bar--last { opacity: .9; }
+.chart .bar-val { fill: var(--muted); font-size: 10px;
+  font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.chart .bar-lbl { fill: var(--muted); font-size: 9.5px; font-family: var(--mono); }
+.chart .grid { stroke: var(--line-strong); stroke-width: 1; }
+
+.facts { display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px; margin: 0 0 18px; }
+.facts div { background: var(--bg); border: 1px solid var(--line);
+  border-radius: 9px; padding: 9px 11px; }
+.facts dt { color: var(--muted); font-size: 11px; margin: 0 0 3px; }
+.facts dd { margin: 0; font-size: 15px; font-weight: 600;
+  font-variant-numeric: tabular-nums; }
+.val-crit { color: var(--crit); }
+
+.mini-h { font-size: 11px; text-transform: uppercase; letter-spacing: .07em;
+  color: var(--muted); margin: 6px 0 9px; font-weight: 700; }
+
+.shoots { list-style: none; margin: 0 0 4px; padding: 0;
+  display: flex; flex-direction: column; gap: 7px; }
+.shoots li { display: grid; grid-template-columns: 1fr 84px auto;
+  align-items: center; gap: 10px; font-size: 12.5px; }
+.shoot-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.shoot-bar { height: 7px; border-radius: 4px; background: var(--line-strong);
+  position: relative; }
+.shoot-bar::before { content: ""; position: absolute; inset: 0;
+  width: var(--w); background: var(--accent); border-radius: 4px; opacity: .7; }
+.shoot-n { font-family: var(--mono); font-variant-numeric: tabular-nums;
+  color: var(--muted); font-size: 12px; }
+
+.posts, .queue { list-style: none; margin: 0 0 4px; padding: 0;
+  display: flex; flex-direction: column; }
+.posts li { display: flex; gap: 12px; padding: 7px 0; font-size: 13px;
+  border-bottom: 1px solid var(--line); }
+.posts li:last-child { border-bottom: 0; }
+.post-date { font-family: var(--mono); color: var(--muted); font-size: 11.5px;
+  white-space: nowrap; padding-top: 1px; }
+.post-title { font-weight: 500; }
+.queue { counter-reset: q; gap: 6px; }
+.queue li { counter-increment: q; position: relative; padding: 6px 0 6px 26px;
+  font-size: 13px; border-bottom: 1px solid var(--line); }
+.queue li:last-child { border-bottom: 0; }
+.queue li::before { content: counter(q); position: absolute; left: 0; top: 6px;
+  width: 18px; height: 18px; border-radius: 5px; background: var(--accent-soft);
+  color: var(--accent); font-size: 10.5px; font-weight: 700; font-family: var(--mono);
+  display: grid; place-items: center; }
+
+.note { font-size: 12.5px; line-height: 1.45; margin: 12px 0 0;
+  padding: 10px 12px; border-radius: 9px; border: 1px solid; }
+.note code { font-family: var(--mono); font-size: 11.5px;
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  padding: 1px 5px; border-radius: 4px; }
+.note--warn { color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 9%, transparent);
+  border-color: color-mix(in srgb, var(--warn) 28%, transparent); }
+.note--crit { color: var(--crit);
+  background: color-mix(in srgb, var(--crit) 9%, transparent);
+  border-color: color-mix(in srgb, var(--crit) 28%, transparent); }
+.note--ok { color: var(--ok);
+  background: color-mix(in srgb, var(--ok) 9%, transparent);
+  border-color: color-mix(in srgb, var(--ok) 26%, transparent); }
+.note em { font-style: italic; }
+
+.empty { color: var(--muted); font-size: 12.5px; font-style: italic; margin: 4px 0; }
+
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px;
+  margin-top: 26px; padding-top: 16px; border-top: 1px solid var(--line);
+  color: var(--muted); font-size: 12px; }
+.foot code { font-family: var(--mono); font-size: 11px; }
+.foot a { color: var(--accent); text-decoration: none; }
+.foot a:hover { text-decoration: underline; }
+
+@media (max-width: 720px) {
+  .kpis { grid-template-columns: repeat(2, 1fr); }
+  .cards { grid-template-columns: 1fr; }
+  .health { align-items: flex-start; }
+}
+</style>
+<main class="wrap">
+  <header class="masthead">
+    <div class="brand">
+      <span class="brand-mark">◆</span>
+      <div>
+        <h1>Andre Meloni Photography</h1>
+        <p class="tagline">Marketing automation control room · andremeloniphotography.co</p>
+      </div>
+    </div>
+    <div class="health">
+      <span class="pill pill--paused pill--lg">Both pipelines paused</span>
+      <span class="stamp">Updated 05 Jul 2026, 07:42 UTC</span>
+    </div>
+  </header>
+
+  <section class="kpis"><div class="stat"><span class="stat-val">100</span><span class="stat-lbl">Pins posted</span></div><div class="stat"><span class="stat-val">6</span><span class="stat-lbl">Blog posts live</span></div><div class="stat stat--crit"><span class="stat-val">1</span><span class="stat-lbl">Topics in queue</span></div><div class="stat"><span class="stat-val">3</span><span class="stat-lbl">Shoots drawn from</span></div></section>
+
+  <div class="cards">
+    
+    <section class="card">
+      <header class="card-head">
+        <h2>Pinterest</h2>
+        <span class="pill pill--paused">Paused</span>
+      </header>
+      <p class="card-sub">every 6 hours · up to 4 pins/run <span class="flag flag--warn">Idle — paused</span></p>
+      <div class="chart-wrap"><svg class="chart" viewBox="0 0 640 150" role="img" aria-label="Pins posted per day"><line class="grid" x1="0" y1="124.0" x2="640" y2="124.0" /><rect class="bar" x="0.0" y="68.0" width="65.8" height="56.0" rx="2"><title>2026-06-14: 8 pins</title></rect><text class="bar-val" x="32.9" y="64.0" text-anchor="middle">8</text><rect class="bar" x="71.8" y="96.0" width="65.8" height="28.0" rx="2"><title>2026-06-15: 4 pins</title></rect><text class="bar-val" x="104.7" y="92.0" text-anchor="middle">4</text><rect class="bar" x="143.6" y="96.0" width="65.8" height="28.0" rx="2"><title>2026-06-18: 4 pins</title></rect><text class="bar-val" x="176.4" y="92.0" text-anchor="middle">4</text><rect class="bar" x="215.3" y="12.0" width="65.8" height="112.0" rx="2"><title>2026-06-19: 16 pins</title></rect><text class="bar-val" x="248.2" y="8.0" text-anchor="middle">16</text><rect class="bar" x="287.1" y="40.0" width="65.8" height="84.0" rx="2"><title>2026-06-20: 12 pins</title></rect><text class="bar-val" x="320.0" y="36.0" text-anchor="middle">12</text><rect class="bar" x="358.9" y="12.0" width="65.8" height="112.0" rx="2"><title>2026-06-21: 16 pins</title></rect><text class="bar-val" x="391.8" y="8.0" text-anchor="middle">16</text><rect class="bar" x="430.7" y="40.0" width="65.8" height="84.0" rx="2"><title>2026-06-22: 12 pins</title></rect><text class="bar-val" x="463.6" y="36.0" text-anchor="middle">12</text><rect class="bar" x="502.4" y="40.0" width="65.8" height="84.0" rx="2"><title>2026-06-23: 12 pins</title></rect><text class="bar-val" x="535.3" y="36.0" text-anchor="middle">12</text><rect class="bar bar--last" x="574.2" y="12.0" width="65.8" height="112.0" rx="2"><title>2026-06-24: 16 pins</title></rect><text class="bar-val" x="607.1" y="8.0" text-anchor="middle">16</text><text class="bar-lbl" x="32.9" y="142.0" text-anchor="middle">06-14</text><text class="bar-lbl" x="104.7" y="142.0" text-anchor="middle">06-15</text><text class="bar-lbl" x="176.4" y="142.0" text-anchor="middle">06-18</text><text class="bar-lbl" x="248.2" y="142.0" text-anchor="middle">06-19</text><text class="bar-lbl" x="320.0" y="142.0" text-anchor="middle">06-20</text><text class="bar-lbl" x="391.8" y="142.0" text-anchor="middle">06-21</text><text class="bar-lbl" x="463.6" y="142.0" text-anchor="middle">06-22</text><text class="bar-lbl" x="535.3" y="142.0" text-anchor="middle">06-23</text><text class="bar-lbl" x="607.1" y="142.0" text-anchor="middle">06-24</text></svg></div>
+      <dl class="facts">
+        <div><dt>Active days</dt><dd>9</dd></div>
+        <div><dt>Busiest day</dt><dd>16 pins</dd></div>
+        <div><dt>Last pin</dt><dd>11 days ago</dd></div>
+      </dl>
+      <h3 class="mini-h">Where the pins came from</h3>
+      <ul class="shoots"><li><span class="shoot-name">Wollongong botanical gardens Alana + Jacque</span><span class="shoot-bar" style="--w:97%"></span><span class="shoot-n">97</span></li><li><span class="shoot-name">wollongong botanical gardens</span><span class="shoot-bar" style="--w:2%"></span><span class="shoot-n">2</span></li><li><span class="shoot-name">Wollongong botanical gardens</span><span class="shoot-bar" style="--w:1%"></span><span class="shoot-n">1</span></li></ul>
+      <p class="note note--warn">97% of all pins come from a single shoot (<em>Wollongong botanical gardens Alana + Jacque</em>). The pin pipeline is running low on fresh photos — add more to the Drive folder to widen coverage.</p>
+    </section>
+    
+    <section class="card">
+      <header class="card-head">
+        <h2>SEO Blog</h2>
+        <span class="pill pill--paused">Paused</span>
+      </header>
+      <p class="card-sub">weekly · Mon 09:00 UTC · up to 1 post/run · Framer “Blog” collection</p>
+      <dl class="facts">
+        <div><dt>Published</dt><dd>6</dd></div>
+        <div><dt>Keywords done</dt><dd>6</dd></div>
+        <div><dt>Queue</dt><dd class="val-crit">1 left</dd></div>
+      </dl>
+      <h3 class="mini-h">Published posts</h3>
+      <ul class="posts"><li><span class="post-date">2026-06-22</span><span class="post-title">Southern Highlands Elopement Photography Guide: How to Plan an Intimate Day</span></li><li><span class="post-date">2026-06-18</span><span class="post-title">The Best Time of Day for Wedding Photos: A Photographer&#x27;s Guide to Australian Light</span></li><li><span class="post-date">2026-06-15</span><span class="post-title">Best Intimate Wedding Venues in the Southern Highlands: A Photographer&#x27;s Guide</span></li><li><span class="post-date">2026-06-15</span><span class="post-title">How to Choose a Wedding Photographer in Sydney: A Couple&#x27;s Guide</span></li><li><span class="post-date">2026-06-15</span><span class="post-title">South Coast NSW Wedding Photography Locations: Scenic Spots for Ceremonies, Portraits &amp; Elopements</span></li><li><span class="post-date">2026-06-15</span><span class="post-title">What to Wear for an Engagement Photoshoot: A Stylist&#x27;s Guide for Couples</span></li></ul>
+      <h3 class="mini-h">Next up in the queue</h3>
+      <ul class="queue"><li>top five couple poses for your wedding day</li></ul>
+      <p class="note note--crit">Only 1 topic left to write. Run the <code>topic-scout</code> agent to refill the queue before it runs dry.</p>
+    </section>
+  </div>
+
+  <footer class="foot">
+    <span>Generated from committed state — <code>state/</code> + <code>config.yaml</code>. No live API calls.</span>
+    <a href="https://www.andremeloniphotography.co">andremeloniphotography.co</a>
+  </footer>
+</main>
+</body>
+</html>
