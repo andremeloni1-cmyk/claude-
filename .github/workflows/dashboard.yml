@@ -1,0 +1,58 @@
+name: Ops Dashboard
+
+# Rebuilds dashboard.html from the committed state and commits it if anything
+# changed. The two automation workflows also rebuild it inline whenever they
+# post (so it stays live the moment new pins/posts land); this standalone job
+# is the safety net — it keeps the dashboard fresh via a manual trigger or a
+# light weekly rebuild even while those pipelines are paused.
+
+on:
+  workflow_dispatch: {}   # rebuild on demand from the Actions tab
+  schedule:
+    # Weekly, Monday 08:00 UTC (just before the blog run, if it's enabled).
+    - cron: "0 8 * * 1"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ops-dashboard
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install PyYAML
+
+      - name: Build dashboard
+        run: python scripts/build_dashboard.py
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dashboard.html
+          if git diff --staged --quiet; then
+            echo "Dashboard already up to date."
+            exit 0
+          fi
+          git commit -m "Rebuild ops dashboard [skip ci]"
+          for attempt in 1 2 3 4 5; do
+            if git push; then
+              echo "Pushed on attempt ${attempt}."
+              exit 0
+            fi
+            echo "Push rejected (attempt ${attempt}); rebasing onto origin/${GITHUB_REF_NAME}…"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+          done
+          echo "Failed to push dashboard after multiple attempts." >&2
+          exit 1
