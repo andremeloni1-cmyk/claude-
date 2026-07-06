@@ -30,144 +30,129 @@
 }
 :root[data-theme="light"] {
   --bg: #f4f2ee; --panel: #fbfaf8; --ink: #21201c; --muted: #6f6b62;
-  --line: #e3ded4; --line-strong: #d3ccbe;
-  --accent: #2f7d84; --accent-soft: #d9ebec;
-  --gain: #3f8f5a; --loss: #b5432f;
+  --line: #e3ded4; --line-strong: #d3ccbe; --accent: #2f7d84; --accent-soft: #d9ebec;
+  --gain: #3f8f5a; --loss: #b5432f; --ok:#3f8f5a; --warn:#b7822b; --crit:#b5432f;
   --shadow: 0 1px 2px rgba(30,28,22,.05), 0 8px 24px rgba(30,28,22,.05);
 }
 :root[data-theme="dark"] {
   --bg: #16161a; --panel: #1f1f25; --ink: #ece9e2; --muted: #9a958b;
-  --line: #2c2c34; --line-strong: #3a3a44;
-  --accent: #5bb6bd; --accent-soft: #1c3a3d;
-  --gain: #5cc27e; --loss: #e0715a;
+  --line: #2c2c34; --line-strong: #3a3a44; --accent: #5bb6bd; --accent-soft: #1c3a3d;
+  --gain: #5cc27e; --loss: #e0715a; --ok:#5cc27e; --warn:#d8a24e; --crit:#e0715a;
   --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
 }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--ink);
-  font-family: var(--sans); line-height: 1.5;
-  -webkit-font-smoothing: antialiased; }
-.wrap { max-width: 1080px; margin: 0 auto; padding: clamp(20px, 4vw, 44px); }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans);
+  line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: clamp(18px, 4vw, 44px); }
 
-/* Masthead */
-.masthead { display: flex; flex-wrap: wrap; gap: 16px 24px;
-  justify-content: space-between; align-items: flex-start;
-  padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+.masthead { display: flex; flex-wrap: wrap; gap: 14px 24px; justify-content: space-between;
+  align-items: flex-start; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
 .brand { display: flex; align-items: center; gap: 14px; }
 .brand-mark { color: var(--accent); font-size: 26px; line-height: 1; }
-.masthead h1 { font-family: var(--serif); font-weight: 600;
-  font-size: clamp(22px, 3.4vw, 30px); margin: 0; letter-spacing: -.01em; }
+.masthead h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(22px, 3.4vw, 30px);
+  margin: 0; letter-spacing: -.01em; }
 .tagline { margin: 2px 0 0; color: var(--muted); font-size: 13.5px; }
-.head-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.head-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .stamp { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
 
-/* Buttons */
-button { font-family: inherit; font-size: 13px; cursor: pointer;
-  border: 1px solid var(--line-strong); background: var(--panel);
-  color: var(--ink); border-radius: 8px; padding: 7px 12px;
+button { font-family: inherit; font-size: 13px; cursor: pointer; border: 1px solid var(--line-strong);
+  background: var(--panel); color: var(--ink); border-radius: 8px; padding: 7px 12px;
   transition: border-color .15s, background .15s; }
 button:hover { border-color: var(--accent); }
+button:disabled { opacity: .5; cursor: default; }
 button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
 button.primary:hover { filter: brightness(1.05); }
 button.ghost { background: transparent; border-color: transparent; color: var(--muted); padding: 6px 8px; }
 button.ghost:hover { color: var(--accent); border-color: var(--line); }
 
-/* Tabs */
-.tabs { display: flex; gap: 4px; margin: 26px 0 20px; flex-wrap: wrap;
-  border-bottom: 1px solid var(--line); }
-.tab { border: none; background: none; border-radius: 0; padding: 9px 14px;
-  color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tabs { display: flex; gap: 2px; margin: 24px 0 20px; flex-wrap: wrap; border-bottom: 1px solid var(--line); }
+.tab { border: none; background: none; border-radius: 0; padding: 9px 14px; color: var(--muted);
+  border-bottom: 2px solid transparent; margin-bottom: -1px; }
 .tab:hover { color: var(--ink); border-color: transparent; }
 .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+section.view { display: none; } section.view.active { display: block; }
 
-section.view { display: none; }
-section.view.active { display: block; }
-
-/* Stat tiles */
-.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 14px; margin-bottom: 26px; }
-.tile { background: var(--panel); border: 1px solid var(--line);
-  border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow); }
-.tile .label { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em;
-  color: var(--muted); }
-.tile .value { font-size: clamp(20px, 3vw, 26px); font-weight: 600; margin-top: 6px;
-  font-variant-numeric: tabular-nums; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.tile { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 15px 17px; box-shadow: var(--shadow); }
+.tile .label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.tile .value { font-size: clamp(19px, 2.8vw, 25px); font-weight: 600; margin-top: 6px; font-variant-numeric: tabular-nums; }
 .tile .sub { font-size: 12.5px; margin-top: 3px; font-variant-numeric: tabular-nums; }
-.gain { color: var(--gain); }
-.loss { color: var(--loss); }
+.gain { color: var(--gain); } .loss { color: var(--loss); }
 
-/* Panels */
-.panel { background: var(--panel); border: 1px solid var(--line);
-  border-radius: 12px; padding: 20px 22px; box-shadow: var(--shadow); margin-bottom: 22px; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  padding: 20px 22px; box-shadow: var(--shadow); margin-bottom: 22px; }
 .panel h2 { font-family: var(--serif); font-size: 18px; font-weight: 600; margin: 0 0 4px; }
 .panel .hint { color: var(--muted); font-size: 12.5px; margin: 0 0 16px; }
-.panel-head { display: flex; justify-content: space-between; align-items: flex-start;
-  gap: 12px; flex-wrap: wrap; }
+.panel-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
 
-/* Table */
 table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-th, td { text-align: right; padding: 9px 10px; border-bottom: 1px solid var(--line);
-  font-variant-numeric: tabular-nums; white-space: nowrap; }
+th, td { text-align: right; padding: 9px 10px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; white-space: nowrap; }
 th:first-child, td:first-child { text-align: left; }
-th { font-size: 11px; text-transform: uppercase; letter-spacing: .05em;
-  color: var(--muted); font-weight: 600; }
+th { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; }
 tbody tr:hover { background: var(--accent-soft); }
 .tick { font-family: var(--mono); font-size: 12px; color: var(--muted); }
 .name-cell { display: flex; flex-direction: column; }
 .name-cell strong { font-weight: 600; }
-td.actions { white-space: nowrap; }
-td.actions button { padding: 3px 7px; font-size: 12px; }
+td.actions { white-space: nowrap; } td.actions button { padding: 3px 7px; font-size: 12px; }
 .table-scroll { overflow-x: auto; }
 .empty { text-align: center; color: var(--muted); padding: 30px 10px; font-size: 13.5px; }
+.px-live { color: var(--accent); font-size: 10px; margin-left: 4px; }
+.px-stale { color: var(--muted); font-size: 10px; margin-left: 4px; }
 
-/* Allocation bars */
-.alloc-row { display: grid; grid-template-columns: 120px 1fr 60px; gap: 12px;
-  align-items: center; margin-bottom: 10px; font-size: 13px; }
+.alloc-row { display: grid; grid-template-columns: 130px 1fr 56px; gap: 12px; align-items: center; margin-bottom: 10px; font-size: 13px; }
 .alloc-row .aname { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bar { height: 10px; background: var(--line); border-radius: 6px; overflow: hidden; }
 .bar > span { display: block; height: 100%; background: var(--accent); border-radius: 6px; }
 .alloc-row .apct { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
 
-/* Forms */
-.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 12px; margin-bottom: 14px; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 14px; }
 label.field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
-input, select, textarea { font-family: inherit; font-size: 13.5px; color: var(--ink);
-  background: var(--bg); border: 1px solid var(--line-strong); border-radius: 8px;
-  padding: 8px 10px; width: 100%; }
+input, select, textarea { font-family: inherit; font-size: 13.5px; color: var(--ink); background: var(--bg);
+  border: 1px solid var(--line-strong); border-radius: 8px; padding: 8px 10px; width: 100%; }
 input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
 
-/* Ideas cards */
-.filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
-.chip { border: 1px solid var(--line-strong); background: var(--panel); color: var(--muted);
-  border-radius: 999px; padding: 5px 13px; font-size: 12.5px; cursor: pointer; }
+.filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.chip { border: 1px solid var(--line-strong); background: var(--panel); color: var(--muted); border-radius: 999px;
+  padding: 5px 13px; font-size: 12.5px; cursor: pointer; }
 .chip:hover { border-color: var(--accent); color: var(--ink); }
 .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
-  padding: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 8px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px;
+  box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 8px; }
 .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
 .card h3 { font-size: 15px; margin: 0; font-weight: 600; }
-.card .cat { font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em;
-  color: var(--accent); font-weight: 600; }
+.card .cat { font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--accent); font-weight: 600; }
 .card .tickers { font-family: var(--mono); font-size: 12px; color: var(--muted); }
-.card p { margin: 0; font-size: 13px; color: var(--ink); }
-.card .foot { display: flex; justify-content: space-between; align-items: center;
-  margin-top: auto; padding-top: 6px; gap: 8px; }
-.risk { font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+.card p { margin: 0; font-size: 13px; }
+.card .meta-row { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.card .meta-row b { color: var(--ink); font-weight: 600; }
+.card .foot { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 6px; gap: 8px; }
+.card .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 600; white-space: nowrap; }
+.b-pos { background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok); }
+.b-neu { background: color-mix(in srgb, var(--warn) 18%, transparent); color: var(--warn); }
+.b-neg { background: color-mix(in srgb, var(--crit) 18%, transparent); color: var(--crit); }
 .risk.low { background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok); }
 .risk.med { background: color-mix(in srgb, var(--warn) 20%, transparent); color: var(--warn); }
 .risk.high { background: color-mix(in srgb, var(--crit) 18%, transparent); color: var(--crit); }
 .card button.add { padding: 4px 10px; font-size: 12px; }
 
-/* Disclaimer */
-.disclaimer { border: 1px dashed var(--line-strong); border-radius: 12px;
-  padding: 14px 16px; font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+.disclaimer { border: 1px dashed var(--line-strong); border-radius: 12px; padding: 14px 16px; font-size: 12.5px; color: var(--muted); margin-top: 8px; }
 .disclaimer strong { color: var(--ink); }
-
 .notes-area { width: 100%; min-height: 90px; resize: vertical; }
-footer { margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--line);
-  color: var(--muted); font-size: 12px; }
+.sources { font-size: 12px; color: var(--muted); margin: 10px 0 0; padding-left: 18px; }
+.sources li { margin-bottom: 3px; }
+.asof { font-size: 12.5px; color: var(--muted); }
+.commentary { font-size: 14px; line-height: 1.6; margin: 0; }
+footer { margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
 a { color: var(--accent); }
+details.settings { margin-top: 10px; }
+details.settings summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+.kv { display: flex; gap: 6px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 6px; }
+.toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink);
+  color: var(--bg); padding: 10px 16px; border-radius: 10px; font-size: 13px; box-shadow: var(--shadow);
+  opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 50; }
+.toast.show { opacity: 1; }
 </style>
 
 <div class="wrap">
@@ -176,14 +161,14 @@ a { color: var(--accent); }
       <span class="brand-mark">◈</span>
       <div>
         <h1>Investment Dashboard</h1>
-        <p class="tagline">Track your holdings &amp; explore ideas — markets, companies &amp; infrastructure</p>
+        <p class="tagline">Live portfolio tracking · market &amp; company analysis · ideas</p>
       </div>
     </div>
     <div class="head-actions">
       <span class="stamp" id="stamp"></span>
-      <button class="ghost" id="themeBtn" title="Toggle theme">◐ Theme</button>
-      <button class="ghost" id="exportBtn" title="Download a backup of your data">↓ Backup</button>
-      <button class="ghost" id="importBtn" title="Restore from a backup file">↑ Restore</button>
+      <button class="ghost" id="themeBtn" title="Toggle theme">◐</button>
+      <button class="ghost" id="exportBtn" title="Download a backup">↓ Backup</button>
+      <button class="ghost" id="importBtn" title="Restore a backup">↑ Restore</button>
       <input type="file" id="importFile" accept="application/json" hidden>
     </div>
   </header>
@@ -191,7 +176,8 @@ a { color: var(--accent); }
   <nav class="tabs">
     <button class="tab active" data-view="overview">Overview</button>
     <button class="tab" data-view="holdings">Holdings</button>
-    <button class="tab" data-view="ideas">Ideas &amp; Research</button>
+    <button class="tab" data-view="analysis">Analysis</button>
+    <button class="tab" data-view="ideas">Ideas</button>
     <button class="tab" data-view="watchlist">Watchlist</button>
   </nav>
 
@@ -199,21 +185,11 @@ a { color: var(--accent); }
   <section class="view active" id="view-overview">
     <div class="tiles" id="tiles"></div>
     <div class="panel">
-      <div class="panel-head">
-        <div>
-          <h2>Portfolio allocation</h2>
-          <p class="hint">Share of your total portfolio value by holding.</p>
-        </div>
-      </div>
+      <div class="panel-head"><div><h2>Portfolio allocation</h2><p class="hint">Share of total value by holding (converted to AUD).</p></div></div>
       <div id="allocList"></div>
     </div>
     <div class="panel">
-      <div class="panel-head">
-        <div>
-          <h2>Movers</h2>
-          <p class="hint">Best and worst performers by total return %.</p>
-        </div>
-      </div>
+      <div class="panel-head"><div><h2>Movers</h2><p class="hint">Best and worst holdings by total return %.</p></div></div>
       <div id="movers"></div>
     </div>
   </section>
@@ -222,40 +198,59 @@ a { color: var(--accent); }
   <section class="view" id="view-holdings">
     <div class="panel">
       <div class="panel-head">
-        <div>
-          <h2>Add / update a holding</h2>
-          <p class="hint">Enter units and prices in your account currency. Update "Current price" whenever you want fresh numbers — this dashboard doesn't pull live prices.</p>
-        </div>
+        <div><h2>Live prices</h2><p class="hint">Fetches current prices in your browser. Free with an API key you paste once — see setup below.</p></div>
+        <button class="primary" id="refreshBtn">↻ Refresh prices</button>
       </div>
+      <div class="kv" id="priceStatus"></div>
+      <details class="settings" id="settingsBox">
+        <summary>Price data settings &amp; setup</summary>
+        <div class="form-grid" style="margin-top:12px;">
+          <label class="field">Provider
+            <select id="setProvider">
+              <option value="twelvedata">Twelve Data (ASX + US)</option>
+              <option value="finnhub">Finnhub (US only)</option>
+            </select>
+          </label>
+          <label class="field">API key
+            <input id="setApiKey" type="password" placeholder="paste your free key" autocomplete="off">
+          </label>
+          <label class="field">AUD/USD rate (1 AUD = ? USD)
+            <input id="setFx" type="number" step="any" min="0" placeholder="0.694">
+          </label>
+        </div>
+        <button id="saveSettings" class="primary" style="margin-bottom:8px;">Save settings</button>
+        <p class="hint" style="margin:8px 0 0;">
+          <strong>Twelve Data</strong> (recommended, covers ASX + US): sign up free at
+          <a href="https://twelvedata.com/pricing" target="_blank" rel="noopener">twelvedata.com</a> → copy your API key → paste it above.
+          Free tier covers a small portfolio (8 requests/min, 800/day).
+          <strong>Finnhub</strong> (<a href="https://finnhub.io/register" target="_blank" rel="noopener">finnhub.io</a>) is an alternative for US stocks.
+          Your key is stored only in this browser and is sent only to the provider you choose. If a price can't be fetched, edit it by hand — nothing breaks.
+        </p>
+      </details>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><div><h2>Add / update a holding</h2><p class="hint">Pick the market so live prices map to the right exchange. Enter prices in the holding's own currency.</p></div></div>
       <form id="holdingForm">
         <div class="form-grid">
-          <label class="field">Name
-            <input name="name" placeholder="e.g. Spaceship Universe" required>
-          </label>
-          <label class="field">Ticker / code
-            <input name="ticker" placeholder="e.g. VAS">
+          <label class="field">Name<input name="name" placeholder="e.g. CSL Limited" required></label>
+          <label class="field">Ticker / code<input name="ticker" placeholder="e.g. CSL"></label>
+          <label class="field">Market
+            <select name="market">
+              <option value="ASX">ASX (AUD)</option>
+              <option value="US">US (USD)</option>
+              <option value="Other">Other / fund (no live price)</option>
+            </select>
           </label>
           <label class="field">Category
             <select name="category">
-              <option>Managed fund</option>
-              <option>ETF</option>
-              <option>Australian shares</option>
-              <option>Global shares</option>
-              <option>Infrastructure</option>
-              <option>Cash</option>
-              <option>Crypto</option>
-              <option>Other</option>
+              <option>Managed fund</option><option>ETF</option><option>Australian shares</option>
+              <option>Global shares</option><option>Infrastructure</option><option>Cash</option><option>Crypto</option><option>Other</option>
             </select>
           </label>
-          <label class="field">Units / shares
-            <input name="units" type="number" step="any" min="0" placeholder="0" required>
-          </label>
-          <label class="field">Avg buy price
-            <input name="buy" type="number" step="any" min="0" placeholder="0.00" required>
-          </label>
-          <label class="field">Current price
-            <input name="price" type="number" step="any" min="0" placeholder="0.00" required>
-          </label>
+          <label class="field">Units / shares<input name="units" type="number" step="any" min="0" placeholder="0" required></label>
+          <label class="field">Avg buy price<input name="buy" type="number" step="any" min="0" placeholder="0.00" required></label>
+          <label class="field">Current price<input name="price" type="number" step="any" min="0" placeholder="0.00" required></label>
         </div>
         <input type="hidden" name="id">
         <button type="submit" class="primary" id="holdingSubmit">Add holding</button>
@@ -265,330 +260,393 @@ a { color: var(--accent); }
 
     <div class="panel">
       <div class="panel-head">
-        <div>
-          <h2>Your holdings</h2>
-          <p class="hint">Click a row's ✎ to edit. Data is saved only in this browser.</p>
-        </div>
+        <div><h2>Your holdings</h2><p class="hint">Click ✎ to edit. All data stays in this browser.</p></div>
         <button class="ghost" id="seedBtn" title="Load example data">Load example</button>
       </div>
       <div class="table-scroll">
         <table id="holdingsTable">
-          <thead>
-            <tr>
-              <th>Holding</th><th>Category</th><th>Units</th><th>Buy</th><th>Price</th>
-              <th>Cost</th><th>Value</th><th>P/L</th><th>P/L %</th><th></th>
-            </tr>
-          </thead>
+          <thead><tr><th>Holding</th><th>Mkt</th><th>Units</th><th>Buy</th><th>Price</th><th>Cost (A$)</th><th>Value (A$)</th><th>P/L</th><th>P/L %</th><th></th></tr></thead>
           <tbody id="holdingsBody"></tbody>
         </table>
       </div>
     </div>
   </section>
 
+  <!-- ANALYSIS -->
+  <section class="view" id="view-analysis">
+    <div class="panel">
+      <div class="panel-head">
+        <div><h2>Market &amp; company analysis</h2><p class="hint" id="analysisAsOf"></p></div>
+      </div>
+      <div class="tiles" id="marketTiles" style="margin-bottom:16px;"></div>
+      <p class="commentary" id="marketCommentary"></p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><div><h2>Sector outlook</h2><p class="hint">A read on where the tailwinds and headwinds are right now.</p></div></div>
+      <div id="sectorList"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><div><h2>Company analysis</h2><p class="hint">Snapshot, rating and thesis for widely-held names. Tap + to add to your watchlist.</p></div></div>
+      <div class="cards" id="companyCards"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><div><h2>Suggestions</h2><p class="hint">Current ideas across markets, sectors, companies and infrastructure.</p></div></div>
+      <div class="cards" id="suggestionCards"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Sources</h2>
+      <ul class="sources" id="sourceList"></ul>
+    </div>
+
+    <div class="disclaimer">
+      <strong>Not financial advice.</strong> This is educational research and a tracking tool, not personal financial, tax or investment advice, and it doesn't consider your objectives or situation. Figures are approximate and were current only at the "as of" date — always confirm live before acting. Investing carries risk, including loss of capital; past performance doesn't predict future returns. Read the relevant PDS / Target Market Determination and consider a licensed financial adviser. Product availability on Spaceship (e.g. Voyager portfolios vs direct share trading) varies — check your account.
+    </div>
+  </section>
+
   <!-- IDEAS -->
   <section class="view" id="view-ideas">
-    <div class="panel" style="margin-bottom:18px;">
-      <h2>Ideas &amp; research</h2>
-      <p class="hint" style="margin-bottom:0;">A curated starting point for exploring markets, sectors, well-known companies and infrastructure. Tickers use ASX codes where relevant (you're on Spaceship). These are educational prompts for your own research — not recommendations. Tap <strong>+ Watchlist</strong> to save any idea.</p>
+    <div class="panel" style="margin-bottom:16px;">
+      <h2>Ideas library</h2>
+      <p class="hint" style="margin-bottom:0;">Evergreen building blocks for an Australian portfolio (ASX tickers where relevant). For dated, researched views see the <strong>Analysis</strong> tab. Tap + to save.</p>
     </div>
     <div class="filter-bar" id="ideaFilters"></div>
     <div class="cards" id="ideaCards"></div>
-    <div class="disclaimer">
-      <strong>Not financial advice.</strong> This dashboard is an educational and tracking tool. Nothing here is personal financial, tax or investment advice, and it doesn't consider your objectives or situation. Investing carries risk, including loss of capital. Past performance is not a reliable indicator of future performance. Consider the relevant Product Disclosure Statement (PDS) / Target Market Determination and speak to a licensed financial adviser before making decisions. Spaceship product availability (e.g. Voyager portfolios vs direct share trading) varies — check what your account actually offers.
-    </div>
   </section>
 
   <!-- WATCHLIST -->
   <section class="view" id="view-watchlist">
     <div class="panel">
-      <div class="panel-head">
-        <div>
-          <h2>Watchlist</h2>
-          <p class="hint">Ideas you've saved from the research tab, plus your own notes.</p>
-        </div>
-      </div>
+      <div class="panel-head"><div><h2>Watchlist</h2><p class="hint">Ideas and companies you've saved.</p></div></div>
       <div id="watchList"></div>
     </div>
     <div class="panel">
       <h2>Notes &amp; strategy</h2>
-      <p class="hint">Jot down your plan — target allocation, contribution schedule, rules you want to stick to. Saved locally.</p>
-      <textarea class="notes-area" id="notes" placeholder="e.g. Invest $X/fortnight into a broad index. Rebalance quarterly. Keep 6 months cash buffer. Review — don't react."></textarea>
+      <p class="hint">Your plan — target allocation, contribution schedule, rules. Saved locally.</p>
+      <textarea class="notes-area" id="notes" placeholder="e.g. $X/fortnight into a broad index. Rebalance quarterly. 6-month cash buffer. Review, don't react."></textarea>
     </div>
   </section>
 
   <footer>
-    <p>Data is stored locally in your browser (nothing is uploaded). Use <strong>Backup</strong> to save a copy and <strong>Restore</strong> to move it to another device. Built as a self-contained file — open it anywhere, offline.</p>
+    <p>Prices are fetched live in your browser via your chosen provider; everything else is stored locally (nothing uploaded). Analysis is a dated snapshot — refresh it periodically. Use <strong>Backup</strong> to save your data.</p>
   </footer>
 </div>
+<div class="toast" id="toast"></div>
+
+<!-- Dated research snapshot. Regenerated by scripts/refresh_analysis.py -->
+<script id="analysis-data" type="application/json">
+{"asOf":"2026-07-06","marketSnapshot":{"asx200":{"level":8811,"ytdPct":4.0,"note":"Approximate; the ASX 200 sits near 8,811 after easing 0.38% on 6 July, having gained modestly through a volatile FY26."},"sp500":{"level":7483,"ytdPct":7.0,"note":"Approximate; the S&P 500 traded around 7,483 in early July 2026, near record territory alongside a record Dow."},"nasdaq":{"level":25833,"ytdPct":8.0,"note":"Approximate; the Nasdaq Composite was around 25,833 in early July 2026 but wobbled as some chip names pulled back."},"rbaCashRate":4.35,"fedFundsRate":3.75,"audUsd":0.694,"commentary":"The environment is unusual: the RBA has raised the cash rate three times in 2026 to 4.35% as an oil-supply shock keeps Australian inflation sticky, while the US Fed holds at 3.50-3.75% with a mild hike bias. US equities are near records led by AI and mega-cap tech, and the ASX has lagged, buoyed mainly by a strong iron-ore-driven BHP but dragged by a sharp CSL de-rating. The AUD near 0.69 lifts unhedged US-dollar returns for Australian investors. Key risks are renewed energy-price and inflation surprises, higher-for-longer rates pressuring rate-sensitive assets, and stretched valuations in AI/semiconductors."},"sectors":[{"name":"AI & semiconductors","outlook":"Positive","note":"Structural AI capex remains the dominant global growth theme, with TSMC guiding 2026 revenue up more than 30%, though valuations are elevated and prone to sharp pullbacks."},{"name":"Data centres / digital infrastructure","outlook":"Positive","note":"Surging compute and cloud demand underpins strong leasing; Australian names like NextDC and Goodman continue to expand capacity, but funding and power constraints are watch points."},{"name":"Healthcare","outlook":"Cautious","note":"Sentiment is weak after CSL's guidance cuts, ~US$5bn impairments and a slipping Seqirus demerger, though depressed valuations may offer selective long-term value."},{"name":"Australian banks / financials","outlook":"Neutral","note":"Higher-for-longer rates support net interest margins, but stretched valuations (CBA) and slowing credit growth temper upside; diversified earners like Macquarie look better balanced."},{"name":"Resources / materials","outlook":"Positive","note":"Iron ore strength drove BHP up more than 60% in FY26 on resilient Chinese demand, though the sector remains highly cyclical and China-dependent."},{"name":"Listed infrastructure / utilities","outlook":"Neutral","note":"Toll roads and pipelines offer inflation-linked, defensive cash flows and 4.7-6.3% yields, but rising bond yields under RBA hikes cap capital upside."},{"name":"Energy transition","outlook":"Neutral","note":"Grid, gas-firming and renewables build-out remains a multi-decade tailwind for owners like APA, but higher capital costs and policy uncertainty weigh on near-term returns."}],"companies":[{"ticker":"CBA","exchange":"ASX","name":"Commonwealth Bank of Australia","priceApprox":165.0,"currency":"AUD","marketCap":"A$276B","peApprox":28,"oneYearReturnPct":null,"rating":"Hold","thesis":"Australia's largest bank benefits from higher-for-longer rates supporting margins and a dominant, low-risk mortgage franchise with strong capital returns. Its scale, deposit base and technology lead sustain sector-leading returns on equity.","risks":"Premium valuation near the top of its historical range and slowing credit growth leave little margin for disappointment.","recent":"Shares rebounded to about A$165 in early July 2026, mid-way in a 52-week range of roughly A$150-186."},{"ticker":"CSL","exchange":"ASX","name":"CSL Limited","priceApprox":116.0,"currency":"AUD","marketCap":"A$58B","peApprox":25,"oneYearReturnPct":null,"rating":"Hold","thesis":"A global plasma and biotech leader whose core Behring franchise retains durable demand and pricing power. After a ~50% de-rating the valuation is far more modest, offering recovery potential if margins and the Seqirus separation stabilise.","risks":"Cut FY26 guidance, ~US$5bn Vifor impairments, weak flu-vaccine outlook and a slipping Seqirus demerger keep execution risk high.","recent":"Shares hit decade lows near A$92 in June 2026 before recovering toward A$116, down sharply year-to-date."},{"ticker":"BHP","exchange":"ASX","name":"BHP Group","priceApprox":60.54,"currency":"AUD","marketCap":"A$307B","peApprox":15,"oneYearReturnPct":55,"rating":"Constructive","thesis":"The world's largest miner is riding resilient iron-ore prices and strong Chinese demand, complemented by growing copper exposure geared to electrification. Low-cost Pilbara operations generate substantial free cash flow and dividends.","risks":"Heavy dependence on Chinese steel demand and iron-ore prices makes earnings highly cyclical.","recent":"Shares climbed more than 60% in FY26 to around A$60.54, vastly outperforming the ASX 200."},{"ticker":"WES","exchange":"ASX","name":"Wesfarmers","priceApprox":88.25,"currency":"AUD","marketCap":"A$100B","peApprox":32,"oneYearReturnPct":null,"rating":"Hold","thesis":"A diversified conglomerate anchored by the highly profitable Bunnings and Kmart retail businesses, with optionality in chemicals, health and lithium. Strong cash generation and disciplined capital allocation support consistent returns.","risks":"A rich earnings multiple and consumer-spending sensitivity to high rates limit near-term upside.","recent":"Shares traded around A$88 in early July 2026, up from a prior close near A$87."},{"ticker":"MQG","exchange":"ASX","name":"Macquarie Group","priceApprox":249.66,"currency":"AUD","marketCap":"A$95B","peApprox":18,"oneYearReturnPct":null,"rating":"Constructive","thesis":"A globally diversified financial with leading positions in infrastructure asset management, commodities trading and green-energy investment. Annuity-style asset-management earnings plus markets upside give it a differentiated, less rate-dependent profile.","risks":"Market-facing income is volatile and deal-flow dependent, and asset realisations can be lumpy.","recent":"Shares traded around A$250 in late June/early July 2026."},{"ticker":"GMG","exchange":"ASX","name":"Goodman Group","priceApprox":30.78,"currency":"AUD","marketCap":"A$62B","peApprox":25,"oneYearReturnPct":null,"rating":"Constructive","thesis":"A global industrial-property and logistics landlord pivoting aggressively into data-centre development to capture AI and cloud demand. A premium land bank in supply-constrained markets and a large development pipeline support growth in earnings and assets under management.","risks":"Development execution, power availability and higher funding costs from elevated rates are key risks.","recent":"Units traded around A$30.78 in early July 2026 after pulling back from prior highs."},{"ticker":"NXT","exchange":"ASX","name":"NextDC","priceApprox":14.78,"currency":"AUD","marketCap":"A$10B","peApprox":null,"oneYearReturnPct":null,"rating":"Constructive","thesis":"Australia's leading independent data-centre operator is expanding capacity to meet booming AI and cloud demand, with strong contracted forward order books. Scarcity of hyperscale-ready sites and power gives it a durable competitive moat.","risks":"Heavy capital expenditure, ongoing losses and reliance on continued funding make it sensitive to rates and execution.","recent":"Shares traded around A$14.78 in early July 2026, up about 18% year-to-date."},{"ticker":"TCL","exchange":"ASX","name":"Transurban Group","priceApprox":14.48,"currency":"AUD","marketCap":"A$45B","peApprox":null,"oneYearReturnPct":null,"rating":"Hold","thesis":"The dominant owner of Australian toll roads offers inflation-linked, largely defensive traffic-based cash flows across Sydney, Melbourne and Brisbane networks. Contracted CPI-linked toll escalators provide a partial inflation hedge and steady distributions.","risks":"High leverage and long-duration cash flows make the units sensitive to rising bond yields under RBA tightening.","recent":"Units traded around A$14.48 in early July 2026 with a distribution yield near 4.7%."},{"ticker":"APA","exchange":"ASX","name":"APA Group","priceApprox":9.95,"currency":"AUD","marketCap":"A$12B","peApprox":null,"oneYearReturnPct":null,"rating":"Hold","thesis":"Australia's largest energy-infrastructure owner transports more than half the nation's gas and is investing in electricity, solar and wind assets tied to the energy transition. Regulated and contracted revenues support a high, growing distribution yielding above 6%.","risks":"High gearing exposes it to rising rates, and the long-run gas outlook and regulatory settings add uncertainty.","recent":"Units traded around A$9.95 in early July 2026, yielding roughly 6.3%."},{"ticker":"NVDA","exchange":"NASDAQ","name":"NVIDIA","priceApprox":197.0,"currency":"USD","marketCap":"US$4.8T","peApprox":45,"oneYearReturnPct":null,"rating":"Constructive","thesis":"The dominant supplier of AI accelerators and the CUDA software ecosystem remains at the centre of global AI infrastructure spending. Hyperscaler and sovereign-AI demand continues to drive rapid revenue and earnings growth.","risks":"Very high expectations, customer concentration and potential AI-capex digestion make the stock volatile.","recent":"Shares traded near US$197 in early July 2026, easing modestly as some chip names pulled back."},{"ticker":"MSFT","exchange":"NASDAQ","name":"Microsoft","priceApprox":390.0,"currency":"USD","marketCap":"US$2.9T","peApprox":32,"oneYearReturnPct":null,"rating":"Constructive","thesis":"A diversified software and cloud leader monetising AI across Azure, Copilot and its enterprise franchise. Recurring subscription revenue and a strong balance sheet underpin durable, compounding growth.","risks":"Heavy AI-related capital spending and a full valuation could pressure returns if cloud growth slows.","recent":"Shares traded around US$390 in early July 2026."},{"ticker":"AAPL","exchange":"NASDAQ","name":"Apple","priceApprox":305.0,"currency":"USD","marketCap":"US$4.5T","peApprox":33,"oneYearReturnPct":null,"rating":"Hold","thesis":"A globally entrenched hardware-and-services ecosystem with an enormous, loyal installed base and growing high-margin services revenue. Strong cash generation funds large buybacks and steady capital returns.","risks":"Slower device upgrade cycles, China exposure and a lagging AI narrative are key concerns.","recent":"Shares traded around US$305 in early July 2026 after touching a 52-week high near US$317 in June."},{"ticker":"GOOGL","exchange":"NASDAQ","name":"Alphabet","priceApprox":359.0,"currency":"USD","marketCap":"US$4.4T","peApprox":28,"oneYearReturnPct":null,"rating":"Constructive","thesis":"A dominant search and digital-advertising franchise with fast-growing Google Cloud and leading AI research through DeepMind and Gemini. Strong free cash flow and a broadening AI product suite support the growth outlook.","risks":"AI disruption to search, heavy cloud capex and ongoing antitrust scrutiny are notable risks.","recent":"Shares traded around US$359 in early July 2026, with a market cap near US$4.4 trillion."},{"ticker":"AMZN","exchange":"NASDAQ","name":"Amazon","priceApprox":242.67,"currency":"USD","marketCap":"US$2.6T","peApprox":38,"oneYearReturnPct":null,"rating":"Constructive","thesis":"A leader in e-commerce and cloud, with AWS a primary beneficiary of AI workloads and improving retail margins. Expanding advertising and logistics efficiency add multiple profit drivers.","risks":"Elevated capital spending, competitive cloud dynamics and consumer-demand sensitivity are key risks.","recent":"Shares traded around US$243 in early July 2026."},{"ticker":"TSM","exchange":"NYSE","name":"Taiwan Semiconductor Manufacturing","priceApprox":434.0,"currency":"USD","marketCap":"US$2.2T","peApprox":28,"oneYearReturnPct":null,"rating":"Constructive","thesis":"The world's leading advanced-chip foundry manufactures the processors powering AI, with unmatched leading-edge process technology. Management guided 2026 revenue up more than 30% on structural AI demand.","risks":"Geopolitical risk around Taiwan and cyclicality in non-AI semiconductor end-markets are the main concerns.","recent":"ADRs traded around US$434 in early July 2026 ahead of Q2 results due 19 July; Q1 revenue rose 35% year-on-year."}],"suggestions":[{"title":"Stay diversified across regions as the US and Australia diverge","category":"Markets","risk":"low","rationale":"The Fed is on hold near 3.75% while the RBA is still hiking to 4.35% on an oil-driven inflation shock, creating diverging equity and currency dynamics. Broad global and domestic exposure spreads this policy and single-market risk. Regular contributions (as in a Spaceship-style plan) smooth entry points."},{"title":"Mind currency: a ~0.69 AUD lifts unhedged US returns","category":"Markets","risk":"med","rationale":"With the AUD near 0.69, unhedged global funds have benefited from a weaker local dollar, but that tailwind can reverse if the AUD rallies. Blending hedged and unhedged exposure reduces reliance on any single currency outcome. This is a portfolio-construction consideration, not a currency call."},{"title":"Treat the AI/semiconductor theme as high-conviction but high-volatility","category":"Sectors","risk":"high","rationale":"AI leaders like NVIDIA, TSMC, Microsoft and Alphabet are driving global index gains, with TSMC guiding 2026 revenue up over 30%. Valuations are elevated and prone to sharp drawdowns, as early-July chip weakness showed. Sizing positions modestly and holding for the long term suits this theme better than chasing momentum."},{"title":"Digital-infrastructure exposure as an AI derivative","category":"Infrastructure","risk":"med","rationale":"Data-centre owners such as NextDC and Goodman Group capture AI and cloud demand through physical capacity rather than chip cycles. Scarcity of power and hyperscale-ready sites supports pricing, though heavy capex and rate sensitivity are risks. It offers a differentiated way to participate in the AI build-out."},{"title":"Use listed infrastructure and utilities for defensive, inflation-linked income","category":"Infrastructure","risk":"low","rationale":"Toll roads (Transurban) and pipelines (APA) offer CPI-linked cash flows and yields of roughly 4.7-6.3% that can partly offset sticky inflation. Rising bond yields under RBA hikes cap capital upside, so these suit income and diversification rather than growth. Leverage levels are worth monitoring."},{"title":"Recognise concentration risk in the big Australian banks","category":"Sectors","risk":"med","rationale":"CBA and peers trade on premium multiples and dominate the ASX 200, so a bank-heavy portfolio carries hidden concentration. Higher-for-longer rates support margins, but slowing credit growth limits upside. Balancing financials with resources and global exposure reduces single-sector dependence."},{"title":"Resources offer cyclical upside but demand China awareness","category":"Sectors","risk":"high","rationale":"BHP surged more than 60% in FY26 on resilient iron-ore prices and Chinese demand, illustrating the sector's leverage. Those same drivers make earnings and share prices highly cyclical and China-dependent. Position sizing should reflect that commodity volatility."},{"title":"Consider CSL only as a contrarian, patient position","category":"Companies","risk":"high","rationale":"CSL has de-rated roughly 50% on guidance cuts, ~US$5bn impairments and a delayed Seqirus demerger, leaving a beaten-down valuation. The core plasma franchise remains globally strong, offering recovery potential if execution stabilises. This is a higher-risk turnaround idea, not a defensive holding."},{"title":"Keep cash and defensives given elevated Australian rates","category":"Markets","risk":"low","rationale":"With the RBA cash rate at 4.35% and inflation still sticky, cash and term deposits offer competitive risk-free returns. Holding some dry powder provides flexibility to invest into any volatility. This balances an equity-heavy long-term plan."},{"title":"Prefer quality compounders over speculative names","category":"Companies","risk":"med","rationale":"Diversified, cash-generative businesses such as Macquarie, Wesfarmers, Microsoft and Alphabet combine multiple earnings drivers with strong balance sheets. In a higher-rate, valuation-sensitive market, durable free cash flow tends to be rewarded. Focusing on quality reduces reliance on any single theme."},{"title":"Rebalance periodically after wide dispersion in 2026","category":"Markets","risk":"low","rationale":"Sharp divergence between winners (BHP, AI mega-caps) and losers (CSL) has likely skewed portfolio weightings. Periodic rebalancing trims outsized positions and restores intended diversification. It is a discipline that manages risk rather than a market-timing call."}],"sources":[{"title":"Trading Economics - Australia Stock Market (ASX 200)","url":"https://tradingeconomics.com/australia/stock-market"},{"title":"TheStreet - Stock Market Today, July 2, 2026","url":"https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-july-2-2026"},{"title":"CNBC - Stock market today, June 30 / July 1, 2026","url":"https://www.cnbc.com/2026/07/01/stock-market-today-live-updates.html"},{"title":"RBA - Monetary Policy Decisions 2026","url":"https://www.rba.gov.au/monetary-policy/int-rate-decisions/"},{"title":"Federal Reserve - FOMC statement, June 17, 2026","url":"https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm"},{"title":"CNBC - Fed holds rates steady, June 2026","url":"https://www.cnbc.com/2026/06/17/fed-interest-rate-decision-june-2026.html"},{"title":"Trading Economics - Australian Dollar (AUD/USD)","url":"https://tradingeconomics.com/australia/currency"},{"title":"Market Index - Commonwealth Bank (ASX:CBA)","url":"https://www.marketindex.com.au/asx/cba"},{"title":"stockanalysis.com - CSL Limited (ASX:CSL)","url":"https://stockanalysis.com/quote/asx/CSL/"},{"title":"Rask Media - BHP share price soared more than 60% in FY26","url":"https://www.raskmedia.com.au/2026/07/03/the-bhp-asxbhp-share-price-soared-more-than-60-in-fy26/"},{"title":"Investing.com - Wesfarmers (ASX:WES)","url":"https://www.investing.com/equities/wesfarmers-limited"},{"title":"Google Finance - Macquarie Group (ASX:MQG)","url":"https://www.google.com/finance/quote/MQG:ASX"},{"title":"Market Index - NEXTDC (ASX:NXT)","url":"https://www.marketindex.com.au/asx/nxt"},{"title":"Market Index - Transurban Group (ASX:TCL)","url":"https://www.marketindex.com.au/asx/tcl"},{"title":"Market Index - APA Group (ASX:APA)","url":"https://www.marketindex.com.au/asx/apa"},{"title":"Yahoo Finance - NVIDIA (NVDA)","url":"https://finance.yahoo.com/quote/NVDA/"},{"title":"CNBC - Alphabet Class A (GOOGL) real-time quote","url":"https://www.cnbc.com/quotes/GOOGL"},{"title":"SEC - TSMC Form 6-K Q1 FY2026 results","url":"https://www.sec.gov/Archives/edgar/data/1046179/000104617926000199/a1q26e_withguidancexfinal.htm"}]}
+</script>
 
 <script>
 "use strict";
-const LS_KEY = "invdash.v1";
-const fmt = (n, c=true) => {
-  if (!isFinite(n)) n = 0;
-  const s = n.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
-  return c ? "$" + s : s;
-};
-const pct = (n) => (isFinite(n)?n:0).toFixed(2) + "%";
-const $ = (s, r=document) => r.querySelector(s);
-const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const LS = "invdash.v2";
+const LS_SET = "invdash.settings";
+const money = (n, cur="$") => (cur) + (isFinite(n)?n:0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const pct = (n) => (isFinite(n)?n:0).toFixed(2)+"%";
+const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+const esc = s => String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 
-let state = load();
+let state = loadState();
+let settings = loadSettings();
+let ANALYSIS = loadAnalysis();
 
-function load(){
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch(e){}
-  return { holdings: [], watch: [], notes: "" };
+function loadState(){ try{ const r=localStorage.getItem(LS); if(r) return JSON.parse(r); }catch(e){}
+  return { holdings:[], watch:[], notes:"" }; }
+function saveState(){ try{ localStorage.setItem(LS, JSON.stringify(state)); }catch(e){} render(); }
+function loadSettings(){ try{ const r=localStorage.getItem(LS_SET); if(r) return JSON.parse(r);}catch(e){}
+  return { provider:"twelvedata", apiKey:"", fx: 0.694 }; }
+function saveSettings(){ try{ localStorage.setItem(LS_SET, JSON.stringify(settings)); }catch(e){} }
+function loadAnalysis(){ try{ return JSON.parse($("#analysis-data").textContent); }catch(e){ return {marketSnapshot:{},sectors:[],companies:[],suggestions:[],sources:[]}; } }
+function uid(){ return "h"+Math.abs(Math.floor(performance.now()*1000)).toString(36)+state.holdings.length; }
+
+/* ---- FX: convert a holding's native value to AUD ---- */
+function toAud(amount, market){
+  if(market==="US"){ const fx = +settings.fx || 0.694; return fx>0 ? amount/fx : amount; }
+  return amount; // ASX + Other treated as AUD
 }
-function save(){
-  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e){}
-  render();
-}
-function uid(){ return "h" + Math.abs(Math.floor(performance.now()*1000)).toString(36) + Object.keys(state.holdings).length; }
 
-/* ---------- Ideas data ---------- */
+/* ---- Ideas library (evergreen) ---- */
 const IDEAS = [
-  // Markets
-  {cat:"Markets", risk:"low", title:"Broad Australian market", tickers:"VAS · A200 · IOZ", text:"Owns the biggest ~300 ASX companies in one holding. A common core for an Australian portfolio — franked dividends and low fees."},
-  {cat:"Markets", risk:"med", title:"US market (S&P 500 / Nasdaq)", tickers:"IVV · VTS · NDQ", text:"Exposure to the world's largest companies. IVV/VTS track the broad US market; NDQ concentrates on the tech-heavy Nasdaq 100."},
-  {cat:"Markets", risk:"med", title:"Global developed markets", tickers:"VGS · BGBL · IWLD", text:"Thousands of companies across the US, Europe and Japan in one fund — instant diversification beyond Australia."},
-  {cat:"Markets", risk:"low", title:"All-in-one diversified", tickers:"VDHG · DHHF", text:"A single fund holding global + Australian shares (and some bonds in VDHG). Set-and-forget core for hands-off investors."},
-  {cat:"Markets", risk:"high", title:"Emerging markets & India", tickers:"VGE · IIND · ASIA", text:"Faster-growing economies — India's demographics, Asian tech. Higher volatility and currency risk; keep it a smaller slice."},
-  // Sectors
-  {cat:"Sectors", risk:"high", title:"AI & semiconductors", tickers:"SMH · NVDA · TSMC", text:"The compute layer behind the AI boom — chip designers and foundries. High growth, high volatility, concentrated."},
-  {cat:"Sectors", risk:"med", title:"Global healthcare", tickers:"IXJ · CSL · UNH", text:"Defensive, demographic tailwind from ageing populations. CSL is an Australian biotech heavyweight."},
-  {cat:"Sectors", risk:"high", title:"Clean energy & transition", tickers:"ERTH · ACDC · CLNE", text:"Renewables, batteries and grid tech. A long-term theme, but policy-sensitive and cyclical."},
-  {cat:"Sectors", risk:"med", title:"Cybersecurity", tickers:"HACK", text:"Structural demand as everything moves online. A basket avoids betting on a single vendor."},
-  // Companies (examples for research)
-  {cat:"Companies", risk:"med", title:"Global mega-cap tech", tickers:"AAPL · MSFT · GOOGL · AMZN", text:"Widely-held, profitable platform businesses. Often accessed cheaply via an index rather than one-by-one."},
-  {cat:"Companies", risk:"low", title:"Australian blue chips", tickers:"CBA · CSL · WES · MQG", text:"Large, established ASX names spanning banking, healthcare, retail and financials. Familiar starting research names."},
-  {cat:"Companies", risk:"med", title:"Resources & materials", tickers:"BHP · RIO · FMG", text:"Miners tied to global demand for iron ore, copper and battery metals. Cyclical, with meaningful dividends."},
-  // Infrastructure
-  {cat:"Infrastructure", risk:"low", title:"Global listed infrastructure", tickers:"CORE · IFRA · GLIN", text:"Airports, utilities, pipelines, toll roads worldwide. Stable, inflation-linked cash flows — a defensive diversifier."},
-  {cat:"Infrastructure", risk:"med", title:"Digital infra & data centres", tickers:"GMG · NXT · DGT", text:"The physical backbone of AI and cloud. Goodman (GMG) and NextDC (NXT) are ASX plays on data-centre demand."},
-  {cat:"Infrastructure", risk:"low", title:"Toll roads & transport", tickers:"TCL · ALX", text:"Transurban (TCL) and Atlas Arteria (ALX) own toll roads with long, inflation-linked concessions."},
-  {cat:"Infrastructure", risk:"med", title:"Energy & utility networks", tickers:"APA · AST · IFT", text:"Gas pipelines, electricity grids and renewables operators — regulated, income-focused assets."},
+  {cat:"Markets", risk:"low", title:"Broad Australian market", tickers:"VAS · A200 · IOZ", text:"The largest ~300 ASX companies in one holding — a common low-cost core with franked dividends."},
+  {cat:"Markets", risk:"med", title:"US market (S&P 500 / Nasdaq)", tickers:"IVV · VTS · NDQ", text:"Exposure to the world's largest companies. NDQ tilts to the tech-heavy Nasdaq 100."},
+  {cat:"Markets", risk:"med", title:"Global developed markets", tickers:"VGS · BGBL", text:"Thousands of companies across the US, Europe and Japan — diversification beyond Australia."},
+  {cat:"Markets", risk:"low", title:"All-in-one diversified", tickers:"VDHG · DHHF", text:"A single fund holding global + Australian shares. Set-and-forget core for hands-off investors."},
+  {cat:"Markets", risk:"high", title:"Emerging markets & India", tickers:"VGE · IIND", text:"Faster-growing economies with higher volatility and currency risk — keep it a smaller slice."},
+  {cat:"Sectors", risk:"high", title:"AI & semiconductors", tickers:"SMH · NVDA · TSM", text:"The compute layer behind AI. High growth, high volatility, concentrated."},
+  {cat:"Sectors", risk:"med", title:"Global healthcare", tickers:"IXJ · CSL", text:"Defensive, with an ageing-population tailwind. CSL is an ASX biotech heavyweight."},
+  {cat:"Sectors", risk:"high", title:"Clean energy & transition", tickers:"ERTH · ACDC", text:"Renewables, batteries and grid tech — a long-term theme, but policy-sensitive and cyclical."},
+  {cat:"Companies", risk:"med", title:"Global mega-cap tech", tickers:"AAPL · MSFT · GOOGL · AMZN", text:"Profitable platform businesses, often accessed cheaply via an index."},
+  {cat:"Companies", risk:"low", title:"Australian blue chips", tickers:"CBA · CSL · WES · MQG", text:"Large, established ASX names across banking, healthcare, retail and financials."},
+  {cat:"Companies", risk:"med", title:"Resources & materials", tickers:"BHP · RIO · FMG", text:"Miners tied to global demand for iron ore, copper and battery metals. Cyclical, with dividends."},
+  {cat:"Infrastructure", risk:"low", title:"Global listed infrastructure", tickers:"CORE · IFRA", text:"Airports, utilities, pipelines and toll roads worldwide — stable, inflation-linked cash flows."},
+  {cat:"Infrastructure", risk:"med", title:"Digital infra & data centres", tickers:"GMG · NXT", text:"The backbone of AI and cloud. Goodman (GMG) and NextDC (NXT) are ASX plays on data-centre demand."},
+  {cat:"Infrastructure", risk:"low", title:"Toll roads & transport", tickers:"TCL · ALX", text:"Toll roads with long, inflation-linked concessions and steady cash flows."},
+  {cat:"Infrastructure", risk:"med", title:"Energy & utility networks", tickers:"APA · AST", text:"Gas pipelines and electricity grids — regulated, income-focused assets."},
 ];
 const CATS = ["All","Markets","Sectors","Companies","Infrastructure"];
 let ideaFilter = "All";
 
-/* ---------- Compute ---------- */
-function computed(){
-  let value=0, cost=0;
-  const rows = state.holdings.map(h => {
-    const c = (+h.units||0)*(+h.buy||0);
-    const v = (+h.units||0)*(+h.price||0);
-    const pl = v - c;
-    const plpct = c>0 ? (pl/c*100) : 0;
-    value += v; cost += c;
-    return {...h, cost:c, value:v, pl, plpct};
-  });
-  return { rows, value, cost, pl: value-cost, plpct: cost>0 ? (value-cost)/cost*100 : 0 };
+/* ---- Quote parsing (pure, unit-tested) ---- */
+function buildSymbol(provider, ticker, market){
+  const t = (ticker||"").trim().toUpperCase();
+  if(!t) return null;
+  if(provider==="finnhub") return t; // US only
+  // twelvedata
+  return market==="ASX" ? {symbol:t, exchange:"ASX"} : {symbol:t};
+}
+function quoteUrl(provider, sym, key){
+  if(provider==="finnhub") return `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(sym)}&token=${encodeURIComponent(key)}`;
+  const p = new URLSearchParams({symbol:sym.symbol, apikey:key});
+  if(sym.exchange) p.set("exchange", sym.exchange);
+  return `https://api.twelvedata.com/price?${p.toString()}`;
+}
+function parseQuote(provider, data){
+  if(provider==="finnhub"){ const c = +(data && data.c); return (isFinite(c) && c>0) ? c : null; }
+  // twelvedata /price -> {"price":"212.34"} ; errors -> {"code":..,"message":..}
+  if(data && data.price!=null){ const p=+data.price; return (isFinite(p)&&p>0)?p:null; }
+  return null;
 }
 
-/* ---------- Render ---------- */
+async function refreshPrices(){
+  const btn=$("#refreshBtn");
+  if(!settings.apiKey){ toast("Add a free API key in Price data settings first."); $("#settingsBox").open=true; return; }
+  const targets = state.holdings.filter(h=>h.market!=="Other" && (h.ticker||"").trim());
+  if(!targets.length){ toast("No holdings with a ticker + ASX/US market to price."); return; }
+  btn.disabled=true; btn.textContent="Fetching…";
+  let ok=0, fail=0; const errs=[];
+  for(const h of targets){
+    try{
+      const sym=buildSymbol(settings.provider, h.ticker, h.market);
+      if(settings.provider==="finnhub" && h.market==="ASX"){ fail++; errs.push(`${h.ticker}: Finnhub free doesn't cover ASX`); continue; }
+      const res=await fetch(quoteUrl(settings.provider, sym, settings.apiKey));
+      const data=await res.json();
+      const px=parseQuote(settings.provider, data);
+      if(px){ h.price=px; h.priceAt=new Date().toISOString(); h.priceLive=true; ok++; }
+      else { fail++; errs.push(`${h.ticker}: ${ (data&&(data.message||data.error)) || "no price returned"}`); }
+    }catch(e){ fail++; errs.push(`${h.ticker}: ${e.message}`); }
+    await new Promise(r=>setTimeout(r,180)); // be gentle on rate limits
+  }
+  btn.disabled=false; btn.textContent="↻ Refresh prices";
+  saveState();
+  let msg = `Updated ${ok} price${ok===1?"":"s"}`; if(fail) msg+=`, ${fail} failed`;
+  toast(msg);
+  $("#priceStatus").innerHTML = `Last refresh: ${new Date().toLocaleString()} — ${ok} ok, ${fail} failed.` +
+    (errs.length? ` <span title="${esc(errs.join(' | '))}" style="text-decoration:underline dotted;cursor:help">why?</span>`:"");
+}
+
+/* ---- Compute ---- */
+function computed(){
+  let value=0, cost=0;
+  const rows=state.holdings.map(h=>{
+    const nativeCost=(+h.units||0)*(+h.buy||0);
+    const nativeVal=(+h.units||0)*(+h.price||0);
+    const c=toAud(nativeCost,h.market), v=toAud(nativeVal,h.market);
+    const pl=v-c, plpct=c>0?pl/c*100:0;
+    value+=v; cost+=c;
+    return {...h, nativeVal, cost:c, value:v, pl, plpct};
+  });
+  return { rows, value, cost, pl:value-cost, plpct: cost>0?(value-cost)/cost*100:0 };
+}
+
+/* ---- Render ---- */
 function render(){
-  const {rows, value, cost, pl, plpct} = computed();
-  // Tiles
-  const cls = pl>=0 ? "gain" : "loss";
-  const sign = pl>=0 ? "+" : "";
-  $("#tiles").innerHTML = `
-    <div class="tile"><div class="label">Portfolio value</div><div class="value">${fmt(value)}</div><div class="sub">${rows.length} holding${rows.length===1?"":"s"}</div></div>
-    <div class="tile"><div class="label">Invested (cost)</div><div class="value">${fmt(cost)}</div></div>
-    <div class="tile"><div class="label">Total return</div><div class="value ${cls}">${sign}${fmt(pl)}</div><div class="sub ${cls}">${sign}${pct(plpct)}</div></div>
+  const {rows,value,cost,pl,plpct}=computed();
+  const cls=pl>=0?"gain":"loss", sg=pl>=0?"+":"";
+  $("#tiles").innerHTML=`
+    <div class="tile"><div class="label">Portfolio value</div><div class="value">${money(value)}</div><div class="sub">${rows.length} holding${rows.length===1?"":"s"} · A$</div></div>
+    <div class="tile"><div class="label">Invested (cost)</div><div class="value">${money(cost)}</div></div>
+    <div class="tile"><div class="label">Total return</div><div class="value ${cls}">${sg}${money(pl)}</div><div class="sub ${cls}">${sg}${pct(plpct)}</div></div>
     <div class="tile"><div class="label">Best / worst</div><div class="value">${moverSummary(rows)}</div></div>`;
 
-  // Allocation
-  const alloc = $("#allocList");
-  if (!rows.length){ alloc.innerHTML = `<div class="empty">No holdings yet. Add some in the <strong>Holdings</strong> tab.</div>`; }
-  else {
-    alloc.innerHTML = [...rows].sort((a,b)=>b.value-a.value).map(r=>{
-      const p = value>0 ? r.value/value*100 : 0;
-      return `<div class="alloc-row"><div class="aname" title="${esc(r.name)}">${esc(r.name)}</div>
-        <div class="bar"><span style="width:${p.toFixed(1)}%"></span></div>
-        <div class="apct">${p.toFixed(1)}%</div></div>`;
-    }).join("");
-  }
+  const alloc=$("#allocList");
+  alloc.innerHTML = !rows.length ? `<div class="empty">No holdings yet. Add some in the <strong>Holdings</strong> tab.</div>`
+    : [...rows].sort((a,b)=>b.value-a.value).map(r=>{ const p=value>0?r.value/value*100:0;
+        return `<div class="alloc-row"><div class="aname" title="${esc(r.name)}">${esc(r.name)}</div>
+          <div class="bar"><span style="width:${p.toFixed(1)}%"></span></div><div class="apct">${p.toFixed(1)}%</div></div>`; }).join("");
 
-  // Movers
-  const mv = $("#movers");
-  if (!rows.length){ mv.innerHTML = `<div class="empty">Add holdings to see performance.</div>`; }
-  else {
-    const sorted = [...rows].sort((a,b)=>b.plpct-a.plpct);
-    mv.innerHTML = `<div class="table-scroll"><table><thead><tr><th>Holding</th><th>Value</th><th>P/L</th><th>P/L %</th></tr></thead><tbody>` +
-      sorted.map(r=>{
-        const c = r.pl>=0?"gain":"loss"; const s=r.pl>=0?"+":"";
+  const mv=$("#movers");
+  mv.innerHTML = !rows.length ? `<div class="empty">Add holdings to see performance.</div>`
+    : `<div class="table-scroll"><table><thead><tr><th>Holding</th><th>Value (A$)</th><th>P/L</th><th>P/L %</th></tr></thead><tbody>`+
+      [...rows].sort((a,b)=>b.plpct-a.plpct).map(r=>{const c=r.pl>=0?"gain":"loss",s=r.pl>=0?"+":"";
         return `<tr><td class="name-cell"><strong>${esc(r.name)}</strong><span class="tick">${esc(r.ticker||"")}</span></td>
-          <td>${fmt(r.value)}</td><td class="${c}">${s}${fmt(r.pl)}</td><td class="${c}">${s}${pct(r.plpct)}</td></tr>`;
-      }).join("") + `</tbody></table></div>`;
-  }
+          <td>${money(r.value)}</td><td class="${c}">${s}${money(r.pl)}</td><td class="${c}">${s}${pct(r.plpct)}</td></tr>`;}).join("")+`</tbody></table></div>`;
 
-  // Holdings table
-  const body = $("#holdingsBody");
-  if (!rows.length){ body.innerHTML = `<tr><td colspan="10" class="empty">No holdings yet — add one above, or “Load example” to see how it looks.</td></tr>`; }
-  else {
-    body.innerHTML = rows.map(r=>{
-      const c = r.pl>=0?"gain":"loss"; const s=r.pl>=0?"+":"";
-      return `<tr>
-        <td class="name-cell"><strong>${esc(r.name)}</strong><span class="tick">${esc(r.ticker||"")}</span></td>
-        <td>${esc(r.category||"")}</td>
-        <td>${(+r.units).toLocaleString(undefined,{maximumFractionDigits:4})}</td>
-        <td>${fmt(r.buy)}</td><td>${fmt(r.price)}</td>
-        <td>${fmt(r.cost)}</td><td>${fmt(r.value)}</td>
-        <td class="${c}">${s}${fmt(r.pl)}</td><td class="${c}">${s}${pct(r.plpct)}</td>
-        <td class="actions"><button data-edit="${r.id}" title="Edit">✎</button><button data-del="${r.id}" title="Delete">✕</button></td>
-      </tr>`;
-    }).join("");
-  }
+  const body=$("#holdingsBody");
+  body.innerHTML = !rows.length ? `<tr><td colspan="10" class="empty">No holdings yet — add one above, or “Load example”.</td></tr>`
+    : rows.map(r=>{ const c=r.pl>=0?"gain":"loss",s=r.pl>=0?"+":"";
+        const live = r.priceLive ? `<span class="${r.priceAt? 'px-live':'px-stale'}" title="${r.priceAt?('live · '+new Date(r.priceAt).toLocaleString()):''}">●</span>`:"";
+        const curSym = r.market==="US" ? "US$" : "$";
+        return `<tr>
+          <td class="name-cell"><strong>${esc(r.name)}</strong><span class="tick">${esc(r.ticker||"")}</span></td>
+          <td>${esc(r.market||"")}</td>
+          <td>${(+r.units).toLocaleString(undefined,{maximumFractionDigits:4})}</td>
+          <td>${money(r.buy,curSym)}</td><td>${money(r.price,curSym)}${live}</td>
+          <td>${money(r.cost)}</td><td>${money(r.value)}</td>
+          <td class="${c}">${s}${money(r.pl)}</td><td class="${c}">${s}${pct(r.plpct)}</td>
+          <td class="actions"><button data-edit="${r.id}" title="Edit">✎</button><button data-del="${r.id}" title="Delete">✕</button></td>
+        </tr>`; }).join("");
 
-  renderIdeas();
-  renderWatch();
-  $("#notes").value = state.notes || "";
-  $("#stamp").textContent = "Local • " + (rows.length? fmt(value) : "no data");
+  renderAnalysis(); renderIdeas(); renderWatch();
+  $("#notes").value=state.notes||"";
+  $("#stamp").textContent = rows.length ? "Portfolio "+money(value) : "No holdings yet";
 }
 
 function moverSummary(rows){
   if(!rows.length) return "—";
-  const s=[...rows].sort((a,b)=>b.plpct-a.plpct);
-  const best=s[0], worst=s[s.length-1];
+  const s=[...rows].sort((a,b)=>b.plpct-a.plpct), best=s[0], worst=s[s.length-1];
   if(rows.length===1) return `<span class="${best.pl>=0?'gain':'loss'}" style="font-size:16px">${esc(best.ticker||best.name)}</span>`;
   return `<span style="font-size:15px"><span class="gain">${esc(best.ticker||best.name)}</span> / <span class="loss">${esc(worst.ticker||worst.name)}</span></span>`;
 }
 
-function renderIdeas(){
-  $("#ideaFilters").innerHTML = CATS.map(c=>`<button class="chip ${c===ideaFilter?'active':''}" data-cat="${c}">${c}</button>`).join("");
-  const list = IDEAS.filter(i=> ideaFilter==="All" || i.cat===ideaFilter);
-  const saved = new Set(state.watch.map(w=>w.title));
-  $("#ideaCards").innerHTML = list.map(i=>{
-    const on = saved.has(i.title);
+function outlookClass(o){ o=(o||"").toLowerCase(); return o.startsWith("pos")?"b-pos":o.startsWith("cau")||o.startsWith("neg")?"b-neg":"b-neu"; }
+function ratingClass(r){ r=(r||"").toLowerCase(); return r.startsWith("constr")?"b-pos":r.startsWith("cau")?"b-neg":"b-neu"; }
+
+function renderAnalysis(){
+  const A=ANALYSIS, M=A.marketSnapshot||{};
+  $("#analysisAsOf").innerHTML = A.asOf==="loading" ? "Loading…"
+    : `Snapshot as of <strong>${esc(A.asOf)}</strong> — figures approximate; confirm live before acting.`;
+  const t=(o)=>o||{};
+  const ax=t(M.asx200), sp=t(M.sp500), nq=t(M.nasdaq);
+  const pctSub=(o)=> o.ytdPct==null?"":`<div class="sub ${o.ytdPct>=0?'gain':'loss'}">${o.ytdPct>=0?'+':''}${(+o.ytdPct).toFixed(1)}% YTD</div>`;
+  $("#marketTiles").innerHTML = M.asx200 ? `
+    <div class="tile"><div class="label">ASX 200</div><div class="value">${ax.level!=null?(+ax.level).toLocaleString():'—'}</div>${pctSub(ax)}</div>
+    <div class="tile"><div class="label">S&P 500</div><div class="value">${sp.level!=null?(+sp.level).toLocaleString():'—'}</div>${pctSub(sp)}</div>
+    <div class="tile"><div class="label">Nasdaq</div><div class="value">${nq.level!=null?(+nq.level).toLocaleString():'—'}</div>${pctSub(nq)}</div>
+    <div class="tile"><div class="label">Rates · FX</div><div class="value" style="font-size:16px">RBA ${M.rbaCashRate??'—'}% · Fed ${M.fedFundsRate??'—'}%</div><div class="sub">AUD/USD ${M.audUsd??'—'}</div></div>` : "";
+  $("#marketCommentary").textContent = M.commentary||"";
+
+  $("#sectorList").innerHTML = (A.sectors&&A.sectors.length) ? A.sectors.map(s=>`
+    <div style="display:flex;gap:12px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line)">
+      <span class="badge ${outlookClass(s.outlook)}" style="min-width:74px;text-align:center">${esc(s.outlook)}</span>
+      <div><strong>${esc(s.name)}</strong> <span style="color:var(--muted);font-size:13px">— ${esc(s.note)}</span></div>
+    </div>`).join("") : `<div class="empty">No sector data yet.</div>`;
+
+  const saved=new Set(state.watch.map(w=>w.title));
+  $("#companyCards").innerHTML = (A.companies&&A.companies.length) ? A.companies.map(c=>{
+    const cur=c.currency==="USD"?"US$":"$"; const key=`${c.name} (${c.ticker})`; const on=saved.has(key);
+    const yr = c.oneYearReturnPct==null?"":`<span><b class="${c.oneYearReturnPct>=0?'gain':'loss'}">${c.oneYearReturnPct>=0?'+':''}${(+c.oneYearReturnPct).toFixed(0)}%</b> 1yr</span>`;
     return `<div class="card">
-      <div class="card-top"><span class="cat">${i.cat}</span><span class="risk ${i.risk}">${i.risk==="low"?"Lower risk":i.risk==="med"?"Medium":"Higher risk"}</span></div>
-      <h3>${esc(i.title)}</h3>
-      <div class="tickers">${esc(i.tickers)}</div>
-      <p>${esc(i.text)}</p>
-      <div class="foot"><button class="add" data-add="${esc(i.title)}" ${on?"disabled":""}>${on?"✓ Saved":"+ Watchlist"}</button></div>
-    </div>`;
-  }).join("");
+      <div class="card-top"><div><span class="cat">${esc(c.exchange)} · ${esc(c.ticker)}</span><h3>${esc(c.name)}</h3></div>
+        <span class="badge ${ratingClass(c.rating)}">${esc(c.rating)}</span></div>
+      <div class="meta-row"><span><b>${cur}${c.priceApprox!=null?(+c.priceApprox).toLocaleString():'—'}</b></span>
+        <span>${esc(c.marketCap||'')}</span>${c.peApprox!=null?`<span>P/E <b>${(+c.peApprox).toFixed(0)}</b></span>`:''}${yr}</div>
+      <p>${esc(c.thesis)}</p>
+      <p style="color:var(--muted);font-size:12.5px"><b style="color:var(--crit)">Risks:</b> ${esc(c.risks)}</p>
+      ${c.recent?`<p style="color:var(--muted);font-size:12.5px"><b style="color:var(--ink)">Recent:</b> ${esc(c.recent)}</p>`:''}
+      <div class="foot"><span class="lbl">Educational only</span><button class="add" data-addco="${esc(key)}" ${on?'disabled':''}>${on?'✓ Saved':'+ Watchlist'}</button></div>
+    </div>`; }).join("") : `<div class="empty">No company analysis yet.</div>`;
+
+  $("#suggestionCards").innerHTML = (A.suggestions&&A.suggestions.length) ? A.suggestions.map(s=>{
+    const on=saved.has(s.title);
+    const rk = s.risk==="low"?"Lower risk":s.risk==="high"?"Higher risk":"Medium";
+    return `<div class="card">
+      <div class="card-top"><span class="cat">${esc(s.category)}</span><span class="badge risk ${esc(s.risk)}">${rk}</span></div>
+      <p>${esc(s.rationale? (s.title+' — '+s.rationale) : s.title)}</p>
+      <div class="foot"><span></span><button class="add" data-addsug="${esc(s.title)}" ${on?'disabled':''}>${on?'✓ Saved':'+ Watchlist'}</button></div>
+    </div>`; }).join("") : `<div class="empty">No suggestions yet.</div>`;
+
+  $("#sourceList").innerHTML = (A.sources&&A.sources.length) ? A.sources.map(s=>`<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title||s.url)}</a></li>`).join("")
+    : `<li style="list-style:none;color:var(--muted)">No sources listed.</li>`;
+}
+
+function renderIdeas(){
+  $("#ideaFilters").innerHTML=CATS.map(c=>`<button class="chip ${c===ideaFilter?'active':''}" data-cat="${c}">${c}</button>`).join("");
+  const saved=new Set(state.watch.map(w=>w.title));
+  $("#ideaCards").innerHTML=IDEAS.filter(i=>ideaFilter==="All"||i.cat===ideaFilter).map(i=>{const on=saved.has(i.title);
+    return `<div class="card"><div class="card-top"><span class="cat">${i.cat}</span><span class="badge risk ${i.risk}">${i.risk==="low"?"Lower risk":i.risk==="med"?"Medium":"Higher risk"}</span></div>
+      <h3>${esc(i.title)}</h3><div class="tickers">${esc(i.tickers)}</div><p>${esc(i.text)}</p>
+      <div class="foot"><span></span><button class="add" data-add="${esc(i.title)}" ${on?"disabled":""}>${on?"✓ Saved":"+ Watchlist"}</button></div></div>`; }).join("");
 }
 
 function renderWatch(){
-  const el = $("#watchList");
-  if(!state.watch.length){ el.innerHTML = `<div class="empty">Nothing saved yet. Add ideas from the <strong>Ideas &amp; Research</strong> tab.</div>`; return; }
-  el.innerHTML = `<div class="cards">` + state.watch.map((w,i)=>`
-    <div class="card">
-      <div class="card-top"><span class="cat">${esc(w.cat)}</span><button class="ghost" data-unwatch="${i}" title="Remove" style="padding:2px 6px">✕</button></div>
-      <h3>${esc(w.title)}</h3>
-      <div class="tickers">${esc(w.tickers)}</div>
-      <p>${esc(w.text)}</p>
-    </div>`).join("") + `</div>`;
+  const el=$("#watchList");
+  if(!state.watch.length){ el.innerHTML=`<div class="empty">Nothing saved yet. Add ideas or companies from the <strong>Analysis</strong> or <strong>Ideas</strong> tabs.</div>`; return; }
+  el.innerHTML=`<div class="cards">`+state.watch.map((w,i)=>`<div class="card">
+      <div class="card-top"><span class="cat">${esc(w.cat||w.category||'Saved')}</span><button class="ghost" data-unwatch="${i}" title="Remove" style="padding:2px 6px">✕</button></div>
+      <h3>${esc(w.title)}</h3>${w.tickers?`<div class="tickers">${esc(w.tickers)}</div>`:''}
+      <p>${esc(w.text||w.rationale||w.thesis||'')}</p></div>`).join("")+`</div>`;
 }
 
-function esc(s){ return String(s??"").replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])); }
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),2600); }
+function addWatch(obj){ if(!state.watch.some(w=>w.title===obj.title)){ state.watch.push(obj); saveState(); toast("Added to watchlist"); } }
 
-/* ---------- Events ---------- */
-$$(".tab").forEach(t=> t.addEventListener("click", ()=>{
-  $$(".tab").forEach(x=>x.classList.remove("active"));
-  $$(".view").forEach(x=>x.classList.remove("active"));
-  t.classList.add("active");
-  $("#view-"+t.dataset.view).classList.add("active");
+/* ---- Events ---- */
+$$(".tab").forEach(t=>t.addEventListener("click",()=>{
+  $$(".tab").forEach(x=>x.classList.remove("active")); $$(".view").forEach(x=>x.classList.remove("active"));
+  t.classList.add("active"); $("#view-"+t.dataset.view).classList.add("active");
 }));
 
-$("#holdingForm").addEventListener("submit", e=>{
-  e.preventDefault();
-  const f = e.target;
-  const d = {
-    id: f.id.value || uid(),
-    name: f.name.value.trim(),
-    ticker: f.ticker.value.trim(),
-    category: f.category.value,
-    units: +f.units.value, buy: +f.buy.value, price: +f.price.value
-  };
+$("#holdingForm").addEventListener("submit",e=>{
+  e.preventDefault(); const f=e.target;
+  const d={ id:f.id.value||uid(), name:f.name.value.trim(), ticker:f.ticker.value.trim(),
+    market:f.market.value, category:f.category.value, units:+f.units.value, buy:+f.buy.value, price:+f.price.value };
   if(!d.name) return;
-  const idx = state.holdings.findIndex(h=>h.id===d.id);
-  if(idx>=0) state.holdings[idx]=d; else state.holdings.push(d);
-  f.reset(); f.id.value="";
-  $("#holdingSubmit").textContent="Add holding"; $("#holdingCancel").hidden=true;
-  save();
+  const i=state.holdings.findIndex(h=>h.id===d.id);
+  if(i>=0){ d.priceAt=state.holdings[i].priceAt; d.priceLive=state.holdings[i].priceLive; state.holdings[i]=d; } else state.holdings.push(d);
+  f.reset(); f.id.value=""; $("#holdingSubmit").textContent="Add holding"; $("#holdingCancel").hidden=true; saveState();
 });
-$("#holdingCancel").addEventListener("click", ()=>{
-  const f=$("#holdingForm"); f.reset(); f.id.value="";
-  $("#holdingSubmit").textContent="Add holding"; $("#holdingCancel").hidden=true;
-});
-$("#holdingsBody").addEventListener("click", e=>{
+$("#holdingCancel").addEventListener("click",()=>{const f=$("#holdingForm");f.reset();f.id.value="";$("#holdingSubmit").textContent="Add holding";$("#holdingCancel").hidden=true;});
+$("#holdingsBody").addEventListener("click",e=>{
   const ed=e.target.closest("[data-edit]"), dl=e.target.closest("[data-del]");
-  if(ed){
-    const h=state.holdings.find(x=>x.id===ed.dataset.edit); if(!h) return;
-    const f=$("#holdingForm");
-    f.id.value=h.id; f.name.value=h.name; f.ticker.value=h.ticker||"";
+  if(ed){ const h=state.holdings.find(x=>x.id===ed.dataset.edit); if(!h)return; const f=$("#holdingForm");
+    f.id.value=h.id; f.name.value=h.name; f.ticker.value=h.ticker||""; f.market.value=h.market||"ASX";
     f.category.value=h.category||"ETF"; f.units.value=h.units; f.buy.value=h.buy; f.price.value=h.price;
-    $("#holdingSubmit").textContent="Save changes"; $("#holdingCancel").hidden=false;
-    f.scrollIntoView({behavior:"smooth", block:"center"});
-  }
-  if(dl){
-    if(confirm("Delete this holding?")){ state.holdings=state.holdings.filter(x=>x.id!==dl.dataset.del); save(); }
-  }
+    $("#holdingSubmit").textContent="Save changes"; $("#holdingCancel").hidden=false; f.scrollIntoView({behavior:"smooth",block:"center"}); }
+  if(dl){ if(confirm("Delete this holding?")){ state.holdings=state.holdings.filter(x=>x.id!==dl.dataset.del); saveState(); } }
 });
 
-$("#ideaFilters").addEventListener("click", e=>{
-  const c=e.target.closest("[data-cat]"); if(!c) return;
-  ideaFilter=c.dataset.cat; renderIdeas();
-});
-$("#ideaCards").addEventListener("click", e=>{
-  const a=e.target.closest("[data-add]"); if(!a) return;
-  const idea=IDEAS.find(i=>i.title===a.dataset.add); if(!idea) return;
-  if(!state.watch.some(w=>w.title===idea.title)){ state.watch.push({...idea}); save(); }
-});
-$("#watchList").addEventListener("click", e=>{
-  const u=e.target.closest("[data-unwatch]"); if(!u) return;
-  state.watch.splice(+u.dataset.unwatch,1); save();
+$("#refreshBtn").addEventListener("click", refreshPrices);
+$("#saveSettings").addEventListener("click",()=>{
+  settings.provider=$("#setProvider").value; settings.apiKey=$("#setApiKey").value.trim();
+  const fx=+$("#setFx").value; if(fx>0) settings.fx=fx; saveSettings(); render(); toast("Settings saved");
 });
 
-let notesTimer;
-$("#notes").addEventListener("input", e=>{
-  clearTimeout(notesTimer);
-  notesTimer=setTimeout(()=>{ state.notes=e.target.value; localStorage.setItem(LS_KEY, JSON.stringify(state)); }, 400);
+$("#ideaFilters").addEventListener("click",e=>{const c=e.target.closest("[data-cat]"); if(!c)return; ideaFilter=c.dataset.cat; renderIdeas();});
+$("#ideaCards").addEventListener("click",e=>{const a=e.target.closest("[data-add]"); if(!a)return;
+  const i=IDEAS.find(x=>x.title===a.dataset.add); if(i) addWatch({...i}); });
+$("#companyCards").addEventListener("click",e=>{const a=e.target.closest("[data-addco]"); if(!a)return;
+  const c=(ANALYSIS.companies||[]).find(x=>`${x.name} (${x.ticker})`===a.dataset.addco); if(c) addWatch({title:a.dataset.addco, cat:c.exchange, tickers:c.ticker, text:c.thesis}); });
+$("#suggestionCards").addEventListener("click",e=>{const a=e.target.closest("[data-addsug]"); if(!a)return;
+  const s=(ANALYSIS.suggestions||[]).find(x=>x.title===a.dataset.addsug); if(s) addWatch({title:s.title, cat:s.category, text:s.rationale}); });
+$("#watchList").addEventListener("click",e=>{const u=e.target.closest("[data-unwatch]"); if(!u)return; state.watch.splice(+u.dataset.unwatch,1); saveState();});
+
+let nt; $("#notes").addEventListener("input",e=>{clearTimeout(nt); nt=setTimeout(()=>{state.notes=e.target.value; localStorage.setItem(LS,JSON.stringify(state));},400);});
+
+$("#seedBtn").addEventListener("click",()=>{
+  if(state.holdings.length && !confirm("Add example holdings?")) return;
+  [ {id:uid(),name:"Spaceship Universe Portfolio",ticker:"",market:"Other",category:"Managed fund",units:520,buy:1.85,price:2.14},
+    {id:uid(),name:"Vanguard Australian Shares",ticker:"VAS",market:"ASX",category:"ETF",units:35,buy:88.50,price:96.20},
+    {id:uid(),name:"iShares S&P 500 (AUD)",ticker:"IVV",market:"ASX",category:"ETF",units:18,buy:42.10,price:51.30},
+    {id:uid(),name:"Goodman Group",ticker:"GMG",market:"ASX",category:"Infrastructure",units:60,buy:24.80,price:33.10},
+    {id:uid(),name:"Nvidia",ticker:"NVDA",market:"US",category:"Global shares",units:8,buy:110.00,price:168.00},
+  ].forEach(h=>state.holdings.push(h)); saveState();
 });
 
-$("#seedBtn").addEventListener("click", ()=>{
-  if(state.holdings.length && !confirm("Add example holdings to your list?")) return;
-  const ex=[
-    {id:uid(),name:"Spaceship Universe Portfolio",ticker:"—",category:"Managed fund",units:520,buy:1.85,price:2.14},
-    {id:uid(),name:"Vanguard Australian Shares",ticker:"VAS",category:"ETF",units:35,buy:88.50,price:96.20},
-    {id:uid(),name:"iShares S&P 500",ticker:"IVV",category:"ETF",units:18,buy:42.10,price:51.30},
-    {id:uid(),name:"Goodman Group",ticker:"GMG",category:"Infrastructure",units:60,buy:24.80,price:33.10},
-  ];
-  ex.forEach(h=>state.holdings.push(h)); save();
-});
+$("#themeBtn").addEventListener("click",()=>{const cur=document.documentElement.getAttribute("data-theme");
+  const isDark=cur?cur==="dark":matchMedia("(prefers-color-scheme: dark)").matches; const next=isDark?"light":"dark";
+  document.documentElement.setAttribute("data-theme",next); try{localStorage.setItem(LS+".theme",next);}catch(e){}});
+(function(){try{const t=localStorage.getItem(LS+".theme"); if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}})();
 
-$("#themeBtn").addEventListener("click", ()=>{
-  const cur=document.documentElement.getAttribute("data-theme");
-  const isDark = cur ? cur==="dark" : matchMedia("(prefers-color-scheme: dark)").matches;
-  const next = isDark ? "light" : "dark";
-  document.documentElement.setAttribute("data-theme", next);
-  try{ localStorage.setItem(LS_KEY+".theme", next); }catch(e){}
-});
-(function initTheme(){ try{ const t=localStorage.getItem(LS_KEY+".theme"); if(t) document.documentElement.setAttribute("data-theme",t);}catch(e){} })();
+$("#exportBtn").addEventListener("click",()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="investment-dashboard-backup.json"; a.click(); URL.revokeObjectURL(a.href);});
+$("#importBtn").addEventListener("click",()=>$("#importFile").click());
+$("#importFile").addEventListener("change",e=>{const f=e.target.files[0]; if(!f)return; const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result); state={holdings:d.holdings||[],watch:d.watch||[],notes:d.notes||""}; saveState(); toast("Restored ✓");}catch(err){toast("Could not read that file.");}}; r.readAsText(f);});
 
-$("#exportBtn").addEventListener("click", ()=>{
-  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob); a.download="investment-dashboard-backup.json"; a.click();
-  URL.revokeObjectURL(a.href);
-});
-$("#importBtn").addEventListener("click", ()=> $("#importFile").click());
-$("#importFile").addEventListener("change", e=>{
-  const file=e.target.files[0]; if(!file) return;
-  const r=new FileReader();
-  r.onload=()=>{ try{ const d=JSON.parse(r.result);
-    state={ holdings:d.holdings||[], watch:d.watch||[], notes:d.notes||"" }; save();
-    alert("Restored ✓");
-  }catch(err){ alert("Could not read that file."); } };
-  r.readAsText(file);
-});
+// init settings UI
+$("#setProvider").value=settings.provider; $("#setApiKey").value=settings.apiKey||""; $("#setFx").value=settings.fx||0.694;
+if(settings.apiKey) $("#priceStatus").innerHTML=`Provider: <strong>${esc(settings.provider)}</strong> · key saved. Click “Refresh prices”.`;
+else $("#priceStatus").innerHTML=`No API key yet — open “Price data settings” below to enable live prices (2-min free setup).`;
 
 render();
+
+// expose pure helpers for testing
+if(typeof window!=="undefined"){ window.__test={parseQuote,buildSymbol,quoteUrl,toAud:(a,m,fx)=>{settings.fx=fx;return toAud(a,m);}}; }
 </script>
 </body>
 </html>
