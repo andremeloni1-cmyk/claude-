@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Investment Dashboard</title>
+</head>
+<body>
+<style>
+:root {
+  --bg: #f4f2ee; --panel: #fbfaf8; --ink: #21201c; --muted: #6f6b62;
+  --line: #e3ded4; --line-strong: #d3ccbe;
+  --accent: #2f7d84; --accent-soft: #d9ebec;
+  --ok: #3f8f5a; --warn: #b7822b; --crit: #b5432f; --paused: #8a8577;
+  --gain: #3f8f5a; --loss: #b5432f;
+  --shadow: 0 1px 2px rgba(30,28,22,.05), 0 8px 24px rgba(30,28,22,.05);
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --serif: Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --panel: #1f1f25; --ink: #ece9e2; --muted: #9a958b;
+    --line: #2c2c34; --line-strong: #3a3a44;
+    --accent: #5bb6bd; --accent-soft: #1c3a3d;
+    --ok: #5cc27e; --warn: #d8a24e; --crit: #e0715a; --paused: #8f8a7e;
+    --gain: #5cc27e; --loss: #e0715a;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="light"] {
+  --bg: #f4f2ee; --panel: #fbfaf8; --ink: #21201c; --muted: #6f6b62;
+  --line: #e3ded4; --line-strong: #d3ccbe;
+  --accent: #2f7d84; --accent-soft: #d9ebec;
+  --gain: #3f8f5a; --loss: #b5432f;
+  --shadow: 0 1px 2px rgba(30,28,22,.05), 0 8px 24px rgba(30,28,22,.05);
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --panel: #1f1f25; --ink: #ece9e2; --muted: #9a958b;
+  --line: #2c2c34; --line-strong: #3a3a44;
+  --accent: #5bb6bd; --accent-soft: #1c3a3d;
+  --gain: #5cc27e; --loss: #e0715a;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--sans); line-height: 1.5;
+  -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: clamp(20px, 4vw, 44px); }
+
+/* Masthead */
+.masthead { display: flex; flex-wrap: wrap; gap: 16px 24px;
+  justify-content: space-between; align-items: flex-start;
+  padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand-mark { color: var(--accent); font-size: 26px; line-height: 1; }
+.masthead h1 { font-family: var(--serif); font-weight: 600;
+  font-size: clamp(22px, 3.4vw, 30px); margin: 0; letter-spacing: -.01em; }
+.tagline { margin: 2px 0 0; color: var(--muted); font-size: 13.5px; }
+.head-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.stamp { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+/* Buttons */
+button { font-family: inherit; font-size: 13px; cursor: pointer;
+  border: 1px solid var(--line-strong); background: var(--panel);
+  color: var(--ink); border-radius: 8px; padding: 7px 12px;
+  transition: border-color .15s, background .15s; }
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+button.primary:hover { filter: brightness(1.05); }
+button.ghost { background: transparent; border-color: transparent; color: var(--muted); padding: 6px 8px; }
+button.ghost:hover { color: var(--accent); border-color: var(--line); }
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; margin: 26px 0 20px; flex-wrap: wrap;
+  border-bottom: 1px solid var(--line); }
+.tab { border: none; background: none; border-radius: 0; padding: 9px 14px;
+  color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab:hover { color: var(--ink); border-color: transparent; }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+section.view { display: none; }
+section.view.active { display: block; }
+
+/* Stat tiles */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px; margin-bottom: 26px; }
+.tile { background: var(--panel); border: 1px solid var(--line);
+  border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow); }
+.tile .label { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--muted); }
+.tile .value { font-size: clamp(20px, 3vw, 26px); font-weight: 600; margin-top: 6px;
+  font-variant-numeric: tabular-nums; }
+.tile .sub { font-size: 12.5px; margin-top: 3px; font-variant-numeric: tabular-nums; }
+.gain { color: var(--gain); }
+.loss { color: var(--loss); }
+
+/* Panels */
+.panel { background: var(--panel); border: 1px solid var(--line);
+  border-radius: 12px; padding: 20px 22px; box-shadow: var(--shadow); margin-bottom: 22px; }
+.panel h2 { font-family: var(--serif); font-size: 18px; font-weight: 600; margin: 0 0 4px; }
+.panel .hint { color: var(--muted); font-size: 12.5px; margin: 0 0 16px; }
+.panel-head { display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 12px; flex-wrap: wrap; }
+
+/* Table */
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th, td { text-align: right; padding: 9px 10px; border-bottom: 1px solid var(--line);
+  font-variant-numeric: tabular-nums; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { font-size: 11px; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--muted); font-weight: 600; }
+tbody tr:hover { background: var(--accent-soft); }
+.tick { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.name-cell { display: flex; flex-direction: column; }
+.name-cell strong { font-weight: 600; }
+td.actions { white-space: nowrap; }
+td.actions button { padding: 3px 7px; font-size: 12px; }
+.table-scroll { overflow-x: auto; }
+.empty { text-align: center; color: var(--muted); padding: 30px 10px; font-size: 13.5px; }
+
+/* Allocation bars */
+.alloc-row { display: grid; grid-template-columns: 120px 1fr 60px; gap: 12px;
+  align-items: center; margin-bottom: 10px; font-size: 13px; }
+.alloc-row .aname { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar { height: 10px; background: var(--line); border-radius: 6px; overflow: hidden; }
+.bar > span { display: block; height: 100%; background: var(--accent); border-radius: 6px; }
+.alloc-row .apct { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* Forms */
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px; margin-bottom: 14px; }
+label.field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+input, select, textarea { font-family: inherit; font-size: 13.5px; color: var(--ink);
+  background: var(--bg); border: 1px solid var(--line-strong); border-radius: 8px;
+  padding: 8px 10px; width: 100%; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+
+/* Ideas cards */
+.filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+.chip { border: 1px solid var(--line-strong); background: var(--panel); color: var(--muted);
+  border-radius: 999px; padding: 5px 13px; font-size: 12.5px; cursor: pointer; }
+.chip:hover { border-color: var(--accent); color: var(--ink); }
+.chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  padding: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 8px; }
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.card h3 { font-size: 15px; margin: 0; font-weight: 600; }
+.card .cat { font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--accent); font-weight: 600; }
+.card .tickers { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.card p { margin: 0; font-size: 13px; color: var(--ink); }
+.card .foot { display: flex; justify-content: space-between; align-items: center;
+  margin-top: auto; padding-top: 6px; gap: 8px; }
+.risk { font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+.risk.low { background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok); }
+.risk.med { background: color-mix(in srgb, var(--warn) 20%, transparent); color: var(--warn); }
+.risk.high { background: color-mix(in srgb, var(--crit) 18%, transparent); color: var(--crit); }
+.card button.add { padding: 4px 10px; font-size: 12px; }
+
+/* Disclaimer */
+.disclaimer { border: 1px dashed var(--line-strong); border-radius: 12px;
+  padding: 14px 16px; font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+.disclaimer strong { color: var(--ink); }
+
+.notes-area { width: 100%; min-height: 90px; resize: vertical; }
+footer { margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--line);
+  color: var(--muted); font-size: 12px; }
+a { color: var(--accent); }
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <div class="brand">
+      <span class="brand-mark">◈</span>
+      <div>
+        <h1>Investment Dashboard</h1>
+        <p class="tagline">Track your holdings &amp; explore ideas — markets, companies &amp; infrastructure</p>
+      </div>
+    </div>
+    <div class="head-actions">
+      <span class="stamp" id="stamp"></span>
+      <button class="ghost" id="themeBtn" title="Toggle theme">◐ Theme</button>
+      <button class="ghost" id="exportBtn" title="Download a backup of your data">↓ Backup</button>
+      <button class="ghost" id="importBtn" title="Restore from a backup file">↑ Restore</button>
+      <input type="file" id="importFile" accept="application/json" hidden>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-view="overview">Overview</button>
+    <button class="tab" data-view="holdings">Holdings</button>
+    <button class="tab" data-view="ideas">Ideas &amp; Research</button>
+    <button class="tab" data-view="watchlist">Watchlist</button>
+  </nav>
+
+  <!-- OVERVIEW -->
+  <section class="view active" id="view-overview">
+    <div class="tiles" id="tiles"></div>
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Portfolio allocation</h2>
+          <p class="hint">Share of your total portfolio value by holding.</p>
+        </div>
+      </div>
+      <div id="allocList"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Movers</h2>
+          <p class="hint">Best and worst performers by total return %.</p>
+        </div>
+      </div>
+      <div id="movers"></div>
+    </div>
+  </section>
+
+  <!-- HOLDINGS -->
+  <section class="view" id="view-holdings">
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Add / update a holding</h2>
+          <p class="hint">Enter units and prices in your account currency. Update "Current price" whenever you want fresh numbers — this dashboard doesn't pull live prices.</p>
+        </div>
+      </div>
+      <form id="holdingForm">
+        <div class="form-grid">
+          <label class="field">Name
+            <input name="name" placeholder="e.g. Spaceship Universe" required>
+          </label>
+          <label class="field">Ticker / code
+            <input name="ticker" placeholder="e.g. VAS">
+          </label>
+          <label class="field">Category
+            <select name="category">
+              <option>Managed fund</option>
+              <option>ETF</option>
+              <option>Australian shares</option>
+              <option>Global shares</option>
+              <option>Infrastructure</option>
+              <option>Cash</option>
+              <option>Crypto</option>
+              <option>Other</option>
+            </select>
+          </label>
+          <label class="field">Units / shares
+            <input name="units" type="number" step="any" min="0" placeholder="0" required>
+          </label>
+          <label class="field">Avg buy price
+            <input name="buy" type="number" step="any" min="0" placeholder="0.00" required>
+          </label>
+          <label class="field">Current price
+            <input name="price" type="number" step="any" min="0" placeholder="0.00" required>
+          </label>
+        </div>
+        <input type="hidden" name="id">
+        <button type="submit" class="primary" id="holdingSubmit">Add holding</button>
+        <button type="button" class="ghost" id="holdingCancel" hidden>Cancel</button>
+      </form>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Your holdings</h2>
+          <p class="hint">Click a row's ✎ to edit. Data is saved only in this browser.</p>
+        </div>
+        <button class="ghost" id="seedBtn" title="Load example data">Load example</button>
+      </div>
+      <div class="table-scroll">
+        <table id="holdingsTable">
+          <thead>
+            <tr>
+              <th>Holding</th><th>Category</th><th>Units</th><th>Buy</th><th>Price</th>
+              <th>Cost</th><th>Value</th><th>P/L</th><th>P/L %</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="holdingsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- IDEAS -->
+  <section class="view" id="view-ideas">
+    <div class="panel" style="margin-bottom:18px;">
+      <h2>Ideas &amp; research</h2>
+      <p class="hint" style="margin-bottom:0;">A curated starting point for exploring markets, sectors, well-known companies and infrastructure. Tickers use ASX codes where relevant (you're on Spaceship). These are educational prompts for your own research — not recommendations. Tap <strong>+ Watchlist</strong> to save any idea.</p>
+    </div>
+    <div class="filter-bar" id="ideaFilters"></div>
+    <div class="cards" id="ideaCards"></div>
+    <div class="disclaimer">
+      <strong>Not financial advice.</strong> This dashboard is an educational and tracking tool. Nothing here is personal financial, tax or investment advice, and it doesn't consider your objectives or situation. Investing carries risk, including loss of capital. Past performance is not a reliable indicator of future performance. Consider the relevant Product Disclosure Statement (PDS) / Target Market Determination and speak to a licensed financial adviser before making decisions. Spaceship product availability (e.g. Voyager portfolios vs direct share trading) varies — check what your account actually offers.
+    </div>
+  </section>
+
+  <!-- WATCHLIST -->
+  <section class="view" id="view-watchlist">
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Watchlist</h2>
+          <p class="hint">Ideas you've saved from the research tab, plus your own notes.</p>
+        </div>
+      </div>
+      <div id="watchList"></div>
+    </div>
+    <div class="panel">
+      <h2>Notes &amp; strategy</h2>
+      <p class="hint">Jot down your plan — target allocation, contribution schedule, rules you want to stick to. Saved locally.</p>
+      <textarea class="notes-area" id="notes" placeholder="e.g. Invest $X/fortnight into a broad index. Rebalance quarterly. Keep 6 months cash buffer. Review — don't react."></textarea>
+    </div>
+  </section>
+
+  <footer>
+    <p>Data is stored locally in your browser (nothing is uploaded). Use <strong>Backup</strong> to save a copy and <strong>Restore</strong> to move it to another device. Built as a self-contained file — open it anywhere, offline.</p>
+  </footer>
+</div>
+
+<script>
+"use strict";
+const LS_KEY = "invdash.v1";
+const fmt = (n, c=true) => {
+  if (!isFinite(n)) n = 0;
+  const s = n.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+  return c ? "$" + s : s;
+};
+const pct = (n) => (isFinite(n)?n:0).toFixed(2) + "%";
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+
+let state = load();
+
+function load(){
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e){}
+  return { holdings: [], watch: [], notes: "" };
+}
+function save(){
+  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e){}
+  render();
+}
+function uid(){ return "h" + Math.abs(Math.floor(performance.now()*1000)).toString(36) + Object.keys(state.holdings).length; }
+
+/* ---------- Ideas data ---------- */
+const IDEAS = [
+  // Markets
+  {cat:"Markets", risk:"low", title:"Broad Australian market", tickers:"VAS · A200 · IOZ", text:"Owns the biggest ~300 ASX companies in one holding. A common core for an Australian portfolio — franked dividends and low fees."},
+  {cat:"Markets", risk:"med", title:"US market (S&P 500 / Nasdaq)", tickers:"IVV · VTS · NDQ", text:"Exposure to the world's largest companies. IVV/VTS track the broad US market; NDQ concentrates on the tech-heavy Nasdaq 100."},
+  {cat:"Markets", risk:"med", title:"Global developed markets", tickers:"VGS · BGBL · IWLD", text:"Thousands of companies across the US, Europe and Japan in one fund — instant diversification beyond Australia."},
+  {cat:"Markets", risk:"low", title:"All-in-one diversified", tickers:"VDHG · DHHF", text:"A single fund holding global + Australian shares (and some bonds in VDHG). Set-and-forget core for hands-off investors."},
+  {cat:"Markets", risk:"high", title:"Emerging markets & India", tickers:"VGE · IIND · ASIA", text:"Faster-growing economies — India's demographics, Asian tech. Higher volatility and currency risk; keep it a smaller slice."},
+  // Sectors
+  {cat:"Sectors", risk:"high", title:"AI & semiconductors", tickers:"SMH · NVDA · TSMC", text:"The compute layer behind the AI boom — chip designers and foundries. High growth, high volatility, concentrated."},
+  {cat:"Sectors", risk:"med", title:"Global healthcare", tickers:"IXJ · CSL · UNH", text:"Defensive, demographic tailwind from ageing populations. CSL is an Australian biotech heavyweight."},
+  {cat:"Sectors", risk:"high", title:"Clean energy & transition", tickers:"ERTH · ACDC · CLNE", text:"Renewables, batteries and grid tech. A long-term theme, but policy-sensitive and cyclical."},
+  {cat:"Sectors", risk:"med", title:"Cybersecurity", tickers:"HACK", text:"Structural demand as everything moves online. A basket avoids betting on a single vendor."},
+  // Companies (examples for research)
+  {cat:"Companies", risk:"med", title:"Global mega-cap tech", tickers:"AAPL · MSFT · GOOGL · AMZN", text:"Widely-held, profitable platform businesses. Often accessed cheaply via an index rather than one-by-one."},
+  {cat:"Companies", risk:"low", title:"Australian blue chips", tickers:"CBA · CSL · WES · MQG", text:"Large, established ASX names spanning banking, healthcare, retail and financials. Familiar starting research names."},
+  {cat:"Companies", risk:"med", title:"Resources & materials", tickers:"BHP · RIO · FMG", text:"Miners tied to global demand for iron ore, copper and battery metals. Cyclical, with meaningful dividends."},
+  // Infrastructure
+  {cat:"Infrastructure", risk:"low", title:"Global listed infrastructure", tickers:"CORE · IFRA · GLIN", text:"Airports, utilities, pipelines, toll roads worldwide. Stable, inflation-linked cash flows — a defensive diversifier."},
+  {cat:"Infrastructure", risk:"med", title:"Digital infra & data centres", tickers:"GMG · NXT · DGT", text:"The physical backbone of AI and cloud. Goodman (GMG) and NextDC (NXT) are ASX plays on data-centre demand."},
+  {cat:"Infrastructure", risk:"low", title:"Toll roads & transport", tickers:"TCL · ALX", text:"Transurban (TCL) and Atlas Arteria (ALX) own toll roads with long, inflation-linked concessions."},
+  {cat:"Infrastructure", risk:"med", title:"Energy & utility networks", tickers:"APA · AST · IFT", text:"Gas pipelines, electricity grids and renewables operators — regulated, income-focused assets."},
+];
+const CATS = ["All","Markets","Sectors","Companies","Infrastructure"];
+let ideaFilter = "All";
+
+/* ---------- Compute ---------- */
+function computed(){
+  let value=0, cost=0;
+  const rows = state.holdings.map(h => {
+    const c = (+h.units||0)*(+h.buy||0);
+    const v = (+h.units||0)*(+h.price||0);
+    const pl = v - c;
+    const plpct = c>0 ? (pl/c*100) : 0;
+    value += v; cost += c;
+    return {...h, cost:c, value:v, pl, plpct};
+  });
+  return { rows, value, cost, pl: value-cost, plpct: cost>0 ? (value-cost)/cost*100 : 0 };
+}
+
+/* ---------- Render ---------- */
+function render(){
+  const {rows, value, cost, pl, plpct} = computed();
+  // Tiles
+  const cls = pl>=0 ? "gain" : "loss";
+  const sign = pl>=0 ? "+" : "";
+  $("#tiles").innerHTML = `
+    <div class="tile"><div class="label">Portfolio value</div><div class="value">${fmt(value)}</div><div class="sub">${rows.length} holding${rows.length===1?"":"s"}</div></div>
+    <div class="tile"><div class="label">Invested (cost)</div><div class="value">${fmt(cost)}</div></div>
+    <div class="tile"><div class="label">Total return</div><div class="value ${cls}">${sign}${fmt(pl)}</div><div class="sub ${cls}">${sign}${pct(plpct)}</div></div>
+    <div class="tile"><div class="label">Best / worst</div><div class="value">${moverSummary(rows)}</div></div>`;
+
+  // Allocation
+  const alloc = $("#allocList");
+  if (!rows.length){ alloc.innerHTML = `<div class="empty">No holdings yet. Add some in the <strong>Holdings</strong> tab.</div>`; }
+  else {
+    alloc.innerHTML = [...rows].sort((a,b)=>b.value-a.value).map(r=>{
+      const p = value>0 ? r.value/value*100 : 0;
+      return `<div class="alloc-row"><div class="aname" title="${esc(r.name)}">${esc(r.name)}</div>
+        <div class="bar"><span style="width:${p.toFixed(1)}%"></span></div>
+        <div class="apct">${p.toFixed(1)}%</div></div>`;
+    }).join("");
+  }
+
+  // Movers
+  const mv = $("#movers");
+  if (!rows.length){ mv.innerHTML = `<div class="empty">Add holdings to see performance.</div>`; }
+  else {
+    const sorted = [...rows].sort((a,b)=>b.plpct-a.plpct);
+    mv.innerHTML = `<div class="table-scroll"><table><thead><tr><th>Holding</th><th>Value</th><th>P/L</th><th>P/L %</th></tr></thead><tbody>` +
+      sorted.map(r=>{
+        const c = r.pl>=0?"gain":"loss"; const s=r.pl>=0?"+":"";
+        return `<tr><td class="name-cell"><strong>${esc(r.name)}</strong><span class="tick">${esc(r.ticker||"")}</span></td>
+          <td>${fmt(r.value)}</td><td class="${c}">${s}${fmt(r.pl)}</td><td class="${c}">${s}${pct(r.plpct)}</td></tr>`;
+      }).join("") + `</tbody></table></div>`;
+  }
+
+  // Holdings table
+  const body = $("#holdingsBody");
+  if (!rows.length){ body.innerHTML = `<tr><td colspan="10" class="empty">No holdings yet — add one above, or “Load example” to see how it looks.</td></tr>`; }
+  else {
+    body.innerHTML = rows.map(r=>{
+      const c = r.pl>=0?"gain":"loss"; const s=r.pl>=0?"+":"";
+      return `<tr>
+        <td class="name-cell"><strong>${esc(r.name)}</strong><span class="tick">${esc(r.ticker||"")}</span></td>
+        <td>${esc(r.category||"")}</td>
+        <td>${(+r.units).toLocaleString(undefined,{maximumFractionDigits:4})}</td>
+        <td>${fmt(r.buy)}</td><td>${fmt(r.price)}</td>
+        <td>${fmt(r.cost)}</td><td>${fmt(r.value)}</td>
+        <td class="${c}">${s}${fmt(r.pl)}</td><td class="${c}">${s}${pct(r.plpct)}</td>
+        <td class="actions"><button data-edit="${r.id}" title="Edit">✎</button><button data-del="${r.id}" title="Delete">✕</button></td>
+      </tr>`;
+    }).join("");
+  }
+
+  renderIdeas();
+  renderWatch();
+  $("#notes").value = state.notes || "";
+  $("#stamp").textContent = "Local • " + (rows.length? fmt(value) : "no data");
+}
+
+function moverSummary(rows){
+  if(!rows.length) return "—";
+  const s=[...rows].sort((a,b)=>b.plpct-a.plpct);
+  const best=s[0], worst=s[s.length-1];
+  if(rows.length===1) return `<span class="${best.pl>=0?'gain':'loss'}" style="font-size:16px">${esc(best.ticker||best.name)}</span>`;
+  return `<span style="font-size:15px"><span class="gain">${esc(best.ticker||best.name)}</span> / <span class="loss">${esc(worst.ticker||worst.name)}</span></span>`;
+}
+
+function renderIdeas(){
+  $("#ideaFilters").innerHTML = CATS.map(c=>`<button class="chip ${c===ideaFilter?'active':''}" data-cat="${c}">${c}</button>`).join("");
+  const list = IDEAS.filter(i=> ideaFilter==="All" || i.cat===ideaFilter);
+  const saved = new Set(state.watch.map(w=>w.title));
+  $("#ideaCards").innerHTML = list.map(i=>{
+    const on = saved.has(i.title);
+    return `<div class="card">
+      <div class="card-top"><span class="cat">${i.cat}</span><span class="risk ${i.risk}">${i.risk==="low"?"Lower risk":i.risk==="med"?"Medium":"Higher risk"}</span></div>
+      <h3>${esc(i.title)}</h3>
+      <div class="tickers">${esc(i.tickers)}</div>
+      <p>${esc(i.text)}</p>
+      <div class="foot"><button class="add" data-add="${esc(i.title)}" ${on?"disabled":""}>${on?"✓ Saved":"+ Watchlist"}</button></div>
+    </div>`;
+  }).join("");
+}
+
+function renderWatch(){
+  const el = $("#watchList");
+  if(!state.watch.length){ el.innerHTML = `<div class="empty">Nothing saved yet. Add ideas from the <strong>Ideas &amp; Research</strong> tab.</div>`; return; }
+  el.innerHTML = `<div class="cards">` + state.watch.map((w,i)=>`
+    <div class="card">
+      <div class="card-top"><span class="cat">${esc(w.cat)}</span><button class="ghost" data-unwatch="${i}" title="Remove" style="padding:2px 6px">✕</button></div>
+      <h3>${esc(w.title)}</h3>
+      <div class="tickers">${esc(w.tickers)}</div>
+      <p>${esc(w.text)}</p>
+    </div>`).join("") + `</div>`;
+}
+
+function esc(s){ return String(s??"").replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])); }
+
+/* ---------- Events ---------- */
+$$(".tab").forEach(t=> t.addEventListener("click", ()=>{
+  $$(".tab").forEach(x=>x.classList.remove("active"));
+  $$(".view").forEach(x=>x.classList.remove("active"));
+  t.classList.add("active");
+  $("#view-"+t.dataset.view).classList.add("active");
+}));
+
+$("#holdingForm").addEventListener("submit", e=>{
+  e.preventDefault();
+  const f = e.target;
+  const d = {
+    id: f.id.value || uid(),
+    name: f.name.value.trim(),
+    ticker: f.ticker.value.trim(),
+    category: f.category.value,
+    units: +f.units.value, buy: +f.buy.value, price: +f.price.value
+  };
+  if(!d.name) return;
+  const idx = state.holdings.findIndex(h=>h.id===d.id);
+  if(idx>=0) state.holdings[idx]=d; else state.holdings.push(d);
+  f.reset(); f.id.value="";
+  $("#holdingSubmit").textContent="Add holding"; $("#holdingCancel").hidden=true;
+  save();
+});
+$("#holdingCancel").addEventListener("click", ()=>{
+  const f=$("#holdingForm"); f.reset(); f.id.value="";
+  $("#holdingSubmit").textContent="Add holding"; $("#holdingCancel").hidden=true;
+});
+$("#holdingsBody").addEventListener("click", e=>{
+  const ed=e.target.closest("[data-edit]"), dl=e.target.closest("[data-del]");
+  if(ed){
+    const h=state.holdings.find(x=>x.id===ed.dataset.edit); if(!h) return;
+    const f=$("#holdingForm");
+    f.id.value=h.id; f.name.value=h.name; f.ticker.value=h.ticker||"";
+    f.category.value=h.category||"ETF"; f.units.value=h.units; f.buy.value=h.buy; f.price.value=h.price;
+    $("#holdingSubmit").textContent="Save changes"; $("#holdingCancel").hidden=false;
+    f.scrollIntoView({behavior:"smooth", block:"center"});
+  }
+  if(dl){
+    if(confirm("Delete this holding?")){ state.holdings=state.holdings.filter(x=>x.id!==dl.dataset.del); save(); }
+  }
+});
+
+$("#ideaFilters").addEventListener("click", e=>{
+  const c=e.target.closest("[data-cat]"); if(!c) return;
+  ideaFilter=c.dataset.cat; renderIdeas();
+});
+$("#ideaCards").addEventListener("click", e=>{
+  const a=e.target.closest("[data-add]"); if(!a) return;
+  const idea=IDEAS.find(i=>i.title===a.dataset.add); if(!idea) return;
+  if(!state.watch.some(w=>w.title===idea.title)){ state.watch.push({...idea}); save(); }
+});
+$("#watchList").addEventListener("click", e=>{
+  const u=e.target.closest("[data-unwatch]"); if(!u) return;
+  state.watch.splice(+u.dataset.unwatch,1); save();
+});
+
+let notesTimer;
+$("#notes").addEventListener("input", e=>{
+  clearTimeout(notesTimer);
+  notesTimer=setTimeout(()=>{ state.notes=e.target.value; localStorage.setItem(LS_KEY, JSON.stringify(state)); }, 400);
+});
+
+$("#seedBtn").addEventListener("click", ()=>{
+  if(state.holdings.length && !confirm("Add example holdings to your list?")) return;
+  const ex=[
+    {id:uid(),name:"Spaceship Universe Portfolio",ticker:"—",category:"Managed fund",units:520,buy:1.85,price:2.14},
+    {id:uid(),name:"Vanguard Australian Shares",ticker:"VAS",category:"ETF",units:35,buy:88.50,price:96.20},
+    {id:uid(),name:"iShares S&P 500",ticker:"IVV",category:"ETF",units:18,buy:42.10,price:51.30},
+    {id:uid(),name:"Goodman Group",ticker:"GMG",category:"Infrastructure",units:60,buy:24.80,price:33.10},
+  ];
+  ex.forEach(h=>state.holdings.push(h)); save();
+});
+
+$("#themeBtn").addEventListener("click", ()=>{
+  const cur=document.documentElement.getAttribute("data-theme");
+  const isDark = cur ? cur==="dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  const next = isDark ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  try{ localStorage.setItem(LS_KEY+".theme", next); }catch(e){}
+});
+(function initTheme(){ try{ const t=localStorage.getItem(LS_KEY+".theme"); if(t) document.documentElement.setAttribute("data-theme",t);}catch(e){} })();
+
+$("#exportBtn").addEventListener("click", ()=>{
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download="investment-dashboard-backup.json"; a.click();
+  URL.revokeObjectURL(a.href);
+});
+$("#importBtn").addEventListener("click", ()=> $("#importFile").click());
+$("#importFile").addEventListener("change", e=>{
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=()=>{ try{ const d=JSON.parse(r.result);
+    state={ holdings:d.holdings||[], watch:d.watch||[], notes:d.notes||"" }; save();
+    alert("Restored ✓");
+  }catch(err){ alert("Could not read that file."); } };
+  r.readAsText(file);
+});
+
+render();
+</script>
+</body>
+</html>
