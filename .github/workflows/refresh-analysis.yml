@@ -1,0 +1,55 @@
+name: Refresh investment analysis
+
+# Updates the numeric fields in market-analysis.json (index levels, AUD/USD,
+# company share prices) once a day after the ASX close, then re-embeds the data
+# into investment-dashboard.html. Qualitative analysis is left untouched.
+#
+# Requires a repository secret named TWELVEDATA_API_KEY (free tier from
+# https://twelvedata.com). Without it, the job exits without changes.
+
+on:
+  schedule:
+    - cron: "0 8 * * *"   # 08:00 UTC ≈ 18:00 AEST, after the ASX close
+  workflow_dispatch: {}     # allow manual runs from the Actions tab
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-analysis
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Refresh prices and embed
+        env:
+          TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
+        run: |
+          if [ -z "$TWELVEDATA_API_KEY" ]; then
+            echo "TWELVEDATA_API_KEY not set — skipping refresh."
+            exit 0
+          fi
+          python3 scripts/refresh_prices.py
+          python3 scripts/refresh_analysis.py
+
+      - name: Commit if changed
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add market-analysis.json investment-dashboard.html
+            git commit -m "chore: daily analysis refresh [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
+          else
+            echo "No changes to commit."
+          fi

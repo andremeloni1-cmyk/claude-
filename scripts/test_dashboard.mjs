@@ -1,0 +1,32 @@
+import pkg from '/opt/node22/lib/node_modules/playwright/index.js'; const { chromium } = pkg;
+const path='file://'+process.cwd()+'/investment-dashboard.html';
+const b=await chromium.launch(); const p=await b.newPage();
+const errs=[]; p.on('pageerror',e=>errs.push('PAGEERR: '+e.message));
+p.on('console',m=>{if(m.type()==='error')errs.push('CONSOLE: '+m.text());});
+await p.goto(path);
+await p.click('.tab[data-view="analysis"]');
+const asof=await p.$eval('#analysisAsOf',e=>e.textContent.trim());
+const mkt=await p.$$eval('#marketTiles .value',e=>e.map(x=>x.textContent.trim()));
+const sectors=await p.$$eval('#sectorList .badge',e=>e.length);
+const companies=await p.$$eval('#companyCards .card',e=>e.length);
+const firstCo=await p.$eval('#companyCards .card',e=>e.innerText.replace(/\n+/g,' | ').slice(0,180));
+const suggs=await p.$$eval('#suggestionCards .card',e=>e.length);
+const sources=await p.$$eval('#sourceList li a',e=>e.length);
+const commentary=await p.$eval('#marketCommentary',e=>e.textContent.slice(0,60));
+// check no double-encoded entities leaked
+const bodyHtml=await p.content();
+const dbl=(bodyHtml.match(/&amp;amp;/g)||[]).length;
+const litAmp=(await p.$eval('#sectorList',e=>e.innerText)).includes('&amp;');
+// add a company to watchlist
+await p.click('#companyCards .card button.add');
+await p.click('.tab[data-view="watchlist"]');
+const watch=await p.$$eval('#watchList .card',e=>e.length);
+console.log('asOf:', asof);
+console.log('market tiles:', JSON.stringify(mkt));
+console.log('commentary:', commentary+'...');
+console.log('sectors:', sectors, '| companies:', companies, '| suggestions:', suggs, '| sources:', sources);
+console.log('first company card:', firstCo);
+console.log('double-encoded &amp;amp; count:', dbl, '| literal &amp; in sectors text:', litAmp);
+console.log('watchlist after add company:', watch);
+console.log('Errors:', errs.length?errs:'none');
+await b.close();
