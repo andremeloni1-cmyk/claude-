@@ -135,11 +135,31 @@ def append_topics(new_topics: list[Topic]) -> None:
     if not new_topics:
         return
 
-    raw = _CONFIG_PATH.read_text(encoding="utf-8")
-    lines = [
-        f'    - keyword: "{_yaml_dquote(t.keyword)}"\n'
-        f'      notes: "{_yaml_dquote(t.notes)}"\n'
-        for t in new_topics
-        if t.keyword
-    ]
-    _CONFIG_PATH.write_text(raw.rstrip("\n") + "\n" + "".join(lines), encoding="utf-8")
+    # Topics can come from LLM/web-search output, so keyword/notes may contain
+    # newlines or control chars. Collapse whitespace runs (which strips \n, \r,
+    # \t and multiple spaces) before writing — an embedded newline would break
+    # the double-quoted scalar and corrupt config.yaml for every later run.
+    lines = []
+    for t in new_topics:
+        keyword = " ".join(str(t.keyword).split())
+        notes = " ".join(str(t.notes).split())
+        if not keyword:
+            continue
+        lines.append(
+            f'    - keyword: "{_yaml_dquote(keyword)}"\n'
+            f'      notes: "{_yaml_dquote(notes)}"\n'
+        )
+    if not lines:
+        return
+
+    original = _CONFIG_PATH.read_text(encoding="utf-8")
+    _CONFIG_PATH.write_text(original.rstrip("\n") + "\n" + "".join(lines), encoding="utf-8")
+
+    # Never leave a corrupt config behind: re-parse and roll back on failure.
+    try:
+        yaml.safe_load(_CONFIG_PATH.read_text(encoding="utf-8"))
+    except yaml.YAMLError as exc:
+        _CONFIG_PATH.write_text(original, encoding="utf-8")
+        raise ConfigError(
+            f"append_topics produced invalid YAML; config.yaml restored. ({exc})"
+        ) from exc
