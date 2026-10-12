@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Andre Meloni Photography — AM Monogram</title>
+
+<!-- ============================================================= -->
+<!--  TWEAK EVERYTHING FROM HERE                                    -->
+<!--  Heavy, rounded "bubble" letterforms that sit flat on the      -->
+<!--  baseline with thin slit counters — matched to the type        -->
+<!--  specimen. Colours, weight, kerning and timing below.          -->
+<!-- ============================================================= -->
+<style>
+  :root{
+    /* ---- Brand colours ---- */
+    --ink:        #1a1a1a;   /* logo + text colour      */
+    --bg:         #f0ede6;   /* warm off-white backdrop */
+
+    /* ---- Monogram geometry ---- */
+    --stroke-weight: 94;     /* letter thickness — higher = thinner counters */
+    --kern-slide:    44px;   /* how far A & M travel to lock together */
+
+    /* ---- Animation timing ---- */
+    --draw-dur:   1.1s;      /* letter draw-on duration */
+    --slide-dur:  0.8s;      /* slide-together duration */
+    --loop-gap:   2.6s;      /* pause before the loop restarts */
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:2.2rem;
+    min-height:100dvh;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---- The lockup ---- */
+  .lockup{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:1.4rem;
+    width:min(540px,82vw);
+  }
+  .lockup-inner{ width:100%; transform-origin:center; }
+  .monogram{ width:100%; height:auto; display:block; }
+
+  /* ---- Wordmark ---- */
+  .wordmark{ text-align:center; line-height:1.04; letter-spacing:-0.01em; }
+  .wordmark .name{ font-size:clamp(1.5rem,5.6vw,2.25rem); font-weight:800; }
+  .wordmark .name .tm{
+    font-size:0.42em; font-weight:700; vertical-align:super; margin-left:0.15em;
+  }
+  .wordmark .sub{
+    font-size:clamp(0.78rem,2.6vw,1rem); font-weight:600;
+    letter-spacing:0.42em; text-transform:uppercase;
+    margin-top:0.55rem; opacity:0.78; padding-left:0.42em;
+  }
+
+  /* ---- Letter strokes: heavy, round, flat-clipped at the baseline ---- */
+  .stroke{
+    fill:none;
+    stroke:var(--ink);
+    stroke-width:var(--stroke-weight);
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+
+  #letterA,#letterM{ transform:translateX(0); }
+
+  /* ============================================================= */
+  /*  ANIMATION                                                     */
+  /* ============================================================= */
+  .animate .stroke{
+    stroke-dasharray:100;
+    stroke-dashoffset:100;
+    animation:draw var(--draw-dur) ease forwards;
+  }
+  .animate #a1{ animation-delay:0.05s; }
+  .animate #a2{ animation-delay:0.18s; }
+  .animate #a3{ animation-delay:0.40s; }   /* A crossbar */
+  .animate #m1{ animation-delay:0.30s; }
+  .animate #m2{ animation-delay:0.46s; }
+  .animate #m3{ animation-delay:0.60s; }
+  .animate #m4{ animation-delay:0.74s; }
+
+  /* the two letters start pushed apart, then slide into tight kerning */
+  .animate #letterA{
+    animation:slideA var(--slide-dur) cubic-bezier(.22,1.15,.36,1) forwards;
+    animation-delay:1.0s;
+  }
+  .animate #letterM{
+    animation:slideM var(--slide-dur) cubic-bezier(.22,1.15,.36,1) forwards;
+    animation-delay:1.0s;
+  }
+
+  /* gentle idle breathing once assembled, then it all loops */
+  .animate .lockup-inner{
+    animation:breathe 3.4s ease-in-out 2.0s infinite;
+  }
+
+  @keyframes draw   { to{ stroke-dashoffset:0; } }
+  @keyframes slideA { from{ transform:translateX(calc(var(--kern-slide) * -1)); } to{ transform:translateX(0); } }
+  @keyframes slideM { from{ transform:translateX(var(--kern-slide)); }            to{ transform:translateX(0); } }
+  @keyframes breathe{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.018); } }
+
+  /* ---- Replay button ---- */
+  .replay{
+    appearance:none; border:1.5px solid var(--ink); background:transparent;
+    color:var(--ink); font:inherit; font-weight:600; font-size:0.82rem;
+    letter-spacing:0.16em; text-transform:uppercase; padding:0.7rem 1.5rem;
+    border-radius:999px; cursor:pointer;
+    transition:background .2s ease,color .2s ease;
+  }
+  .replay:hover{ background:var(--ink); color:var(--bg); }
+
+  /* ---- Accessibility: honour reduced-motion ---- */
+  @media (prefers-reduced-motion:reduce){
+    .animate .stroke{ stroke-dashoffset:0; animation:none; }
+    .animate #letterA,.animate #letterM{ transform:translateX(0); animation:none; }
+    .animate .lockup-inner{ animation:none; }
+    .replay{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="lockup">
+    <div class="lockup-inner">
+      <!-- =========================================================== -->
+      <!--  AM MONOGRAM                                                 -->
+      <!--  Strokes are drawn extra-long below the baseline (y=370) and -->
+      <!--  clipped flat at y=330, giving flat feet with rounded sides. -->
+      <!--  Round caps/joins + heavy weight = thin slit counters.       -->
+      <!-- =========================================================== -->
+      <svg class="monogram" viewBox="0 0 660 400" role="img"
+           aria-label="Andre Meloni Photography monogram, the letters A and M locked together">
+        <defs>
+          <clipPath id="baseline">
+            <rect x="0" y="0" width="660" height="330" />
+          </clipPath>
+        </defs>
+
+        <g clip-path="url(#baseline)">
+          <!-- ---------- Letter A ---------- -->
+          <g id="letterA">
+            <path id="a1" class="stroke" pathLength="100" d="M 104 370 L 195 78" />   <!-- left leg  -->
+            <path id="a2" class="stroke" pathLength="100" d="M 195 78 L 286 370" />   <!-- right leg -->
+            <path id="a3" class="stroke" pathLength="100" d="M 145 240 L 245 240" />  <!-- crossbar  -->
+          </g>
+
+          <!-- ---------- Letter M ---------- -->
+          <g id="letterM">
+            <path id="m1" class="stroke" pathLength="100" d="M 360 370 L 360 78" />   <!-- left stem      -->
+            <path id="m2" class="stroke" pathLength="100" d="M 360 78 L 474 250" />   <!-- left diagonal  -->
+            <path id="m3" class="stroke" pathLength="100" d="M 474 250 L 588 78" />   <!-- right diagonal -->
+            <path id="m4" class="stroke" pathLength="100" d="M 588 78 L 588 370" />   <!-- right stem     -->
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <!-- ---------- Wordmark ---------- -->
+    <div class="wordmark">
+      <div class="name">Andre Meloni<span class="tm">™</span></div>
+      <div class="sub">Photography</div>
+    </div>
+  </div>
+
+  <button class="replay" id="replay" type="button">Replay</button>
+
+<script>
+  // Re-trigger the whole animation by toggling the .animate class.
+  const lockup = document.querySelector('.lockup');
+  const replay = document.getElementById('replay');
+
+  function play(){
+    lockup.classList.remove('animate');
+    void lockup.offsetWidth;          // force reflow so animations restart
+    lockup.classList.add('animate');
+  }
+
+  const loopGap = getComputedStyle(document.documentElement)
+                    .getPropertyValue('--loop-gap').trim();
+  const loopMs  = (parseFloat(loopGap) || 2.6) * 1000 + 4000;
+
+  let timer;
+  function loop(){
+    play();
+    clearTimeout(timer);
+    timer = setTimeout(loop, loopMs);
+  }
+
+  replay.addEventListener('click', loop);
+  window.addEventListener('load', loop);
+</script>
+</body>
+</html>
