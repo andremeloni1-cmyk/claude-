@@ -1,14 +1,12 @@
 {
-  "name": "framer-blog-publisher",
-  "version": "1.0.0",
+  "name": "framer-blog-review",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "Pushes generated blog post bundles into the Framer CMS via the Framer Server API.",
+  "description": "Review-only plans. CMS writes and publishing are disabled.",
   "scripts": {
-    "publish-posts": "node publish.mjs"
-  },
-  "dependencies": {
-    "framer-api": "^0.1.16",
-    "yaml": "^2.5.0"
+    "publish-posts": "node publish.mjs",
+    "review": "node publish.mjs",
+    "test": "node --test"
   }
 }
